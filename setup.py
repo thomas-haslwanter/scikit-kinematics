@@ -16,6 +16,7 @@ DOWNLOAD_URL        = URL
 
 import os
 import sys
+import subprocess
 
 import setuptools
 from numpy.distutils.core import setup
@@ -41,13 +42,29 @@ def get_version():
     mod = imp.load_source('version', os.path.join('skexample', 'version.py'))
     return mod.__version__
 
+# Documentation building command
+try:
+    from sphinx.setup_command import BuildDoc as SphinxBuildDoc
+    class BuildDoc(SphinxBuildDoc):
+        """Run in-place build before Sphinx doc build"""
+        def run(self):
+            ret = subprocess.call([sys.executable, sys.argv[0], 'build_ext', '-i'])
+            if ret != 0:
+                raise RuntimeError("Building Scipy failed!")
+            SphinxBuildDoc.run(self)
+    cmdclass = {'build_sphinx': BuildDoc}
+except ImportError:
+    cmdclass = {}
+
+# Call the setup function
 if __name__ == "__main__":
     setup(configuration=configuration,
-        install_requires=['numpy'],
-        include_package_data=True,
-        test_suite="nose.collector",
-        packages=setuptools.find_packages(),
-        classifiers=
+          install_requires=['numpy'],
+          include_package_data=True,
+          test_suite="nose.collector",
+          packages=setuptools.find_packages(),
+          cmdclass=cmdclass,
+          classifiers=
             [ 'Development Status :: 1 - Planning',
               'Intended Audience :: Developers',
               'Intended Audience :: Science/Research',

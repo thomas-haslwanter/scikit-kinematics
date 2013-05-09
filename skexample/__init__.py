@@ -1,3 +1,4 @@
+from skexample.stuff import *
 from skexample.version import __version__
 
 # If you want to use Numpy's testing framerwork, use the following.
