@@ -4,6 +4,8 @@
 
 __all__ = ['do_something']
 
+import fortran_stuff
+
 def do_something(x):
     """
     Routine that does something
@@ -15,8 +17,8 @@ def do_something(x):
     
     Returns
     -------
-    y : int
-        Some relevant integer
+    y : array
+        Some relevant integers
 
     Notes
     -----
@@ -24,5 +26,5 @@ def do_something(x):
 
     """
     print("something: %r" % x)
-    return 123
+    return fortran_stuff.foo()
 

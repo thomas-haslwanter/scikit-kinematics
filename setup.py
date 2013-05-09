@@ -34,6 +34,7 @@ def configuration(parent_package='', top_path=None, package_name=DISTNAME):
                            url=URL,
                            download_url=DOWNLOAD_URL,
                            long_description=LONG_DESCRIPTION)
+    config.add_subpackage('skexample')
     return config
 
 def get_version():
