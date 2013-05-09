@@ -2,3 +2,6 @@
 *.pyo
 *~
 \.#*
+/build
+/dist
+*.egg-info
