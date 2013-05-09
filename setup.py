@@ -38,17 +38,17 @@ def configuration(parent_package='', top_path=None, package_name=DISTNAME):
 def get_version():
     """Obtain the version number"""
     import imp
-    mod = imp.load_source('version', 'skexample/version.py')
+    mod = imp.load_source('version', os.path.join('skexample', 'version.py'))
     return mod.__version__
 
 if __name__ == "__main__":
-    setup(configuration = configuration,
-        install_requires = 'numpy',
-        include_package_data = True,
-        #test_suite="tester", # for python setup.py test
-        classifiers =
+    setup(configuration=configuration,
+        install_requires=['numpy'],
+        include_package_data=True,
+        test_suite="nose.collector",
+        packages=setuptools.find_packages(),
+        classifiers=
             [ 'Development Status :: 1 - Planning',
-              'Environment :: Console',
               'Intended Audience :: Developers',
               'Intended Audience :: Science/Research',
               'License :: OSI Approved :: BSD License',
