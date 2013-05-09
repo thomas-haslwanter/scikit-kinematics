@@ -71,14 +71,14 @@ Binary distributions as eggs can also be uploaded to pypi. For example::
     python setup.py bdist_egg upload
 
 Once a source or binary distribution is uploaded to PyPi, people can simply
-install it with either with pip or with easy_install:
+install it with either with pip or with easy_install::
 
     pip scikit-example
     easy_install scikit-example
 
-If you don't want to install as an egg, but from the sources:
+If you don't want to install as an egg, but from the sources::
 
-    easy_install -eNb example scikits.example
+    easy_install -eNb example scikit-example
 
 Will download the most recent sources, and extract them into the example
 directory.

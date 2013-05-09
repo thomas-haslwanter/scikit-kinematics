@@ -5,8 +5,8 @@ Example package.
 This is a do nothing package, to show how to organize a scikit.
 """
 
-DISTNAME            = 'scikits-example'
-DESCRIPTION         = 'Scikits example package'
+DISTNAME            = 'scikit-example'
+DESCRIPTION         = 'Example Scikit package'
 LONG_DESCRIPTION    = descr
 MAINTAINER          = 'David Cournapeau',
 MAINTAINER_EMAIL    = 'david@ar.media.kyoto-u.ac.jp',
