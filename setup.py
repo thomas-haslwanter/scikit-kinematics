@@ -13,6 +13,16 @@ MAINTAINER_EMAIL    = 'david@ar.media.kyoto-u.ac.jp',
 URL                 = 'http://projects.scipy.org/scipy/scikits'
 LICENSE             = 'MIT'
 DOWNLOAD_URL        = URL
+PACKAGE_NAME        = 'skexample'
+EXTRA_INFO          = dict(
+    install_requires=['numpy'],
+    classifiers=['Development Status :: 1 - Planning',
+                 'Intended Audience :: Developers',
+                 'Intended Audience :: Science/Research',
+                 'License :: OSI Approved :: BSD License',
+                 'Topic :: Scientific/Engineering']
+)
+
 
 import os
 import sys
@@ -25,22 +35,21 @@ def configuration(parent_package='', top_path=None, package_name=DISTNAME):
     if os.path.exists('MANIFEST'): os.remove('MANIFEST')
 
     from numpy.distutils.misc_util import Configuration
-    config = Configuration(package_name, parent_package, top_path,
-                           version=get_version(),
-                           maintainer=MAINTAINER,
-                           maintainer_email=MAINTAINER_EMAIL,
-                           description=DESCRIPTION,
-                           license=LICENSE,
-                           url=URL,
-                           download_url=DOWNLOAD_URL,
-                           long_description=LONG_DESCRIPTION)
-    config.add_subpackage('skexample')
+    config = Configuration(None, parent_package, top_path)
+
+    # Avoid non-useful msg: "Ignoring attempt to set 'name' (from ... "
+    config.set_options(ignore_setup_xxx_py=True,
+                       assume_default_configuration=True,
+                       delegate_options_to_subpackages=True,
+                       quiet=True)
+
+    config.add_subpackage(PACKAGE_NAME)
     return config
 
 def get_version():
     """Obtain the version number"""
     import imp
-    mod = imp.load_source('version', os.path.join('skexample', 'version.py'))
+    mod = imp.load_source('version', os.path.join(PACKAGE_NAME, 'version.py'))
     return mod.__version__
 
 # Documentation building command
@@ -60,14 +69,16 @@ except ImportError:
 # Call the setup function
 if __name__ == "__main__":
     setup(configuration=configuration,
-          install_requires=['numpy'],
+          name=DISTNAME,
+          maintainer=MAINTAINER,
+          maintainer_email=MAINTAINER_EMAIL,
+          description=DESCRIPTION,
+          license=LICENSE,
+          url=URL,
+          download_url=DOWNLOAD_URL,
+          long_description=LONG_DESCRIPTION,
           include_package_data=True,
           test_suite="nose.collector",
-          packages=setuptools.find_packages(),
           cmdclass=cmdclass,
-          classifiers=
-            [ 'Development Status :: 1 - Planning',
-              'Intended Audience :: Developers',
-              'Intended Audience :: Science/Research',
-              'License :: OSI Approved :: BSD License',
-              'Topic :: Scientific/Engineering'])
+          version=get_version(),
+          **EXTRA_INFO)

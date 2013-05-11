@@ -8,4 +8,6 @@ def configuration(parent_package='',top_path=None):
             sources=['fortran_stuff.f90']
             )
 
+    config.add_subpackage('tests')
+
     return config
