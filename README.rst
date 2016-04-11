@@ -1,85 +1,136 @@
-==============
-scikit-example
-==============
+=================
+scikit-kinematics
+=================
 
-This is a simple scikit. The main intent is to serve as a template for new
-scikits.
+*scikit-kinematics* primarily contains functions for working with 3D
+kinematics, e.g quaternions and rotation matrices.
 
+Compatible with Python 2 and 3.
 
-Installation from sources
-=========================
+Dependencies
+------------
+numpy, scipy, matplotlib, pandas, sympy, easygui
 
-In the root directory of the package, just do::
+Homepage
+--------
+http://work.thaslwanter.at/skinematics/html/
 
-    python setup.py install
+Author:  Thomas Haslwanter
+Date:    10-04-2016
+Ver:     0.1
+Licence: BSD 2-Clause License (http://opensource.org/licenses/BSD-2-Clause)
+        Copyright (c) 2016, Thomas Haslwanter
+        All rights reserved.
 
+Installation
+------------
+You can install thlib with
 
-Distribution
-============
+    pip install scikit-kinematics
 
-A scikit is a standard Python package, which can be distributed by a number of
-different means:
+and upgrade to a new version with
 
-Source distribution
+    pip install scikit-kinematics -U
+
+IMUs
+====
+
+Analysis of signals from IMUs (intertial-measurement-units).
+
+General
+-------
+- kinematics.getXSensData ... Read in Rate and stored 3D parameters from XSens IMUs
+
+MARG Systems
+------------
+- imus.calc_QPos ... Calculate orientation and position, from angular velocity and linear acceleration
+- imus.kalman_quat ... Calculate orientation from IMU-data using an Extended Kalman Filter.
+
+- imus.IMU ... Class for working with data from IMUs
+    - imus.IMU.calc_orientation ... calculate orientation
+    - imus.IMU.calc_position ... calculate position
+    - imus.IMU.setData ... set the properties of an IMU-object
+- imus.MadgwickAHRS ... Class for calculating the 3D orientation with the Madgwick-algorithm
+- imus.MahonyAHRS ... Class for calculating the 3D orientation with the Mahony-algorithm
+
+Markers
+=======
+
+Analysis of signals from video-based marker-recordings of 3D movements
+
+- markers.analyze3Dmarkers ... Kinematic analysis of video-basedrecordings of 3D markers
+- markers.movement_from_markers ... Calculation of joint-movements from 3D marker positions
+
+Quaternions
+===========
+
+Note that all these functions work with single quaternions and quaternion vectors,
+as well as with arrays containing these.
+
+Quaternion class
+----------------
+
+- quat.Quaternion ... class, including overloading for multiplication and
+                    division (e.g. "quatCombined = quat1 * quat2"), import and export
+
+Functions for working with quaternions
+--------------------------------------
+
+- quat.quatconj ... Conjugate quaternion 
+- quat.quatinv ... Quaternion inversion
+- quat.quatmult ... Quaternion multiplication
+
+Conversion routines
 -------------------
 
-To prepare a source distribution of the package::
+- quat.deg2quat ... Convert number or axis angles to quaternion vectors
+- quat.quat2deg ... Convert quaternion to corresponding axis angle
+- quat.quat2rotmat ... Convert quaternion to corresponding rotation matrix
+- quat.quat2vect ... Extract the vector part from a quaternion
+- quat.rotmat2quat ... Convert a rotation matrix to the corresponding quaternion
+- quat.vect2quat ... Externd a quaternion vector to a unit quaternion.
+- quat.vel2quat ... Calculate orientation from a starting orientation and angular velocity.
 
-    python setup.py sdist
 
-Eggs
-----
+Rotation Matrices
+=================
 
-Eggs are a format for easy distribution of pre-built packages. It is
-cross-platform for packages without any C code, and platform specific
-otherwise. To build an egg::
+Definition of rotation matrices
+-------------------------------
 
-    python setup.py bdist_egg
+- rotmat.R1 ... 3D rotation matrix for rotation about the 1-axis
+- rotmat.R2 ... 3D rotation matrix for rotation about the 2-axis
+- rotmat.R3 ... 3D rotation matrix for rotation about the 3-axis
 
-Binary installers
+Conversion Routines
+-------------------
+- rotmat.rotmat2Fick ... Calculation of Fick angles
+- rotmat.rotmat2Helmholtz ... Calculation of Helmholtz angles
+
+Symbolic matrices
 -----------------
 
-Binary installers are platform specific. On Windows, you can do::
+- rotmat.R1_s() ... symbolix matrix for rotation about the 1-axis
+- rotmat.R2_s() ... symbolix matrix for rotation about the 2-axis
+- rotmat.R3_s() ... symbolix matrix for rotation about the 3-axis
 
-    python setup.py bdist_wininst
+For example, you can e.g. generate a Fick-matrix, with
 
-On Mac OS X (this requires an extension, bdist_mpkg, available on Pypi)::
+>>> R_Fick = R3_s() * R2_s() * R1_s()
+    
+Vectors
+=======
 
-    python setup.py bdist_mpkg
+Routines for working with vectors
+These routines can be used with vectors, as well as with matrices containing a vector in each row.
 
+- vector.normalize ... Vector normalization
+- vector.project ... Projection of one vector onto another one
+- vector.GramSchmidt ... Gram-Schmidt orthogonalization of three points
+- vector.qrotate ... Quaternion indicating the shortest rotation from one vector into another.
+- vector.rotate_vector ... Rotation of a vector
 
-Registration onto PyPi
-======================
+Interactive Data Analysis
+=========================
 
-A Scikit should be registered to PyPi, the Python package index.
-This will make it easier for people to find and download the package,
-and moreover it will list the package in the Scikits index:
-http://scikits.appspot.com/scikits
-
-For more information, see the `PyPi tutorial
-<http://wiki.python.org/moin/CheeseShopTutorial>`__
-
-To register a package on PyPi and upload the sources at the same time::
-
-    python setup.py register sdist upload
-
-You can also upload the files manually using the forms on the PyPi web page:
-https://pypi.python.org/
-
-Binary distributions as eggs can also be uploaded to pypi. For example::
-
-    python setup.py bdist_egg upload
-
-Once a source or binary distribution is uploaded to PyPi, people can simply
-install it with either with pip or with easy_install::
-
-    pip scikit-example
-    easy_install scikit-example
-
-If you don't want to install as an egg, but from the sources::
-
-    easy_install -eNb example scikit-example
-
-Will download the most recent sources, and extract them into the example
-directory.
-
+- viewer.ts ... interactive viewer for time series data

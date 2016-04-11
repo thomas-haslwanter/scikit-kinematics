@@ -1,5 +1,5 @@
-from skexample.stuff import *
-from skexample.version import __version__
+# from skinematics.stuff import *
+from skinematics.version import __version__
 
 # If you want to use Numpy's testing framerwork, use the following.
 # Tests go under directory tests/, benchmarks under directory benchmarks/

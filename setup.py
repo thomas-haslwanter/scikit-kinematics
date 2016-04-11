@@ -5,17 +5,17 @@ Example package.
 This is a do nothing package, to show how to organize a scikit.
 """
 
-DISTNAME            = 'scikit-example'
-DESCRIPTION         = 'Example Scikit package'
-LONG_DESCRIPTION    = descr
-MAINTAINER          = 'David Cournapeau',
-MAINTAINER_EMAIL    = 'david@ar.media.kyoto-u.ac.jp',
-URL                 = 'http://projects.scipy.org/scipy/scikits'
-LICENSE             = 'MIT'
+DISTNAME            = 'scikit-kinematics'
+DESCRIPTION         = 'Python utilites for movements in 3d space'
+LONG_DESCRIPTION    = open('README.rst').read()
+MAINTAINER          = 'Thomas Haslwanter',
+MAINTAINER_EMAIL    = 'thomas.haslwanter@fh-linz.at',
+URL                 = 'http://work.thaslwanter.at'
+LICENSE             = 'http://opensource.org/licenses/BSD-2-Clause'
 DOWNLOAD_URL        = URL
-PACKAGE_NAME        = 'skexample'
+PACKAGE_NAME        = 'skinematics'
 EXTRA_INFO          = dict(
-    install_requires=['numpy'],
+    install_requires=['numpy', 'scipy', 'matplotlib', 'pandas', 'easygui'],
     classifiers=['Development Status :: 1 - Planning',
                  'Intended Audience :: Developers',
                  'Intended Audience :: Science/Research',

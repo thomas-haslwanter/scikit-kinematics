@@ -18,9 +18,9 @@ Examples::
 # framework. Change the following values to adapt to your project:
 #
 
-PROJECT_MODULE = "skexample"
+PROJECT_MODULE = "skinematics"
 PROJECT_ROOT_FILES = ['setup.py']
-SAMPLE_TEST = "skexample/tests/test_stuff.py:test_do_something"
+SAMPLE_TEST = "skinematics/tests/test_stuff.py:test_do_something"
 SAMPLE_SUBMODULE = "stuff"
 
 # ---------------------------------------------------------------------

@@ -1,0 +1,9 @@
+What is the difference between "RotMat" and "RotMat_s"?
+=======================================================
+"RotMat" contains three functions, one for the rotation matrix about each
+coordinate axis. E.g., "RotMat.R1(30)" gives you the rotation matrix for
+a positive rotation of 30 deg about the 1-axis.
+
+In contrast, "RotMat_s.R1_s()" provides the symbolic rotation about the
+1-axis. This is useful if you for example want to calculate the full
+Fick-rotation-matrix.
