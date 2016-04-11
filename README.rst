@@ -16,8 +16,8 @@ Homepage
 http://work.thaslwanter.at/skinematics/html/
 
 Author:  Thomas Haslwanter
-Date:    10-04-2016
-Ver:     0.1
+Date:    11-04-2016
+Ver:     0.1.1
 Licence: BSD 2-Clause License (http://opensource.org/licenses/BSD-2-Clause)
         Copyright (c) 2016, Thomas Haslwanter
         All rights reserved.
@@ -80,8 +80,8 @@ Functions for working with quaternions
 - quat.quatinv ... Quaternion inversion
 - quat.quatmult ... Quaternion multiplication
 
-Conversion routines
--------------------
+Conversion routines - quaternions
+---------------------------------
 
 - quat.deg2quat ... Convert number or axis angles to quaternion vectors
 - quat.quat2deg ... Convert quaternion to corresponding axis angle
@@ -102,8 +102,8 @@ Definition of rotation matrices
 - rotmat.R2 ... 3D rotation matrix for rotation about the 2-axis
 - rotmat.R3 ... 3D rotation matrix for rotation about the 3-axis
 
-Conversion Routines
--------------------
+Conversion Routines - rotation matrices
+---------------------------------------
 - rotmat.rotmat2Fick ... Calculation of Fick angles
 - rotmat.rotmat2Helmholtz ... Calculation of Helmholtz angles
 

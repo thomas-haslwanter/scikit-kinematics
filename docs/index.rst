@@ -4,7 +4,7 @@ scikit-kinematics - Documentation
 *scikit-kinematics* is a library for scientific data analysis, with a focus on 3d
 kinematics.
 
-It is hosted under https://pypi.python.org/pypi/scikit-kinematics, and contains the following modules:
+It is hosted under https://github.com/thomas-haslwanter/scikit-kinematics, and contains the following modules:
 
 *imus*  Analysis routines for IMU-recordings
     - calculation of orientation from velocity, recorded with IMUs or
@@ -94,7 +94,7 @@ Indices and tables
 
 .. note::
     | *Author:*     Thomas Haslwanter
-    | *Version:*    0.1
+    | *Version:*    0.1.1
     | *Date:*       Apr 2016
     | *email:*      thomas.haslwanter@fh-linz.at
     | *Copyright (c):*      2016, Thomas Haslwanter. All rights reserved.

@@ -8,20 +8,12 @@ This is a do nothing package, to show how to organize a scikit.
 DISTNAME            = 'scikit-kinematics'
 DESCRIPTION         = 'Python utilites for movements in 3d space'
 LONG_DESCRIPTION    = open('README.rst').read()
-MAINTAINER          = 'Thomas Haslwanter',
-MAINTAINER_EMAIL    = 'thomas.haslwanter@fh-linz.at',
-URL                 = 'http://work.thaslwanter.at'
+MAINTAINER          = 'Thomas Haslwanter'
+MAINTAINER_EMAIL    = 'thomas.haslwanter@fh-linz.at'
+URL                 = 'http://work.thaslwanter.at/sklearn/html'
 LICENSE             = 'http://opensource.org/licenses/BSD-2-Clause'
-DOWNLOAD_URL        = URL
+DOWNLOAD_URL        = 'https://github.com/thomas-haslwanter/scikit-kinematics'
 PACKAGE_NAME        = 'skinematics'
-EXTRA_INFO          = dict(
-    install_requires=['numpy', 'scipy', 'matplotlib', 'pandas', 'easygui'],
-    classifiers=['Development Status :: 1 - Planning',
-                 'Intended Audience :: Developers',
-                 'Intended Audience :: Science/Research',
-                 'License :: OSI Approved :: BSD License',
-                 'Topic :: Scientific/Engineering']
-)
 
 
 import os
@@ -68,17 +60,28 @@ except ImportError:
 
 # Call the setup function
 if __name__ == "__main__":
-    setup(configuration=configuration,
-          name=DISTNAME,
-          maintainer=MAINTAINER,
-          maintainer_email=MAINTAINER_EMAIL,
-          description=DESCRIPTION,
-          license=LICENSE,
-          url=URL,
-          download_url=DOWNLOAD_URL,
-          long_description=LONG_DESCRIPTION,
-          include_package_data=True,
-          test_suite="nose.collector",
-          cmdclass=cmdclass,
-          version=get_version(),
-          **EXTRA_INFO)
+
+    metadata= dict(
+        name=DISTNAME,
+        maintainer=MAINTAINER,
+        maintainer_email=MAINTAINER_EMAIL,
+        description=DESCRIPTION,
+        license=LICENSE,
+        url=URL,
+        download_url=DOWNLOAD_URL,
+        long_description=LONG_DESCRIPTION,
+        install_requires=['numpy', 'scipy', 'matplotlib', 'pandas', 'easygui'],
+        classifiers=['Development Status :: 4 - Beta',
+                     'Programming Language :: Python :: 2',
+                     'Programming Language :: Python :: 3',
+                     'Intended Audience :: Developers',
+                     'Intended Audience :: Science/Research',
+                     'License :: OSI Approved :: BSD License',
+                     'Topic :: Scientific/Engineering'],
+        test_suite='nose.collector',
+        include_package_data=True,
+        configuration=configuration,
+        cmdclass=cmdclass,
+        version=get_version()
+    )
+    setup(**metadata)
