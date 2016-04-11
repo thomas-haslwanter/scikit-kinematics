@@ -11,7 +11,7 @@ Functions
 
 General
 ^^^^^^^
-* :func:`imus.getXSensData` ... Read in Rate and stored 3D parameters from XSens IMUs
+* :func:`imus.data_import` ... Read in Rate and stored 3D parameters from XSens IMUs
 
 IMUs
 ^^^^

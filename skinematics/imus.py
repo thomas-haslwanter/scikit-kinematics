@@ -232,31 +232,31 @@ class IMU:
         self.duration = np.float(self.totalSamples)/self.rate # [sec]
         self.dataType = str(self.omega.dtype)
 
-def getXSensData(inFile, paramList):
+def import_data(inFile, type='XSens', paramList=[]):
     '''
     Read in Rate and stored 3D parameters from XSens IMUs
 
-    Parameters:
-    -----------
+    Parameters
+    ----------
     inFile : string
-        Path and name of input file
+             Path and name of input file
     paramList: list of strings
-        Starting names of stored parameters
+               Starting names of stored parameters
 
-    Returns:
-    --------
+    Returns
+    -------
     List, containing
     rate : float
         Sampling rate
     [List of x/y/z Parameter Values]
 
-    Examples:
-    ---------
+    Examples
+    --------
     >>> data = getXSensData(fullInFile, ['Acc', 'Gyr'])
     >>> rate = data[0]
     >>> accValues = data[1]
     >>> Omega = data[2]
-
+    
     '''
 
 

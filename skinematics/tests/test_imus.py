@@ -12,8 +12,6 @@ from numpy.linalg import norm
 import imus, quat, vector, rotmat
 from time import sleep
 
-import import_data
-
 class TestSequenceFunctions(unittest.TestCase):
     def setUp(self):
         self.qz  = r_[cos(0.1), 0,0,sin(0.1)]
@@ -29,7 +27,7 @@ class TestSequenceFunctions(unittest.TestCase):
     def test_calc_QPos(self):
         # Get data
         inFile = 'data_xsens.txt'
-        data = import_data.XSens(inFile, ['Counter', 'Acc', 'Gyr'])
+        data = imus.import_data(inFile, type='XSens', paramList=['Counter', 'Acc', 'Gyr'])
         rate = data[0]
         acc = data[2]
         omega = data[3]
