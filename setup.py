@@ -61,6 +61,12 @@ except ImportError:
 # Call the setup function
 if __name__ == "__main__":
 
+    # Writing the install requirements into the setup file seems to update
+    # all the dependencies, every time "pip .... -U" is called. This can 
+    # break a working distribution! So below I only list the one that is
+    # typically NOT already installed
+    #install_requires=['numpy', 'scipy', 'matplotlib', 'pandas', 'easygui'],
+
     metadata= dict(
         name=DISTNAME,
         maintainer=MAINTAINER,
@@ -70,7 +76,7 @@ if __name__ == "__main__":
         url=URL,
         download_url=DOWNLOAD_URL,
         long_description=LONG_DESCRIPTION,
-        install_requires=['numpy', 'scipy', 'matplotlib', 'pandas', 'easygui'],
+        install_requires=['easygui'],
         classifiers=['Development Status :: 4 - Beta',
                      'Programming Language :: Python :: 2',
                      'Programming Language :: Python :: 3',
