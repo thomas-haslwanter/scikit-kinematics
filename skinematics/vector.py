@@ -5,8 +5,8 @@ These routines can be used with vectors, as well as with matrices containing a v
  
 '''
 author :  Thomas Haslwanter
-date :    Jan-2015
-version : 1.5
+date :    April-2016
+version : 1.6
 '''
 
 import numpy as np
@@ -19,7 +19,7 @@ PACKAGE_PARENT = '..'
 SCRIPT_DIR = os.path.realpath(os.path.dirname(__file__))
 sys.path.append(os.path.normpath(os.path.join(SCRIPT_DIR, PACKAGE_PARENT)))
 
-import quat 
+from skinematics import quat 
 
 def normalize(v):
     ''' Normalization of a given vector 

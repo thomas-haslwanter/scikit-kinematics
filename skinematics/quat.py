@@ -13,7 +13,7 @@ A "Quaternion" class is defined, with
 '''
 author: Thomas Haslwanter
 date:   April 2016
-ver:    0.1
+ver:    0.2
 '''
 
 import numpy as np
@@ -29,7 +29,7 @@ PACKAGE_PARENT = '..'
 SCRIPT_DIR = os.path.realpath(os.path.dirname(__file__))
 sys.path.append(os.path.normpath(os.path.join(SCRIPT_DIR, PACKAGE_PARENT)))
 
-import rotmat
+from skinematics import rotmat
 
 pi = np.pi
 

@@ -13,7 +13,7 @@ Miscellaneous user interface utilities for
 
 '''
 ThH, April 2016
-Ver 5.6
+Ver 1.0
 '''
 
 import matplotlib.pyplot as plt

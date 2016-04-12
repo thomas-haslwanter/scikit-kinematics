@@ -4,8 +4,8 @@ Utilities for movements recordins with inertial measurement units (IMUs)
 
 '''
 Author: Thomas Haslwanter
-Version: 1.1
-Date: Jan-2016
+Version: 1.2
+Date: April-2016
 '''
 
 import numpy as np
@@ -23,7 +23,7 @@ PACKAGE_PARENT = '..'
 SCRIPT_DIR = os.path.realpath(os.path.dirname(__file__))
 sys.path.append(os.path.normpath(os.path.join(SCRIPT_DIR, PACKAGE_PARENT)))
 
-import quat, vector
+from skinematics import quat, vector
 import easygui
 # import ui
 

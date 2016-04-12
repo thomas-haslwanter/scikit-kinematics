@@ -5,8 +5,8 @@ systems.
 
 '''
 Author: Thomas Haslwanter
-Version: 1.0
-Date: Nov-2015
+Version: 1.1
+Date: April-2016
 '''
 
 import numpy as np
@@ -23,7 +23,7 @@ PACKAGE_PARENT = '..'
 SCRIPT_DIR = os.path.realpath(os.path.dirname(__file__))
 sys.path.append(os.path.normpath(os.path.join(SCRIPT_DIR, PACKAGE_PARENT)))
 
-import quat, vector
+from skinematics import quat, vector
 
 def analyze3Dmarkers(MarkerPos, ReferencePos):
     '''
