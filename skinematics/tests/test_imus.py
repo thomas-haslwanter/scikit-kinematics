@@ -13,6 +13,7 @@ import imus, quat, vector, rotmat
 from time import sleep
 
 class TestSequenceFunctions(unittest.TestCase):
+    
     def setUp(self):
         self.qz  = r_[cos(0.1), 0,0,sin(0.1)]
         self.qy  = r_[cos(0.1),0,sin(0.1), 0]
@@ -27,7 +28,7 @@ class TestSequenceFunctions(unittest.TestCase):
     def test_calc_QPos(self):
         # Get data
         inFile = 'data_xsens.txt'
-        data = imus.import_data(inFile, type='XSens', paramList=['Counter', 'Acc', 'Gyr'])
+        data = imus.import_data(inFile, type='XSens', paramList=['rate', 'acc', 'gyr', 'mag'])
         rate = data[0]
         acc = data[2]
         omega = data[3]
@@ -38,6 +39,32 @@ class TestSequenceFunctions(unittest.TestCase):
         q1, pos1 = imus.calc_QPos(R_initialOrientation, omega, initialPosition, acc, rate)
         plt.plot(q1)
         plt.show()
+        
+    def test_import_empty(self):
+        # Get data, with an empty input
+        data = imus.import_data()
+        
+    def test_import_xsens(self):
+        # Get data, with a specified input
+        inFile = 'data_xsens.txt'
+        data = imus.import_data(inFile, type='XSens', paramList=['rate', 'acc', 'gyr'])
+        rate = data[0]
+        acc = data[1]
+        omega = data[2]
+        
+        self.assertEqual(rate, 50.)
+        self.assertAlmostEqual( (omega[0,2] - 0.050860000000000002), 0)
+        
+    def test_import_xio(self):
+        # Get data, with a specified input
+        inFile = 'data_xio.txt'
+        data = imus.import_data(inFile, type='xio', paramList=['rate', 'acc', 'gyr', 'mag'])
+        rate = data[0]
+        acc = data[1]
+        omega = data[2]
+        
+        self.assertAlmostEqual((rate - 109.99508526563774), 0)
+        self.assertAlmostEqual( (omega[0,2] - 0.0081446301192045212), 0)
         
 if __name__ == '__main__':
     unittest.main()

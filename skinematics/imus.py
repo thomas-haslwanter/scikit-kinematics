@@ -1,10 +1,13 @@
 '''
 Utilities for movements recordins with inertial measurement units (IMUs)
+Currently data from the following systems are supported
+    - XSens
+    - XIO
 '''
 
 '''
 Author: Thomas Haslwanter
-Version: 1.2
+Version: 1.3
 Date: April-2016
 '''
 
@@ -14,9 +17,10 @@ from scipy.integrate import cumtrapz
 import matplotlib.pyplot as plt
 import pandas as pd 
 from numpy import r_, sum
+import re
 
 # The following construct is required since I want to run the module as a script
-# inside the thLib-directory
+# inside the skinematics-directory
 import os
 import sys
 PACKAGE_PARENT = '..'
@@ -25,7 +29,6 @@ sys.path.append(os.path.normpath(os.path.join(SCRIPT_DIR, PACKAGE_PARENT)))
 
 from skinematics import quat, vector
 import easygui
-# import ui
 
 class IMU:
     '''
@@ -68,7 +71,7 @@ class IMU:
 
     Examples
     --------
-	>>> myimu = IMU(r'.\Data\Walking_02.txt')
+	>>> myimu = IMU(r'.\Data\data_xsens.txt')
 	>>> 
 	>>> initialOrientation = np.array([[1,0,0],
 	>>>                                [0,0,-1],
@@ -97,7 +100,7 @@ class IMU:
                 self.source = inFile
 
                 try:
-                    data = getXSensData(self.source, ['Acc', 'Gyr', 'Mag'])
+                    data = import_data(inFile=self.source, type='XSens', paramList=['rate', 'acc', 'gyr', 'mag'])
                     self.rate = data[0]
                     self.acc= data[1]
                     self.omega = data[2]
@@ -221,7 +224,7 @@ class IMU:
     def _selectInput(self):
         '''GUI for the selection of an in-file. '''
 
-        fullInFile = easygui.fileopenbox(msg='Select input data ', title='In-Selection', default='*.txt')
+        fullInFile = easygui.fileopenbox(msg='Input data: ', title='Selection', default='*.txt')
         print('Selection: ' + fullInFile)
         return fullInFile
 
@@ -232,16 +235,17 @@ class IMU:
         self.duration = np.float(self.totalSamples)/self.rate # [sec]
         self.dataType = str(self.omega.dtype)
 
-def import_data(inFile, type='XSens', paramList=[]):
+def import_data(inFile=None, type='XSens', paramList=[]):
     '''
-    Read in Rate and stored 3D parameters from XSens IMUs
+    Read in Rate and stored 3D parameters from IMUs
 
     Parameters
     ----------
     inFile : string
              Path and name of input file
+    type : sensor-type. Has to be either ['XSens', 'xio']
     paramList: list of strings
-               Starting names of stored parameters
+               You can select between ['acc', 'gyr', 'mag', 'rate', 'others']
 
     Returns
     -------
@@ -252,14 +256,56 @@ def import_data(inFile, type='XSens', paramList=[]):
 
     Examples
     --------
-    >>> data = getXSensData(fullInFile, ['Acc', 'Gyr'])
+    >>> data = getXSensData(fullInFile, type='XSens', paramList=['rate', 'acc', 'gyr'])
     >>> rate = data[0]
     >>> accValues = data[1]
     >>> Omega = data[2]
     
     '''
 
+    if inFile is None:
+        inFile = easygui.fileopenbox(msg='Please select an in-file: ', title='Data-selection', default='*.txt')
 
+    varList = ['acc', 'gyr', 'mag', 'rate', 'others']
+    
+    dataDict = {}
+    for var in varList:
+        dataDict[var]=None
+    
+    if type == 'XSens':
+        data = _read_xsens(inFile)
+    elif type == 'xio':
+        data = _read_xio(inFile)
+    else:
+        raise ValueError
+        
+    dataDict['rate'] = data[0]
+    dataDict['acc']  = data[1]
+    dataDict['gyr']  = data[2]
+    dataDict['mag']  = data[3]
+    
+    returnValues = []
+    
+    # By default, return all values, in alphabetical order
+    if paramList == []:
+        paramList = list(dataDict.keys())
+        paramList.sort()
+        print('Return-values: {0}'.format(paramList))
+        
+    for param in paramList:
+        try:
+            returnValues.append(dataDict[param])
+        except KeyError as err:
+            print('Please check the parameter {0}'.format(param))
+            print(err)
+            
+    return returnValues
+        
+        
+def _read_xsens(inFile):
+    '''Read data from an XSens sensor.
+    The data returned are (in that order): [rate, acceleration, angular_velocity, mag_field_direction]'''
+    
     # Get the sampling rate from the second line in the file
     try:
         fh = open(inFile)
@@ -280,13 +326,43 @@ def import_data(inFile, type='XSens', paramList=[]):
                        index_col=False)
 
     # Extract the columns that you want, by name
+    paramList=['Acc', 'Gyr', 'Mag']
     for param in paramList:
         Expression = param + '*'
         returnValues.append(data.filter(regex=Expression).values)
 
     return returnValues
 
+def _read_xio(inFile):
+    '''Read data from an XIO sensor.
+    The data returned are (in that order): [rate, acceleration, angular_velocity, mag_field_direction]'''
+    
+    
+    data = pd.read_csv(inFile)
+    
+    # Generate a simple list of column names
+    newColumns = []
+    pattern = re.compile('.*%(\w+)\((\w+)\)')
+    for name in data.columns:
+        newColumns.append(pattern.match(name).groups()[1])
+    data.columns = newColumns
+    
+    
+    # Calculate rate (ChipTime is in microsec)
+    start = data.ChipTimeUS[0] * 1e-6    # microseconds to seconds
+    stop = data.ChipTimeUS.values[-1] * 1e-6    # pandas can't count backwards
+    rate = len(data) / (stop-start)
+    
+    returnValues = [rate]
+    
+    # Extract the columns that you want, by name
+    paramList=['Accel', 'Gyro', 'Compass']
+    for Expression in paramList:
+        returnValues.append(data.filter(regex=Expression).values)
+        
+    return returnValues
 
+    
 def calc_QPos(R_initialOrientation, omega, initialPosition, accMeasured, rate):
     ''' Reconstruct position and orientation, from angular velocity and linear acceleration.
     Assumes a start in a stationary position. No compensation for drift.
@@ -583,7 +659,7 @@ class MahonyAHRS:
         self.Quaternion = vector.normalize(q)
 
 if __name__ == '__main__':
-    myimu = IMU(r'.\tests\Walking_02.txt')
+    myimu = IMU(r'.\tests\data_xsens.txt')
 
     initialOrientation = np.array([[1,0,0],
                                    [0,0,-1],
