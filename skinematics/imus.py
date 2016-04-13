@@ -551,6 +551,8 @@ def kalman_quat(rate, acc, gyr, mag):
     return qOut
 
 class MadgwickAHRS:
+    '''Madgwick's gradient descent filter.
+    '''
     
     def __init__(self, SamplePeriod=1./256, Beta=1.0, Quaternion=[1,0,0,0]):
         '''Initialization

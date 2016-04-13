@@ -5,6 +5,8 @@ viewer
 
 Interactive analysis of time-series data.
 
+1-dimensional and 3-dimensional data can be viewed. It also allows to inspect the variables of the current workspace.
+
 .. figure:: _static/viewer_large.png
     :scale: 50%
 

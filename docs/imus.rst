@@ -5,16 +5,20 @@ IMUs
 
 These routines facilitate the calculation of 3d movement kinematics for
 recordings from inertial measurement units (IMUs).
+Currently data from two systems are supported:
+
+* XSens
+* xio
 
 Functions
 ---------
 
-General
-^^^^^^^
-* :func:`imus.data_import` ... Read in Rate and stored 3D parameters from XSens IMUs
+Data-Handling
+^^^^^^^^^^^^^
+* :func:`imus.import_data` ... Read in rate and 3D parameters from different IMUs.
 
-IMUs
-^^^^
+Data-Analysis
+^^^^^^^^^^^^^
 * :func:`imus.calc_QPos` ... Calculate orientation and position, from angular velocity and linear acceleration 
 * :func:`imus.kalman_quat` ... Calculate orientation from IMU-data using an Extended Kalman Filter
 
@@ -26,11 +30,9 @@ Class
 .. autosummary::
     imus.IMU
 
-
 Methods
 ^^^^^^^
 .. autosummary::
-
     imus.IMU.calc_orientation
     imus.IMU.calc_position
     imus.IMU.setData
@@ -38,15 +40,11 @@ Methods
 .. toctree::
    :maxdepth: 2
 
-Class
------
-.. autosummary::
-    imus.MadgwickAHRS
-
-Class
------
+Classes for Sensor-Integration
+------------------------------
 .. autosummary::
     imus.MahonyAHRS
+    imus.MadgwickAHRS
 
 Details
 -------

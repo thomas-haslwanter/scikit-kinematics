@@ -33,6 +33,7 @@ else:
     
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
 from matplotlib.lines import Line2D
@@ -53,22 +54,35 @@ class Display:
             
         self.master = master
         
-        # Generate the figure -------------------------------------------
-        fig = Figure()
-        self.ax = fig.add_subplot(111)
         if data is None:
             data = np.arange(1)
-        self.lines = self.ax.plot(data)
+            
+        if data.ndim == 1:
+            data = np.atleast_2d(data).T
+        self.numData = data.shape[1]
         
-        # Zero line
-        self.zero = self.ax.hlines(0,0,len(data), linestyle='dotted')
+        # Generate the figure -------------------------------------------
+        fig, self.axs = plt.subplots(nrows=self.numData, sharex=True, 
+                                    sharey=False)
         
-        # Zoom box
-        self.epsilon = 5
-        (x0,x1,y0,y1) = (0,0,0,0)
-        self.rect = Line2D([x0,x1,x1,x0,x0], [y0,y0,y1,y1,y0], linestyle='dotted')
-        self.ax.add_line(self.rect)
-
+        if self.numData == 1:
+            self.axs = [self.axs]
+                
+        self.lines = []
+        self.rects = []
+        self.zeros = []
+        for ii in range(self.numData):
+            self.lines.append(self.axs[ii].plot(data[:,ii]))
+        
+            # Zero line
+            self.zeros.append(self.axs[ii].hlines(0,0,len(data), linestyle='dotted'))
+        
+            # Zoom box
+            self.epsilon = 5
+            (x0,x1,y0,y1) = (0,0,0,0)
+            self.rects.append(Line2D([x0,x1,x1,x0,x0], [y0,y0,y1,y1,y0], linestyle='dotted'))
+            self.axs[ii].add_line(self.rects[-1])
+            
         # Create the canvas
         self.canvas = FigureCanvasTkAgg(fig,master=master)
         self.canvas.show()
@@ -223,8 +237,9 @@ class Display:
             x = [self._start[2], self._stop[2]]
             y = [self._start[3], self._stop[3]]
             
-            self.rect.set_xdata([x[0],x[1],x[1],x[0],x[0]])
-            self.rect.set_ydata([y[0],y[0],y[1],y[1],y[0]])
+            for ii in range(self.numData):
+                self.rects[ii].set_xdata([x[0],x[1],x[1],x[0],x[0]])
+                self.rects[ii].set_ydata([y[0],y[0],y[1],y[1],y[0]])
             #print('button=%d, x=%d, y=%d, xdata=%f, ydata=%f'%(
                 #event.button, event.x, event.y, event.xdata, event.ydata))
     
@@ -242,7 +257,8 @@ class Display:
             if self.chkVar.get() == 1:
                 # right mouse click
                 self.marks.append(event.xdata)
-                self.ax.vlines(event.xdata, self.range[2], self.range[3])
+                for ii in range(self.numData):
+                    self.axs[ii].vlines(event.xdata, self.range[2], self.range[3])
                 
         self.canvas.draw()
     
@@ -258,17 +274,19 @@ class Display:
             
             if dist(np.r_[self._start[:2]], np.r_[self._stop[:2]]) > self.epsilon:
                 # Zoom in
-                self.ax.set_xlim([min(self._start[2], self._stop[2]), max(self._start[2], self._stop[2])])
-                self.ax.set_ylim([min(self._start[3], self._stop[3]), max(self._start[3], self._stop[3])])
+                for ii in range(self.numData):
+                    self.axs[ii].set_xlim([min(self._start[2], self._stop[2]), max(self._start[2], self._stop[2])])
+                    self.axs[ii].set_ylim([min(self._start[3], self._stop[3]), max(self._start[3], self._stop[3])])
                 
-                xLim = self.ax.get_xlim()
+                xLim = self.axs[0].get_xlim()
                 self.xRange = np.diff(xLim)[0]
                 self.sliderMax = self.range[1]-self.xRange
                 self.scale.set(xLim[0]/self.sliderMax)
                 
                 (x,y) = ([0,0], [0,0])
-                self.rect.set_xdata([x[0],x[1],x[1],x[0],x[0]])
-                self.rect.set_ydata([y[0],y[0],y[1],y[1],y[0]])
+                for ii in range(self.numData):
+                    self.rects[ii].set_xdata([x[0],x[1],x[1],x[0],x[0]])
+                    self.rects[ii].set_ydata([y[0],y[0],y[1],y[1],y[0]])
                 
                 self.canvas.draw()
         
@@ -307,15 +325,16 @@ class Display:
         minVal = 0
         maxVal = 0
         for line in self.lines:
-            x,y = line.get_data()
+            x,y = line[0].get_data()
             pnts = np.arange(len(x))
             time = pnts/rate
-            line.set_xdata(time)
+            line[0].set_xdata(time)
             minVal = min(minVal, np.min(y))
             maxVal = max(maxVal, np.max(y))
         
         # Initially, show all data
-        self.ax.set_xlim([0, np.max(time)])
+        for ii in range(self.numData):
+            self.axs[ii].set_xlim([0, np.max(time)])
         
         # Make sure small numbers are nicely formatted
         if max(np.abs([minVal, maxVal])) < 0.01:
@@ -332,7 +351,7 @@ class Display:
         self.text_upper.insert(0, strMax)
         
         # Set limit and range parameters
-        curLim = self.ax.get_xlim()
+        curLim = self.axs[0].get_xlim()
         xMin = 0
         xMax = np.max(time)
         self.xRange, = np.diff(curLim)
@@ -346,8 +365,9 @@ class Display:
     def zoom(self):
         ''' Show all the data on the y-axis, and 10% of all on the x-axis. '''
         
-        self.ax.set_xlim([0, 0.1*self.range[1]])
-        self.ax.set_ylim(self.range[2:])
+        for ii in range(self.numData):
+            self.axs[ii].set_xlim([0, 0.1*self.range[1]])
+            self.axs[ii].set_ylim(self.range[2:])
         self.xRange = 0.1*self.range[1]
         self.sliderMax = self.range[1]-self.xRange
         self.scale.set(0)
@@ -356,8 +376,9 @@ class Display:
     def showAll(self):
         ''' Show all the data '''
         
-        self.ax.set_xlim(self.range[:2])
-        self.ax.set_ylim(self.range[2:])
+        for ii in range(self.numData):
+            self.axs[ii].set_xlim(self.range[:2])
+            self.axs[ii].set_ylim(self.range[2:])
         self.xRange = self.range[1]
         self.scale.set(0)
         self.canvas.draw()
@@ -369,7 +390,8 @@ class Display:
         self.text_lower.delete(0, tk.END)
         self.text_lower.insert(0, str(-UpperLimit))
         
-        self.ax.set_ylim([-UpperLimit, UpperLimit])
+        for ii in range(self.numData):
+            self.axs[ii].set_ylim([-UpperLimit, UpperLimit])
         self.canvas.draw()
         self.canvas._tkcanvas.focus_set()
         
@@ -379,7 +401,8 @@ class Display:
         UpperLimit = float(self.text_upper.get())
         LowerLimit = float(self.text_lower.get())
         
-        self.ax.set_ylim([LowerLimit, UpperLimit])
+        for ii in range(self.numData):
+            self.axs[ii].set_ylim([LowerLimit, UpperLimit])
         self.canvas.draw()
         self.canvas._tkcanvas.focus_set()
         
@@ -401,7 +424,9 @@ class Display:
             self.scale.set(0)
         else:
             self.scale.set(float(xLim[0])/self.sliderMax)
-        self.ax.set_xlim(xLim)
+            
+        for ii in range(self.numData):
+            self.axs[ii].set_xlim(xLim)
         self.canvas.draw()
         
     def position(self, event):
@@ -413,28 +438,32 @@ class Display:
         
     def forward(self):
         '''Move data forward by half the visible distance'''
-        curLim = self.ax.get_xlim()
+        for ii in range(self.numData):
+            curLim = self.axs[ii].get_xlim()
         newLim = curLim + self.xRange/2
         
         self.update_xPos(newLim)
         
     def fforward(self):
         '''Move data forward by one visible distance'''
-        curLim = self.ax.get_xlim()
+        for ii in range(self.numData):
+            curLim = self.axs[ii].get_xlim()
         newLim = curLim + self.xRange
         
         self.update_xPos(newLim)
     
     def backward(self):
         '''Move data backward by half the visible distance'''
-        curLim = self.ax.get_xlim()
+        for ii in range(self.numData):
+            curLim = self.axs[ii].get_xlim()
         newLim = curLim - self.xRange/2
         
         self.update_xPos(newLim)
     
     def fbackward(self):
         '''Move data back by one visible distance'''
-        curLim = self.ax.get_xlim()
+        for ii in range(self.numData):
+            curLim = self.axs[ii].get_xlim()
         newLim = curLim - self.xRange
         
         self.update_xPos(newLim)
@@ -452,15 +481,16 @@ class Display:
     def updatePlot(self):
         '''update the figure'''
         
-        for line in self.lines:
-            # Remove the old lines
-            line.remove()
-        self.zero.remove()
+        for ii in range(self.numData):
+            for line in self.lines[ii]:
+                # Remove the old lines
+                line.remove()
+            self.zeros[ii].remove()
             
-        # plot the new data
-        self.ax.set_color_cycle(None)
-        self.lines = self.ax.plot(self.varValues)
-        self.zero = self.ax.hlines(0,0,len(self.varValues), linestyle='dotted')
+            # plot the new data
+            self.axs[ii].set_color_cycle(None)
+            self.lines[ii] = self.axs[ii].plot(self.varValues)
+            self.zeros[ii] = self.axs[ii].hlines(0,0,len(self.varValues), linestyle='dotted')
         self.master.title(self.varName)
         self.range = [0, len(self.varValues), np.min(self.varValues), np.max(self.varValues)]
         self.showAll()
