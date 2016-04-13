@@ -14,7 +14,7 @@ class TestSequenceFunctions(unittest.TestCase):
         x = np.sin(t) + 0.2*np.random.randn(len(t))
         data = np.random.randn(100,3)
         viewer.ts(x)
-        viewer.ts(locals())
+        #viewer.ts(locals())
         
 if __name__ == '__main__':
     unittest.main()
