@@ -476,7 +476,7 @@ class Display:
             np.savetxt(self.logFile, self.marks)
             print('right-Mouse clicks are saved into {0}'.format(self.logFile))
             
-        self.master.destroy()
+        self.master.quit()  # somehow "self.master.destroy()" did not fully terminate the program
         
     def updatePlot(self):
         '''update the figure'''
