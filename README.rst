@@ -39,7 +39,7 @@ Analysis of signals from IMUs (intertial-measurement-units).
 
 General
 -------
-- kinematics.getXSensData ... Read in Rate and stored 3D parameters from XSens IMUs
+- imyus.import_data ... Read in Rate and stored 3D parameters from a variety of IMUs
 
 MARG Systems
 ------------

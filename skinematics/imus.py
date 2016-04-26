@@ -1,13 +1,14 @@
 '''
 Utilities for movements recordins with inertial measurement units (IMUs)
 Currently data from the following systems are supported
-    - XSens
     - XIO
+    - XSens
+    - YEI
 '''
 
 '''
 Author: Thomas Haslwanter
-Version: 1.3
+Version: 1.5
 Date: April-2016
 '''
 
@@ -137,10 +138,10 @@ class IMU:
         R_initialOrientation : 3x3 array
                 approximate alignment of sensor-CS with space-fixed CS
         type : string
-                - 'quatInt' ...... quaternion integration of angular velocity
+                - 'quatInt' .... quaternion integration of angular velocity
                 - 'Kalman' ..... quaternion Kalman filter
-                - 'Madgwick' .. gradient descent method, efficient
-                - 'Mahony' ...  Formula from Mahony, as implemented by Madgwick
+                - 'Madgwick' ... gradient descent method, efficient
+                - 'Mahony' ....  formula from Mahony, as implemented by Madgwick
 
         '''
 
@@ -243,7 +244,7 @@ def import_data(inFile=None, type='XSens', paramList=[]):
     ----------
     inFile : string
              Path and name of input file
-    type : sensor-type. Has to be either ['XSens', 'xio']
+    type : sensor-type. Has to be either ['XSens', 'xio', 'yei']
     paramList: list of strings
                You can select between ['acc', 'gyr', 'mag', 'rate', 'others']
 
@@ -256,7 +257,7 @@ def import_data(inFile=None, type='XSens', paramList=[]):
 
     Examples
     --------
-    >>> data = getXSensData(fullInFile, type='XSens', paramList=['rate', 'acc', 'gyr'])
+    >>> data = import_data(fullInFile, type='XSens', paramList=['rate', 'acc', 'gyr'])
     >>> rate = data[0]
     >>> accValues = data[1]
     >>> Omega = data[2]
@@ -276,6 +277,8 @@ def import_data(inFile=None, type='XSens', paramList=[]):
         data = _read_xsens(inFile)
     elif type == 'xio':
         data = _read_xio(inFile)
+    elif type == 'yei':
+        data = _read_yei(inFile)
     else:
         raise ValueError
         
@@ -335,8 +338,27 @@ def _read_xsens(inFile):
 
 def _read_xio(inFile):
     '''Read data from an XIO sensor.
-    The data returned are (in that order): [rate, acceleration, angular_velocity, mag_field_direction]'''
+    The data returned are (in that order): [rate, acceleration, angular_velocity, mag_field_direction, packet_nr]'''
     
+    # Make sure that we read in the correct one
+    inFile = '_'.join(inFile.split('_')[:-1]) + '_CalInertialAndMag.csv'
+    data = pd.read_csv(inFile)
+    
+    # Generate a simple list of column names
+    rate = 256  # currently hardcoded
+    
+    returnValues = [rate]
+    
+    # Extract the columns that you want, by name
+    paramList=['Acc', 'Gyr', 'Mag', 'Packet']
+    for Expression in paramList:
+        returnValues.append(data.filter(regex=Expression).values)
+        
+    return returnValues    
+
+def _read_yei(inFile):
+    '''Read data from an YEI sensor.
+    The data returned are (in that order): [rate, acceleration, angular_velocity, mag_field_direction]'''
     
     data = pd.read_csv(inFile)
     
