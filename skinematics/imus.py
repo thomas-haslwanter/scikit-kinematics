@@ -340,6 +340,10 @@ def _read_xio(inFile):
     '''Read data from an XIO sensor.
     The data returned are (in that order): [rate, acceleration, angular_velocity, mag_field_direction, packet_nr]'''
     
+    # XIO-definition of the sampling rate 
+    # Get the "Register"
+    inFile = '_'.join(inFile.split('_')[:-1]) + '_Registers.csv'
+    
     # Make sure that we read in the correct one
     inFile = '_'.join(inFile.split('_')[:-1]) + '_CalInertialAndMag.csv'
     data = pd.read_csv(inFile)
