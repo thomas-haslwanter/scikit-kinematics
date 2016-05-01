@@ -1,6 +1,7 @@
 '''
 Utilities for movements recordins with inertial measurement units (IMUs)
 Currently data from the following systems are supported
+
     - XIO
     - XSens
     - YEI

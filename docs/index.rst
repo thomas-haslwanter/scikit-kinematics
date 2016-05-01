@@ -16,7 +16,7 @@ It is hosted under https://github.com/thomas-haslwanter/scikit-kinematics, and c
       - Mahony's algorithm
 
     - calculation of position and orientation from IMU-signals
-    - utility to import in data from *xio*, *XSens*, and *yei* system
+    - The sub-directory *sensors* contains utility to import in data from *xio*, *XSens*, and *yei* system
 
 *markers*  Analysis routines for 3D movements from marker-based video recordings
     - a function that takes recordings from video-systems (e.g. Optotrak)

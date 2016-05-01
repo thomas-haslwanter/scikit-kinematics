@@ -9,6 +9,7 @@ Currently data from two systems are supported:
 
 * XSens
 * xio
+* YEI
 
 Functions
 ---------
@@ -16,6 +17,9 @@ Functions
 Data-Handling
 ^^^^^^^^^^^^^
 * :func:`imus.import_data` ... Read in rate and 3D parameters from different IMUs.
+* :func:`sensors.xio.get_data` ... Read in rate and 3D parameters from *xio* sensors.
+* :func:`sensors.xsens.get_data` ... Read in rate and 3D parameters from *XSens* sensors.
+* :func:`sensors.yei.get_data` ... Read in rate and 3D parameters from *YEI* sensors.
 
 Data-Analysis
 ^^^^^^^^^^^^^
@@ -50,3 +54,14 @@ Details
 -------
 .. automodule:: imus
     :members:
+
+.. automodule:: sensors.xio
+    :members:
+
+.. automodule:: sensors.xsens
+    :members:
+
+.. automodule:: sensors.yei
+    :members:
+
+
