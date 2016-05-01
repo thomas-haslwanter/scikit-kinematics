@@ -275,13 +275,13 @@ def import_data(inFile=None, type='XSens', paramList=[]):
         dataDict[var]=None
     
     if type == 'XSens':
-        from from skinematics.sensors import xsens
+        from skinematics.sensors import xsens
         data = xsens.get_data(inFile)
     elif type == 'xio':
-        from sensors import xio
+        from skinematics.sensors import xio
         data = xio.get_data(inFile)
     elif type == 'yei':
-        from sensors import yei
+        from skinematics.sensors import yei
         data = yei.get_data(inFile)
     else:
         raise ValueError
