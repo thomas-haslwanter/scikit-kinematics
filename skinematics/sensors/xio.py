@@ -1,29 +1,29 @@
 '''
-Handle data saved with XIO-sensors
+Import data saved with XIO-sensors
 '''
 
 '''
 Author: Thomas Haslwanter
-Version: 0.1
-Date: April-2016
+Version: 0.2
+Date: May-2016
 '''
 
 import os
 import pandas as pd
 
-def find_rates(reg_file):
+def read_ratefile(reg_file):
     '''Read send-rates from an XIO sensor.
     "Disabled" channels have the "rate" set to "None".
     
-    Inputs:
-    -------
+    Parameters
+    ----------
     in_file : string
-            Has to be the "Registers"-file
+            Has to be the "Registers"-file.
     
-    Returns:
-    --------
+    Returns
+    -------
     rates: directory
-            Contains the send-rates for the different "params"
+            Contains the send-rates for the different "params".
     '''
     
     params = ['Sensor', 
@@ -57,22 +57,23 @@ def find_rates(reg_file):
     
     return rates
                     
-def read_data(in_file):
-    '''Read data from an XIO sensor.
+def read_datafile(in_file):
+    '''Read data from an XIO "CalInertialAndMag"-file.
     
-    Inputs:
-    -------
+    Parameters
+    ----------
     in_file : string
-            Has to be the "CalInertialAndMag"-file
+            Has to be the name of the "CalInertialAndMag"-file.
     
-    Returns:
-    --------
+    Returns
+    -------
     out_list: list
             Contains the following parameters:
-            acceleration
-            angular_velocity
-            mag_field_direction
-            packet_nr
+            
+            - acceleration
+            - angular_velocity
+            - mag_field_direction
+            - packet_nr
     '''
     
     data = pd.read_csv(in_file)
@@ -85,28 +86,36 @@ def read_data(in_file):
         
     return out_list
 
-def get_infos(in_dir):
+def get_data(in_selection):
     '''Get the sampling rates, as well as the recorded data.
     
-    Inputs:
-    -------
-    in_dir : string
-            Directory containing all the data-files
+    Parameters
+    ----------
+    in_selection : string
+            Directory containing all the data-files, or
+            filename of one file in that directory
     
-    Returns:
-    --------
+    Returns
+    -------
     out_list: list
             Contains the following parameters:
-            rate
-            acceleration
-            angular_velocity
-            mag_field_direction
-            packet_nr
+            
+            - rate
+            - acceleration
+            - angular_velocity
+            - mag_field_direction
+            - packet_nr
     '''
     
+    if os.path.isdir(in_selection):
+        in_dir = in_selection
+    else:
+        in_file = in_selection
+        in_dir = os.path.split(in_file)[0]
+        
     file_list = os.listdir(in_dir)
    
-    # XIO-definition of the sampling rate is in the "Registers"-file
+    # Get the filenames, based on the XIO-definitions
     files = {}
     for file in file_list:
         if file.find('Registers') > 0:
@@ -115,18 +124,20 @@ def get_infos(in_dir):
             files['data'] = os.path.join(in_dir, file)
     
     # Read in the registers-file, and extract the sampling rates
-    rates = find_rates(files['register'])
-    data = read_data(files['data'])
+    rates = read_ratefile(files['register'])
+    
+    # Read the sensor-data
+    data  = read_datafile(files['data'])
     
     return ([rates['InertialAndMagnetic']] + data)
             
 if __name__=='__main__':
-    test_dir = r'.\tests\data\data_xio'    
+    test_dir = r'..\..\tests\data\data_xio'    
     assert os.path.exists(test_dir)
     
-    data = get_infos(test_dir)
+    data = get_data(test_dir)
     
-    print('Rate: {0}'.format(data[0]))
-    print('Acceleration: {0}'.format(data[1]))
+    print('Rate: {0} [Hz]'.format(data[0]))
+    print('Acceleration [m/s^2]:\n {0}'.format(data[1]))
     
     

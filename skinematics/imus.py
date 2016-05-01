@@ -274,11 +274,14 @@ def import_data(inFile=None, type='XSens', paramList=[]):
         dataDict[var]=None
     
     if type == 'XSens':
-        data = _read_xsens(inFile)
+        from sensors import xsens
+        data = xsens.get_data(inFile)
     elif type == 'xio':
-        data = _read_xio(inFile)
+        from sensors import xio
+        data = xio.get_data(inFile)
     elif type == 'yei':
-        data = _read_yei(inFile)
+        from sensors import yei
+        data = yei.get_data(inFile)
     else:
         raise ValueError
         
