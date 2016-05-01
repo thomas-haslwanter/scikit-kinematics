@@ -275,7 +275,7 @@ def import_data(inFile=None, type='XSens', paramList=[]):
         dataDict[var]=None
     
     if type == 'XSens':
-        from sensors import xsens
+        from from skinematics.sensors import xsens
         data = xsens.get_data(inFile)
     elif type == 'xio':
         from sensors import xio
