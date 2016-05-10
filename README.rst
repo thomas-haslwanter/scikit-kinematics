@@ -4,6 +4,10 @@ scikit-kinematics
 
 *scikit-kinematics* primarily contains functions for working with 3D
 kinematics, e.g quaternions and rotation matrices.
+This includes utilities to read in data from the following IMU-sensors:
+    - XSens
+    - xio
+    - YEI
 
 Compatible with Python 2 and 3.
 
@@ -16,8 +20,8 @@ Homepage
 http://work.thaslwanter.at/skinematics/html/
 
 Author:  Thomas Haslwanter
-Date:    26-04-2016
-Ver:     0.2.2
+Date:    01-05-2016
+Ver:     0.2.5
 Licence: BSD 2-Clause License (http://opensource.org/licenses/BSD-2-Clause)
         Copyright (c) 2016, Thomas Haslwanter
         All rights reserved.
@@ -37,9 +41,13 @@ IMUs
 
 Analysis of signals from IMUs (intertial-measurement-units).
 
-General
--------
+Data-Import
+-----------
 - imyus.import_data ... Read in Rate and stored 3D parameters from a variety of IMUs
+
+- sensors.xio ... Import data recorded with xio-systems
+- sensors.xsens ... Import data recorded with XSens-systems
+- sensors.yei ... Import data recorded with YEI-systems
 
 MARG Systems
 ------------
