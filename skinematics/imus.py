@@ -5,12 +5,13 @@ Currently data from the following systems are supported
     - XIO
     - XSens
     - YEI
+    - Polulu
 '''
 
 '''
 Author: Thomas Haslwanter
-Version: 1.5
-Date: April-2016
+Version: 1.6
+Date: May-2016
 '''
 
 import numpy as np
@@ -94,7 +95,7 @@ class IMU:
         '''Initialize an IMU-object'''
 
         if inData is not None:
-            self.setData(inData, inRate)
+            self.setData(inData)
         else: 
             if inFile is None:
                 inFile = self._selectInput()
@@ -245,7 +246,7 @@ def import_data(inFile=None, type='XSens', paramList=[]):
     ----------
     inFile : string
              Path and name of input file
-    type : sensor-type. Has to be either ['XSens', 'xio', 'yei']
+    type : sensor-type. Has to be either ['XSens', 'xio', 'yei', 'polulu']
     paramList: list of strings
                You can select between ['acc', 'gyr', 'mag', 'rate', 'others']
 
@@ -275,14 +276,17 @@ def import_data(inFile=None, type='XSens', paramList=[]):
         dataDict[var]=None
     
     if type == 'XSens':
-        from skinematics.sensors import xsens
+        from sensors import xsens
         data = xsens.get_data(inFile)
     elif type == 'xio':
-        from skinematics.sensors import xio
+        from sensors import xio
         data = xio.get_data(inFile)
     elif type == 'yei':
-        from skinematics.sensors import yei
+        from sensors import yei
         data = yei.get_data(inFile)
+    elif type == 'polulu':
+        from sensors import polulu
+        data = polulu.get_data(inFile)
     else:
         raise ValueError
         

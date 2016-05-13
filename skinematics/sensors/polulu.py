@@ -1,17 +1,21 @@
 '''
-Import data saved with BARNOBI-sensors
+Import data saved with polulu-sensors
+https://www.pololu.com/product/2738
+These are low-cost IMUS (<20 US$), where acceleration/gyroscope data are not
+sampled at the same time as the magnetic field data (just over 100 Hz).
+As a result, the interpolated sampling rate has to be set by hand.
 '''
 
 '''
 Author: Thomas Haslwanter
-Version: 0.1
+Version: 0.2
 Date: May-2016
 '''
 
 import numpy as np
 import pandas as pd
 
-def get_data(in_file):
+def get_data(inFile, rate=125):
     '''Get the sampling rate, as well as the recorded data.
     
     Parameters
@@ -37,8 +41,7 @@ def get_data(in_file):
         data.columns = ['acc_x', 'acc_y', 'acc_z', 'gyr_x', 'gyr_y', 'gyr_z', 'mag_x', 'mag_y', 'mag_z', 'taccgyr', 'tmag']
         
         # interpolate with a manually set rate
-        RATE = 125
-        dt = 1/RATE
+        dt = 1/rate
         t_lin = np.arange(0, 25, dt)
 
         data_interp = pd.DataFrame()
@@ -62,7 +65,7 @@ def get_data(in_file):
         print('{0} does not exist!'.format(in_file))
         return -1
 
-    returnValues = [RATE]
+    returnValues = [rate]
     
     # Extract the columns that you want, by name
     paramList=['acc', 'gyr', 'mag']
@@ -77,4 +80,5 @@ if __name__ == '__main__':
     data = get_data(inFile)
     print(data[0])
     print(data[1])
+    input('Done')
     

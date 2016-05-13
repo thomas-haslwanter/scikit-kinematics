@@ -27,7 +27,7 @@ class TestSequenceFunctions(unittest.TestCase):
 
     def test_calc_QPos(self):
         # Get data
-        inFile = 'data\data_xsens.txt'
+        inFile = r'data\data_xsens.txt'
         data = imus.import_data(inFile, type='XSens', paramList=['rate', 'acc', 'gyr', 'mag'])
         rate = data[0]
         acc = data[2]
@@ -46,7 +46,7 @@ class TestSequenceFunctions(unittest.TestCase):
         
     def test_import_xsens(self):
         # Get data, with a specified input from an XSens system
-        inFile = 'data\data_xsens.txt'
+        inFile = r'data\data_xsens.txt'
         data = imus.import_data(inFile, type='XSens', paramList=['rate', 'acc', 'gyr'])
         rate = data[0]
         acc = data[1]
@@ -68,7 +68,7 @@ class TestSequenceFunctions(unittest.TestCase):
         
     def test_import_yei(self):
         # Get data, with a specified input from a YEI system
-        inFile = 'data\data_yei.txt'
+        inFile = r'data\data_yei.txt'
         data = imus.import_data(inFile, type='yei', paramList=['rate', 'acc', 'gyr', 'mag'])
         rate = data[0]
         acc = data[1]
@@ -76,6 +76,17 @@ class TestSequenceFunctions(unittest.TestCase):
         
         self.assertAlmostEqual((rate - 109.99508526563774), 0)
         self.assertAlmostEqual( (omega[0,2] - 0.0081446301192045212), 0)
+        
+    def test_import_polulu(self):
+        # Get data, with a specified input from a POLULU system
+        inFile = r'data\data_polulu.txt'
+        data = imus.import_data(inFile, type='polulu', paramList=['rate', 'acc', 'gyr', 'mag'])
+        rate = data[0]
+        acc = data[1]
+        omega = data[2]
+        
+        self.assertAlmostEqual((rate - 125), 0)
+        self.assertAlmostEqual( (acc[0,1] + 0.004575), 0)
         
 if __name__ == '__main__':
     unittest.main()
