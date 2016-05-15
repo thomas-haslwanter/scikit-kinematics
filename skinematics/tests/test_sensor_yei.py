@@ -5,7 +5,7 @@ sys.path.insert(0, os.path.abspath(r'..'))
 sys.path.append('.')
 
 import unittest
-import imus
+from skinematics import imus
 from time import sleep
 
 class TestSequenceFunctions(unittest.TestCase):
@@ -13,7 +13,7 @@ class TestSequenceFunctions(unittest.TestCase):
     def test_import_yei(self):
         # Get data, with a specified input from a YEI system
         inFile = 'data\data_yei.txt'
-        data = imus.import_data(inFile, type='yei', paramList=['rate', 'acc', 'gyr', 'mag'])
+        data = imus.import_data(inFile, type='yei', paramList=['rate', 'acc', 'omega', 'mag'])
         rate = data[0]
         acc = data[1]
         omega = data[2]

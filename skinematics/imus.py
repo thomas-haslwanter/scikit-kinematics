@@ -30,7 +30,7 @@ PACKAGE_PARENT = '..'
 SCRIPT_DIR = os.path.realpath(os.path.dirname(__file__))
 sys.path.append(os.path.normpath(os.path.join(SCRIPT_DIR, PACKAGE_PARENT)))
 
-from skinematics import quat, vector
+from skinematics import quat, vector, misc
 import easygui
 
 class IMU:
@@ -91,7 +91,7 @@ class IMU:
     '''
 
 
-    def __init__(self, inFile = None, inData = None):
+    def __init__(self, inFile = None, inType='XSens', inData = None):
         '''Initialize an IMU-object'''
 
         if inData is not None:
@@ -103,7 +103,7 @@ class IMU:
                 self.source = inFile
 
                 try:
-                    data = import_data(inFile=self.source, type='XSens', paramList=['rate', 'acc', 'gyr', 'mag'])
+                    data = import_data(inFile=self.source, type=inType, paramList=['rate', 'acc', 'omega', 'mag'])
                     self.rate = data[0]
                     self.acc= data[1]
                     self.omega = data[2]
@@ -238,7 +238,7 @@ class IMU:
         self.duration = np.float(self.totalSamples)/self.rate # [sec]
         self.dataType = str(self.omega.dtype)
 
-def import_data(inFile=None, type='XSens', paramList=[]):
+def import_data(inFile=None, type='XSens', paramList=['rate', 'acc', 'omega', 'mag']):
     '''
     Read in Rate and stored 3D parameters from IMUs
 
@@ -248,7 +248,7 @@ def import_data(inFile=None, type='XSens', paramList=[]):
              Path and name of input file
     type : sensor-type. Has to be either ['XSens', 'xio', 'yei', 'polulu']
     paramList: list of strings
-               You can select between ['acc', 'gyr', 'mag', 'rate', 'others']
+               You can select between ['rate', 'acc', 'omega', 'mag', 'others']
 
     Returns
     -------
@@ -259,7 +259,7 @@ def import_data(inFile=None, type='XSens', paramList=[]):
 
     Examples
     --------
-    >>> data = import_data(fullInFile, type='XSens', paramList=['rate', 'acc', 'gyr'])
+    >>> data = import_data(fullInFile, type='XSens', paramList=['rate', 'acc', 'omega'])
     >>> rate = data[0]
     >>> accValues = data[1]
     >>> Omega = data[2]
@@ -269,7 +269,7 @@ def import_data(inFile=None, type='XSens', paramList=[]):
     if inFile is None:
         inFile = easygui.fileopenbox(msg='Please select an in-file: ', title='Data-selection', default='*.txt')
 
-    varList = ['acc', 'gyr', 'mag', 'rate', 'others']
+    varList = ['acc', 'omega', 'mag', 'rate', 'others']
     
     dataDict = {}
     for var in varList:
@@ -292,7 +292,7 @@ def import_data(inFile=None, type='XSens', paramList=[]):
         
     dataDict['rate'] = data[0]
     dataDict['acc']  = data[1]
-    dataDict['gyr']  = data[2]
+    dataDict['omega']  = data[2]
     dataDict['mag']  = data[3]
     
     returnValues = []
@@ -469,7 +469,7 @@ def calc_QPos(R_initialOrientation, omega, initialPosition, accMeasured, rate):
 
     return (q, pos)
 
-def kalman_quat(rate, acc, gyr, mag):
+def kalman_quat(rate, acc, omega, mag):
     '''
     Calclulate the orientation from IMU magnetometer data.
 
@@ -479,7 +479,7 @@ def kalman_quat(rate, acc, gyr, mag):
     	   sample rate [Hz]	
     acc : (N,3) ndarray
     	  linear acceleration [m/sec^2]
-    gyr : (N,3) ndarray
+    omega : (N,3) ndarray
     	  angular velocity [rad/sec]
     mag : (N,3) ndarray
     	  magnetic field orientation
@@ -535,7 +535,7 @@ def kalman_quat(rate, acc, gyr, mag):
     for ii in range(numData):
         accelVec  = acc[ii,:]
         magVec    = mag[ii,:]
-        angvelVec = gyr[ii,:]
+        angvelVec = omega[ii,:]
         z_k_pre = z_k.copy()	# watch out: by default, Python passes the reference!!
 
         # Evaluate quaternion based on acceleration and magnetic field data
@@ -695,7 +695,21 @@ class MahonyAHRS:
         self.Quaternion = vector.normalize(q)
 
 if __name__ == '__main__':
-    myimu = IMU(r'.\tests\data_xsens.txt')
+    myIMU = IMU(inFile = r'tests\data\data_polulu.txt', inType='polulu')
+    myIMU.calc_orientation(np.eye(3), type='Mahony')
+    quat = myIMU.quat[:,1:]
+    fig, axs = plt.subplots(3,1)
+    axs[0].plot(myIMU.omega)
+    axs[0].set_ylabel('Omega')
+    axs[1].plot(myIMU.acc)
+    axs[1].set_ylabel('Acc')
+    axs[2].plot(quat)
+    axs[2].set_ylabel('Quat')
+    plt.show()
+    
+    
+    '''
+    myimu = IMU(r'.\tests\data\data_xsens.txt')
 
     initialOrientation = np.array([[1,0,0],
                                    [0,0,-1],
@@ -719,5 +733,7 @@ if __name__ == '__main__':
     plt.legend()
     #plt.plot(t, myimu.pos)
     plt.show()
+    '''
 
+    
     print('Done')

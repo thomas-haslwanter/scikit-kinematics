@@ -5,11 +5,12 @@ IMUs
 
 These routines facilitate the calculation of 3d movement kinematics for
 recordings from inertial measurement units (IMUs).
-Currently data from two systems are supported:
+Currently data from 4 systems are supported:
 
 * XSens
 * xio
 * YEI
+* polulu
 
 Functions
 ---------
@@ -20,6 +21,7 @@ Data-Handling
 * :func:`sensors.xio.get_data` ... Read in rate and 3D parameters from *xio* sensors.
 * :func:`sensors.xsens.get_data` ... Read in rate and 3D parameters from *XSens* sensors.
 * :func:`sensors.yei.get_data` ... Read in rate and 3D parameters from *YEI* sensors.
+* :func:`sensors.polulu.get_data` ... Read in rate and 3D parameters from *polulu* sensors.
 
 Data-Analysis
 ^^^^^^^^^^^^^
@@ -64,4 +66,6 @@ Details
 .. automodule:: sensors.yei
     :members:
 
+.. automodule:: sensors.polulu
+    :members:
 
