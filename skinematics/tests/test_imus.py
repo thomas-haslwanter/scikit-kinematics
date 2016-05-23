@@ -27,7 +27,7 @@ class TestSequenceFunctions(unittest.TestCase):
 
     def test_calc_QPos(self):
         # Get data
-        inFile = r'data\data_xsens.txt'
+        inFile = r'data/data_xsens.txt'
         data = imus.import_data(inFile, type='XSens', paramList=['rate', 'acc', 'omega', 'mag'])
         rate = data[0]
         acc = data[2]
@@ -46,7 +46,7 @@ class TestSequenceFunctions(unittest.TestCase):
         
     def test_import_xsens(self):
         # Get data, with a specified input from an XSens system
-        inFile = r'data\data_xsens.txt'
+        inFile = r'data/data_xsens.txt'
         data = imus.import_data(inFile, type='XSens', paramList=['rate', 'acc', 'omega'])
         rate = data[0]
         acc = data[1]
@@ -57,7 +57,7 @@ class TestSequenceFunctions(unittest.TestCase):
 
     def test_import_xio(self):
         # Get data, with a specified input from an XIO system
-        inFile = r'data\data_xio\00033_CalInertialAndMag.csv'
+        inFile = r'data/data_xio/00033_CalInertialAndMag.csv'
         data = imus.import_data(inFile, type='xio', paramList=['rate', 'acc', 'omega', 'mag'])
         rate = data[0]
         acc = data[1]
@@ -68,7 +68,7 @@ class TestSequenceFunctions(unittest.TestCase):
         
     def test_import_yei(self):
         # Get data, with a specified input from a YEI system
-        inFile = r'data\data_yei.txt'
+        inFile = r'data/data_yei.txt'
         data = imus.import_data(inFile, type='yei', paramList=['rate', 'acc', 'omega', 'mag'])
         rate = data[0]
         acc = data[1]
@@ -79,7 +79,7 @@ class TestSequenceFunctions(unittest.TestCase):
         
     def test_import_polulu(self):
         # Get data, with a specified input from a POLULU system
-        inFile = r'data\data_polulu.txt'
+        inFile = r'data/data_polulu.txt'
         data = imus.import_data(inFile, type='polulu', paramList=['rate', 'acc', 'omega', 'mag'])
         rate = data[0]
         acc = data[1]

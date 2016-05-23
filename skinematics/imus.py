@@ -695,7 +695,7 @@ class MahonyAHRS:
         self.Quaternion = vector.normalize(q)
 
 if __name__ == '__main__':
-    myIMU = IMU(inFile = r'tests\data\data_polulu.txt', inType='polulu')
+    myIMU = IMU(inFile = r'tests/data/data_polulu.txt', inType='polulu')
     myIMU.calc_orientation(np.eye(3), type='Mahony')
     quat = myIMU.quat[:,1:]
     fig, axs = plt.subplots(3,1)

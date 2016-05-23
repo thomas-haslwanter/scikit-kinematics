@@ -132,7 +132,7 @@ def get_data(in_selection):
     return ([rates['InertialAndMagnetic']] + data)
             
 if __name__=='__main__':
-    test_dir = r'..\..\tests\data\data_xio'    
+    test_dir = r'../../tests/data/data_xio'    
     assert os.path.exists(test_dir)
     
     data = get_data(test_dir)

@@ -13,4 +13,5 @@ v0.2.4, 01-May-2016 -- "sensors" subpackage added to distribution
 v0.2.5, 01-May-2016 -- fixed pathproblem for subpackage
 v0.2.6, 15-May-2016 -- sensortype "polulu" added
 v0.2.7, 15-May-2016 -- tests updated
+v0.2.8, 23-May-2016 -- paths adjusted for Mac-compatability, docu added
 

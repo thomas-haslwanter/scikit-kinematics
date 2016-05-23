@@ -67,9 +67,23 @@ the root directory of the package, and type
 
 >>> python setup.py install
 
+**Note**: After *skinematics* is installed, I typically import it in
+*Python* with:
+
+>>> import skintematics as skin
+
 Dependencies
 ^^^^^^^^^^^^
 numpy, scipy, matplotlib, pandas, sympy, easygui
+
+Testing
+-------
+
+The easiest way to test the package is with *unittest*. Open a terminal,
+and type (on the command-line!):
+
+>>> cd [_your_installation_dir_]\skinematics\tests
+>>> python -m unittest
 
 Modules
 -------
@@ -94,7 +108,7 @@ Indices and tables
 
 .. note::
     | *Author:*     Thomas Haslwanter
-    | *Version:*    0.2.7
+    | *Version:*    0.2.8
     | *Date:*       May 2016
     | *email:*      thomas.haslwanter@fh-linz.at
     | *Copyright (c):*      2016, Thomas Haslwanter. All rights reserved.

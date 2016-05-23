@@ -36,7 +36,7 @@ def configuration(parent_package='', top_path=None, package_name=DISTNAME):
                        quiet=True)
 
     config.add_subpackage(PACKAGE_NAME)
-    config.add_subpackage(r'skinematics\sensors')
+    config.add_subpackage(r'skinematics/sensors')
     return config
 
 def get_version():
