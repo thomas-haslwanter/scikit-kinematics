@@ -1,5 +1,5 @@
 '''
-Utilities for movements recordins with inertial measurement units (IMUs)
+Utilities for movements recordings with inertial measurement units (IMUs)
 Currently data from the following systems are supported
 
     - XIO
@@ -10,8 +10,8 @@ Currently data from the following systems are supported
 
 '''
 Author: Thomas Haslwanter
-Version: 1.6
-Date: May-2016
+Version: 1.7
+Date: Oct-2016
 '''
 
 import numpy as np
@@ -46,7 +46,13 @@ class IMU:
     Parameters
     ----------
     inFile : string
-        path- and file-name of infile, if you get the sound from a file.
+        path- and file-name of data file
+    inType : string
+        Description of the type of the in-file. Has to be one of the following:
+            - xio
+            - XSens
+            - yei
+            - polulu
     inData : dictionary
         The following fields are required:
 
@@ -74,7 +80,7 @@ class IMU:
 
     Examples
     --------
-	>>> myimu = IMU(r'.\Data\data_xsens.txt')
+	>>> myimu = IMU(r'tests/data/data_xsens.txt', inType='XSens')
 	>>> 
 	>>> initialOrientation = np.array([[1,0,0],
 	>>>                                [0,0,-1],
@@ -267,7 +273,7 @@ def import_data(inFile=None, type='XSens', paramList=['rate', 'acc', 'omega', 'm
     '''
 
     if inFile is None:
-        inFile = easygui.fileopenbox(msg='Please select an in-file: ', title='Data-selection', default='*.txt')
+        inFile = easygui.fileopenbox(msg='Please select an in-file containing XSens-IMU data: ', title='Data-selection', default='*.txt')
 
     varList = ['acc', 'omega', 'mag', 'rate', 'others']
     
@@ -276,16 +282,16 @@ def import_data(inFile=None, type='XSens', paramList=['rate', 'acc', 'omega', 'm
         dataDict[var]=None
     
     if type == 'XSens':
-        from sensors import xsens
+        from skinematics.sensors import xsens
         data = xsens.get_data(inFile)
     elif type == 'xio':
-        from sensors import xio
+        from skinematics.sensors import xio
         data = xio.get_data(inFile)
     elif type == 'yei':
-        from sensors import yei
+        from skinematics.sensors import yei
         data = yei.get_data(inFile)
     elif type == 'polulu':
-        from sensors import polulu
+        from skinematics.sensors import polulu
         data = polulu.get_data(inFile)
     else:
         raise ValueError
@@ -709,7 +715,7 @@ if __name__ == '__main__':
     
     
     '''
-    myimu = IMU(r'.\tests\data\data_xsens.txt')
+    myimu = IMU(r'tests/data/data_xsens.txt')
 
     initialOrientation = np.array([[1,0,0],
                                    [0,0,-1],

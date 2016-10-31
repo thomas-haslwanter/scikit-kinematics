@@ -20,8 +20,8 @@ Homepage
 http://work.thaslwanter.at/skinematics/html/
 
 Author:  Thomas Haslwanter
-Date:    23-05-2016
-Ver:     0.2.8
+Date:    31-10-2016
+Ver:     0.2.9
 Licence: BSD 2-Clause License (http://opensource.org/licenses/BSD-2-Clause)
         Copyright (c) 2016, Thomas Haslwanter
         All rights reserved.
