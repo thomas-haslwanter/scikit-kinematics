@@ -15,6 +15,9 @@ Date: May-2016
 import numpy as np
 import pandas as pd
 
+class FileNotFoundError(OSError):
+    pass
+
 def get_data(inFile, rate=125):
     '''Get the sampling rate, as well as the recorded data.
     
@@ -41,7 +44,7 @@ def get_data(inFile, rate=125):
         data.columns = ['acc_x', 'acc_y', 'acc_z', 'gyr_x', 'gyr_y', 'gyr_z', 'mag_x', 'mag_y', 'mag_z', 'taccgyr', 'tmag']
         
         # interpolate with a manually set rate
-        dt = 1/rate
+        dt = 1/np.float(rate)
         t_lin = np.arange(0, 25, dt)
 
         data_interp = pd.DataFrame()

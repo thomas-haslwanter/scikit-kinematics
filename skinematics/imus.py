@@ -10,7 +10,7 @@ Currently data from the following systems are supported
 
 '''
 Author: Thomas Haslwanter
-Version: 1.7
+Version: 1.8
 Date: Oct-2016
 '''
 
@@ -183,7 +183,7 @@ class IMU:
             self._checkRequirements()
                     
             # Initialize object
-            AHRS = MahonyAHRS(SamplePeriod=1./self.rate, Kp=0.5)
+            AHRS = MahonyAHRS(SamplePeriod=1./np.float(self.rate), Kp=0.5)
             quaternion = np.zeros((self.totalSamples, 4))
             
             # The "Update"-function uses angular velocity in radian/s, and only the directions of acceleration and magnetic field
@@ -217,8 +217,8 @@ class IMU:
         pos = np.nan*np.ones_like(accReSpace)
 
         for ii in range(accReSpace.shape[1]):
-            vel[:,ii] = cumtrapz(accReSpace[:,ii], dx=1./self.rate, initial=0)
-            pos[:,ii] = cumtrapz(vel[:,ii],        dx=1./self.rate, initial=initialPosition[ii])
+            vel[:,ii] = cumtrapz(accReSpace[:,ii], dx=1./np.float(self.rate), initial=0)
+            pos[:,ii] = cumtrapz(vel[:,ii],        dx=1./np.float(self.rate), initial=initialPosition[ii])
 
         self.pos = pos
 
@@ -504,7 +504,7 @@ def kalman_quat(rate, acc, omega, mag):
     numData = len(acc)
 
     # Set parameters for Kalman Filter
-    tstep = 1/rate
+    tstep = 1./rate
     tau = [0.5, 0.5, 0.5]	# from Yun, 2006
 
     # Initializations 
@@ -677,7 +677,7 @@ class MahonyAHRS:
              q[0]**2 - q[1]**2 - q[2]**2 + q[3]**2])
 
         w = np.array([
-             2*b[1]*(0.5 - q[2]**2 - q[3]**2) + 2*b[3]*(q[1]*q[3] - q[0]*q[2]),
+            2*b[1]*(0.5 - q[2]**2 - q[3]**2) + 2*b[3]*(q[1]*q[3] - q[0]*q[2]),
              2*b[1]*(q[1]*q[2] - q[0]*q[3]) + 2*b[3]*(q[0]*q[1] + q[2]*q[3]),
              2*b[1]*(q[0]*q[2] + q[1]*q[3]) + 2*b[3]*(0.5 - q[1]**2 - q[2]**2)]) 
 
@@ -701,8 +701,8 @@ class MahonyAHRS:
         self.Quaternion = vector.normalize(q)
 
 if __name__ == '__main__':
-    myIMU = IMU(inFile = r'tests/data/data_polulu.txt', inType='polulu')
-    myIMU.calc_orientation(np.eye(3), type='Mahony')
+    myIMU = IMU(inFile = r'tests/data/data_xsens.txt', inType='XSens')
+    myIMU.calc_orientation(np.eye(3), type='Madgwick')
     quat = myIMU.quat[:,1:]
     fig, axs = plt.subplots(3,1)
     axs[0].plot(myIMU.omega)
