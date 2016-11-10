@@ -773,7 +773,7 @@ def vel2quat(omega, q0, rate, CStype):
     q_pos[0,:] = vect2quat(q0)
 
     # magnitude of position steps
-    dq_total = np.sin(omega_t[omega_nonZero]/(2*rate))
+    dq_total = np.sin(omega_t[omega_nonZero]/(2.*rate))
 
     q_delta[omega_nonZero,:] = omega[omega_nonZero,:] * np.tile(dq_total/omega_t[omega_nonZero], (3,1)).T
 
@@ -862,7 +862,7 @@ if __name__=='__main__':
     out = vel2quat(vel, [0., 0., 0.], rate, 'sf')
     
     rate = 1000
-    t = np.arange(0,10,1/rate)
+    t = np.arange(0,10,1./rate)
     x = 0.1 * np.sin(t)
     y = 0.2 * np.sin(t)
     z = np.zeros_like(t)

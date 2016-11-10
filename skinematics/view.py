@@ -1,9 +1,9 @@
 '''
-Interactive viewer for time-series data. Replaces the older "ui.viewer".
-Although it is a user interface utility, it is large enough to make up its
-own module.
-
-Variable types that can in principle be plotted are:
+This module includes two functions:
+    - An interactive viewer for time-series data ("view.ts")
+    - An animation of 3D orientations, expressed as quaternions ("view.orientation")
+    
+For the time-series viewer, variable types that can in principle be plotted are:
     * np.ndarray
     * pd.core.frame.DataFrame
     * pd.core.series.Series
@@ -19,8 +19,8 @@ Notable aspects:
 '''
 
 '''
-ThH, Oct 2014
-Ver 1.1
+ThH, Nov 2016
+Ver 2.0
 '''
 
 import sys
@@ -41,8 +41,127 @@ from matplotlib.mlab import dist
 from sys import _getframe
 from os.path import expanduser, join
 
+import skinematics as skin
+from mpl_toolkits.mplot3d import axes3d    
+import matplotlib.animation as animation
+
 # List if plottable datatypes
 plottable = [np.ndarray, pd.core.frame.DataFrame, pd.core.series.Series]
+
+def orientation(quats, out_file=None, title_text=None, deltaT=100):
+    '''Calculates the orienation of an arrow-patch used to visualize a quaternion.
+    Uses "_update_func" for the display.
+    
+    Parameters
+    ----------
+    quats : array [(N,3) or (N,4)]
+            Quaterions describing the orientation.
+    out_file : string
+            Path- and file-name of the animated out-file (".mp4"). [Default=None]
+    title_text : string
+            Name of title of animation [Default=None]
+    deltaT : int
+            interval between frames [msec]. Smaller numbers make faster
+            animations.
+    
+    Example
+    -------
+        To visualize a rotation about the (vertical) z-axis:
+        
+    >>> # Set the parameters
+    >>> omega = np.r_[0, 10, 10]     # [deg/s]
+    >>> duration = 2
+    >>> rate = 100
+    >>> q0 = [1, 0, 0, 0]
+    >>> out_file = 'demo_patch.mp4'
+    >>> title_text = 'Rotation Demo'
+    >>> 
+    >>> # Calculate the orientation
+    >>> dt = 1./rate
+    >>> num_rep = duration*rate
+    >>> omegas = np.tile(omega, [num_rep, 1])
+    >>> q = skin.quat.vel2quat(omegas, q0, rate, 'sf')
+    >>>     
+    >>> orientation(q, out_file, 'Well done!')
+            
+    '''
+    
+    # Initialize the 3D-figure
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+
+    # Define the arrow-shape and the top/bottom colors
+    delta = 0.01    # "Thickness" of arrow
+    corners = [[0, 0, 0.6],
+             [0.2, -0.2, 0],
+             [0, 0, 0]]
+    colors = ['r', 'b']
+    
+    # Calculate the arrow corners
+    corner_array = np.column_stack(corners)
+    
+    corner_arrays = []
+    corner_arrays.append( corner_array + np.r_[0., 0., delta] )
+    corner_arrays.append( corner_array - np.r_[0., 0., delta] )
+    
+    # Calculate the new orientations, given the quaternion orientation
+    all_corners = []
+    for quat in quats:
+        all_corners.append([skin.vector.rotate_vector(corner_arrays[0], quat), 
+                            skin.vector.rotate_vector(corner_arrays[1], quat)])
+        
+    # Animate the whole thing, using 'update_func'
+    num_frames = len(q)
+    ani = animation.FuncAnimation(fig, _update_func, num_frames,
+                                  fargs=[all_corners, colors, ax, title_text],
+                                  interval=deltaT)
+    
+    # If requested, save the animation to a file
+    if out_file is not None:
+        try:
+            ani.save(out_file)
+            print('Animation saved to {0}'.format(out_file))
+        except ValueError:
+            print('Sorry, no animation saved!')
+            print('You probably have to install "ffmpeg", and add it to your PATH.')
+    
+    plt.show()    
+    
+    return
+
+def _update_func(num, all_corners, colors, ax, title=None):
+    '''For 3D plots it seems to be impossible to only re-set the data values,
+    so the plot has to be cleared and re-generated for each frame
+    '''
+    
+    # Clear previous plot
+    ax.clear()
+
+    # Plot coordinate axes
+    ax.plot([-1, 1], [0, 0], [0, 0])
+    ax.plot([0, 0], [-1, 1], [0, 0])
+    ax.plot([0, 0], [0, 0], [-1, 1])
+    
+    # Format the plot
+    plt.xlim(-1, 1)
+    plt.ylim(-1, 1)
+    plt.xlabel('x')
+    plt.ylabel('y')
+    
+    try:
+        # Plot and color the top- and bottom-arrow
+        for up_down in range(2):
+            corners = all_corners[num][up_down]
+            ph = ax.plot_trisurf(corners[:,0], corners[:,1], corners[:,2])
+            ph.set_color(colors[up_down])
+        
+        if title is not None:
+            plt.title(title)
+        
+    except RuntimeError:
+        # When the triangle is exactly edge-on "plot_trisurf" seems to have a numerical problem
+        print('Cannot show triangle edge-on!')
+    return
 
 class Display:
     def __init__(self, master, data=None):
@@ -617,14 +736,14 @@ def ts(data = None):
         To view a single plottable variable:
 
     >>> x = np.random.randn(100,3)
-    >>> viewer.ts(x)
+    >>> view.ts(x)
     
         To select a plottable variable from the workspace
 
     >>> x = np.random.randn(100,3)
     >>> t = np.arange(0,10,0.1)
     >>> y = np.sin(x)
-    >>> viewer.ts(locals)
+    >>> view.ts(locals)
     
     '''
 
@@ -633,6 +752,8 @@ def ts(data = None):
     root.mainloop()    
     
 if __name__ == '__main__':
+    
+    # 2D Viewer -----------------
     data = np.random.randn(100,3)
     t = np.arange(0,2*np.pi,0.1)
     x = np.sin(t)    
@@ -640,3 +761,23 @@ if __name__ == '__main__':
     # Show the data
     ts(data)
     #ts(locals())
+    
+    # 3D Viewer ----------------
+    # Set the parameters
+    omega = np.r_[0, 10, 10]     # [deg/s]
+    duration = 2
+    rate = 100
+    q0 = [1, 0, 0, 0]
+    out_file = 'demo_patch.mp4'
+    title_text = 'Rotation Demo'
+    
+    ## Calculate the orientation
+    dt = 1./rate
+    num_rep = duration*rate
+    omegas = np.tile(omega, [num_rep, 1])
+    q = skin.quat.vel2quat(omegas, q0, rate, 'sf')
+        
+    #orientation(q)
+    orientation(q, out_file, 'Well done!')
+    
+    

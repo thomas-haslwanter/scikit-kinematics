@@ -43,13 +43,17 @@ It is hosted under https://github.com/thomas-haslwanter/scikit-kinematics, and c
     - rotation
     - also work on data arrays
 
-*viewer*  Allows you to interactively explore time-series data in your workspace
+*view*  Visualization of time-series data, and of 3D orientations
 
 .. figure:: _static/viewer_large.png
-    :scale: 50%
+    :scale: 35%
 
     Interactively analyze time-series data.
 
+.. figure:: _static/orientation_viewer.png
+    :scale: 25%
+
+    Visualize 3D orientations.
 
 Installation
 ------------
@@ -99,7 +103,7 @@ Modules
    imus
    markers
    vector
-   viewer
+   view
 
 
 Indices and tables
@@ -111,8 +115,8 @@ Indices and tables
 
 .. note::
     | *Author:*     Thomas Haslwanter
-    | *Version:*    0.2.9
-    | *Date:*       Oct 2016
+    | *Version:*    0.3.0
+    | *Date:*       Nov 2016
     | *email:*      thomas.haslwanter@fh-linz.at
     | *Copyright (c):*      2016, Thomas Haslwanter. All rights reserved.
     | *Licence:*    This work is licensed under the `BSD 2-Clause License <http://opensource.org/licenses/BSD-2-Clause>`_
