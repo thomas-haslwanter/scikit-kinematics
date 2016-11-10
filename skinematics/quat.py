@@ -256,7 +256,7 @@ class Quaternion():
         if to.lower() == 'vector' :
             return self.values[:,1:]
 
-        if to.lower == 'euler':
+        if to.lower() == 'euler':
             Euler = np.zeros((len(self),3))
             rm = self.export()
             if rm.shape == (3,3):
