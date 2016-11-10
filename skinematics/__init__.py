@@ -20,9 +20,9 @@ import importlib
 
 __author__ = "Thomas Haslwanter <thomas.haslwanter@fh-linz.at"
 __license__ = "BSD 2-Clause License"
-__version__ = "0.2.8"
+__version__ = "0.3.2"
 
-__all__ = ['imus', 'markers', 'quat', 'rotmat', 'vector', 'viewer',
+__all__ = ['imus', 'markers', 'quat', 'rotmat', 'vector', 'view',
 'sensors']
 
 for _m in __all__:

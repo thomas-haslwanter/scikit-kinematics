@@ -18,4 +18,5 @@ v0.2.9, 31-Oct-2016 -- path for "sensors" added, docu adjusted
 v0.2.10, 04-Nov-2016 -- fixed error with Python 2.x in imus.py
 v0.3.0, 11-Nov-2016 -- "viewer.py" renamed to "view.py"; animated orientation visualization added
 v0.3.1, 11-Nov-2016 -- type in quat.py fixed ("to.lower()"
+v0.3.2, 11-Nov-2016 -- Fixed error in "__init__.py"
 

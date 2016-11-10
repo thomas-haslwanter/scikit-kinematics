@@ -16,6 +16,10 @@ Notable aspects:
     - Keyboard-based interaction.
     - Logging of marked events.
 
+Note:
+"view.ts" seems to have difficulties with certain Tkinter functions in Python 2.x
+(selection local variables, and exiting the viewer). Since Python 2.x is no longer
+supported by many packages/groups, fixes will only be tried on request!
 '''
 
 '''
@@ -759,7 +763,7 @@ if __name__ == '__main__':
     x = np.sin(t)    
     
     # Show the data
-    ts(data)
+    #ts(data)
     #ts(locals())
     
     # 3D Viewer ----------------
@@ -779,5 +783,3 @@ if __name__ == '__main__':
         
     #orientation(q)
     orientation(q, out_file, 'Well done!')
-    
-    

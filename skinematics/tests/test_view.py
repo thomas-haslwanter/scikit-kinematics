@@ -5,15 +5,15 @@ sys.path.insert(0, os.path.abspath(r'..'))
 import unittest
 import numpy as np
 from time import sleep
-import viewer
+import view
 
 class TestSequenceFunctions(unittest.TestCase):
 
-    def test_viewer(self):
+    def test_view(self):
         t = np.arange(0,10,0.1)
         x = np.sin(t) + 0.2*np.random.randn(len(t))
         data = np.random.randn(100,3)
-        viewer.ts(x)
+        view.ts(x)
         #viewer.ts(locals())
         
 if __name__ == '__main__':
