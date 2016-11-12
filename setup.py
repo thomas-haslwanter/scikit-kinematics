@@ -1,94 +1,30 @@
-#!/usr/bin/env python
-descr = """\
-Example package.
+from setuptools import setup, find_packages
 
-This is a do nothing package, to show how to organize a scikit.
-"""
+setup(
+    name='scikit-kinematics',
+    version="0.3.3",
+    packages=find_packages(),
 
-DISTNAME            = 'scikit-kinematics'
-DESCRIPTION         = 'Python utilites for movements in 3d space'
-LONG_DESCRIPTION    = open('README.rst').read()
-MAINTAINER          = 'Thomas Haslwanter'
-MAINTAINER_EMAIL    = 'thomas.haslwanter@fh-linz.at'
-URL                 = 'http://work.thaslwanter.at/skinematics/html'
-LICENSE             = 'http://opensource.org/licenses/BSD-2-Clause'
-DOWNLOAD_URL        = 'https://github.com/thomas-haslwanter/scikit-kinematics'
-PACKAGE_NAME        = 'skinematics'
+    # Project uses reStructuredText, so ensure that the docutils get
+    # installed or upgraded on the target machine
+    install_requires=['docutils>=0.3', 'easygui'],
 
-
-import os
-import sys
-import subprocess
-
-import setuptools
-from numpy.distutils.core import setup
-
-def configuration(parent_package='', top_path=None, package_name=DISTNAME):
-    if os.path.exists('MANIFEST'): os.remove('MANIFEST')
-
-    from numpy.distutils.misc_util import Configuration
-    config = Configuration(None, parent_package, top_path)
-
-    # Avoid non-useful msg: "Ignoring attempt to set 'name' (from ... "
-    config.set_options(ignore_setup_xxx_py=True,
-                       assume_default_configuration=True,
-                       delegate_options_to_subpackages=True,
-                       quiet=True)
-
-    config.add_subpackage(PACKAGE_NAME)
-    config.add_subpackage(r'skinematics/sensors')
-    return config
-
-def get_version():
-    """Obtain the version number"""
-    import imp
-    mod = imp.load_source('version', os.path.join(PACKAGE_NAME, 'version.py'))
-    return mod.__version__
-
-# Documentation building command
-try:
-    from sphinx.setup_command import BuildDoc as SphinxBuildDoc
-    class BuildDoc(SphinxBuildDoc):
-        """Run in-place build before Sphinx doc build"""
-        def run(self):
-            ret = subprocess.call([sys.executable, sys.argv[0], 'build_ext', '-i'])
-            if ret != 0:
-                raise RuntimeError("Building Scipy failed!")
-            SphinxBuildDoc.run(self)
-    cmdclass = {'build_sphinx': BuildDoc}
-except ImportError:
-    cmdclass = {}
-
-# Call the setup function
-if __name__ == "__main__":
-
-    # Writing the install requirements into the setup file seems to update
-    # all the dependencies, every time "pip .... -U" is called. This can 
-    # break a working distribution! So below I only list the one that is
-    # typically NOT already installed
-    #install_requires=['numpy', 'scipy', 'matplotlib', 'pandas', 'easygui'],
-
-    metadata= dict(
-        name=DISTNAME,
-        maintainer=MAINTAINER,
-        maintainer_email=MAINTAINER_EMAIL,
-        description=DESCRIPTION,
-        license=LICENSE,
-        url=URL,
-        download_url=DOWNLOAD_URL,
-        long_description=LONG_DESCRIPTION,
-        install_requires=['easygui'],
-        classifiers=['Development Status :: 4 - Beta',
-                     'Programming Language :: Python :: 2',
-                     'Programming Language :: Python :: 3',
-                     'Intended Audience :: Developers',
-                     'Intended Audience :: Science/Research',
-                     'License :: OSI Approved :: BSD License',
-                     'Topic :: Scientific/Engineering'],
-        test_suite='nose.collector',
-        include_package_data=True,
-        configuration=configuration,
-        cmdclass=cmdclass,
-        version=get_version()
-    )
-    setup(**metadata)
+    # metadata for upload to PyPI
+    author       = "Thomas Haslwanter",
+    author_email = "thomas.haslwanter@fh-linz.at",
+    description  = 'Python utilites for movements in 3d space',
+    long_description=open('README.rst').read(),
+    license      = 'http://opensource.org/licenses/BSD-2-Clause',
+    download_url = 'https://github.com/thomas-haslwanter/scikit-kinematics',
+    keywords     = 'quaterions rotations',
+    url          = 'http://work.thaslwanter.at/skinematics/html',
+    classifiers  = ['Development Status :: 4 - Beta',
+                 'Programming Language :: Python :: 2',
+                 'Programming Language :: Python :: 3',
+                 'Intended Audience :: Developers',
+                 'Intended Audience :: Science/Research',
+                 'License :: OSI Approved :: BSD License',
+                 'Topic :: Scientific/Engineering'],
+    test_suite   = 'nose.collector',
+    tests_require=['nose'],
+)

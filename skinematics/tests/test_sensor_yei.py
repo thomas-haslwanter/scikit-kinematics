@@ -1,8 +1,8 @@
 
 import sys
 import os
-sys.path.insert(0, os.path.abspath(r'..'))
-sys.path.append('.')
+myPath = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, myPath + '/../')
 
 import unittest
 from skinematics import imus
@@ -12,7 +12,7 @@ class TestSequenceFunctions(unittest.TestCase):
     
     def test_import_yei(self):
         # Get data, with a specified input from a YEI system
-        inFile = 'data/data_yei.txt'
+        inFile = os.path.join(myPath, 'data', 'data_yei.txt')
         data = imus.import_data(inFile, type='yei', paramList=['rate', 'acc', 'omega', 'mag'])
         rate = data[0]
         acc = data[1]

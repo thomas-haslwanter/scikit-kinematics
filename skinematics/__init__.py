@@ -20,7 +20,7 @@ import importlib
 
 __author__ = "Thomas Haslwanter <thomas.haslwanter@fh-linz.at"
 __license__ = "BSD 2-Clause License"
-__version__ = "0.3.2"
+__version__ = "0.3.3"
 
 __all__ = ['imus', 'markers', 'quat', 'rotmat', 'vector', 'view',
 'sensors']

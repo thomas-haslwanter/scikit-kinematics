@@ -1,7 +1,8 @@
 
 import sys
 import os
-sys.path.insert(0, os.path.abspath(r'..'))
+myPath = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, myPath + '/../')
 sys.path.append('.')
 
 import unittest
@@ -12,7 +13,7 @@ class TestSequenceFunctions(unittest.TestCase):
     
     def test_import_xio(self):
         # Get data, with a specified input from an XIO system
-        inFile = r'data/data_xio/00033_CalInertialAndMag.csv'
+        inFile = os.path.join(myPath, 'data', 'data_xio', '00033_CalIntertialAndMag.csv')
         data = imus.import_data(inFile, type='xio', paramList=['rate', 'acc', 'omega', 'mag'])
         rate = data[0]
         acc = data[1]
