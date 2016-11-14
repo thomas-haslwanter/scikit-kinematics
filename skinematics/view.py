@@ -115,7 +115,7 @@ def orientation(quats, out_file=None, title_text=None, deltaT=100):
                             skin.vector.rotate_vector(corner_arrays[1], quat)])
         
     # Animate the whole thing, using 'update_func'
-    num_frames = len(q)
+    num_frames = len(quats)
     ani = animation.FuncAnimation(fig, _update_func, num_frames,
                                   fargs=[all_corners, colors, ax, title_text],
                                   interval=deltaT)
@@ -626,6 +626,7 @@ class Display:
         
         
         self.canvas.draw()
+        self.master.call('wm', 'attributes', '.', '-topmost', '1')
         
     def selectPlotVar(self):
         ''' Select a plottable variable from those in the workspace. '''
@@ -767,7 +768,6 @@ if __name__ == '__main__':
     ts(locals())
     ts(data)
     
-    '''
     # 3D Viewer ----------------
     # Set the parameters
     omega = np.r_[0, 10, 10]     # [deg/s]
@@ -785,4 +785,3 @@ if __name__ == '__main__':
         
     #orientation(q)
     orientation(q, out_file, 'Well done!')
-    '''
