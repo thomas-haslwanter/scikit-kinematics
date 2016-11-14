@@ -599,7 +599,8 @@ class Display:
             np.savetxt(self.logFile, self.marks)
             print('right-Mouse clicks are saved into {0}'.format(self.logFile))
             
-        self.master.quit()  # somehow "self.master.destroy()" did not fully terminate the program
+        self.master.quit()  
+        self.master.destroy()  # If you don't use both, Python crashes under Python 2.x
         
     def updatePlot(self):
         '''update the figure'''
@@ -611,7 +612,7 @@ class Display:
             self.zeros[ii].remove()
             
             # plot the new data
-            self.axs[ii].set_color_cycle(None)
+            #self.axs[ii].set_color_cycle(None)
             self.lines[ii] = self.axs[ii].plot(self.varValues)
             self.zeros[ii] = self.axs[ii].hlines(0,0,len(self.varValues), linestyle='dotted')
         self.master.title(self.varName)
@@ -763,9 +764,10 @@ if __name__ == '__main__':
     x = np.sin(t)    
     
     # Show the data
-    #ts(data)
-    #ts(locals())
+    ts(locals())
+    ts(data)
     
+    '''
     # 3D Viewer ----------------
     # Set the parameters
     omega = np.r_[0, 10, 10]     # [deg/s]
@@ -783,3 +785,4 @@ if __name__ == '__main__':
         
     #orientation(q)
     orientation(q, out_file, 'Well done!')
+    '''
