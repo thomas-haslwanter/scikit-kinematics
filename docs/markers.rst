@@ -11,8 +11,8 @@ Functions
 
 Optical Systems
 ^^^^^^^^^^^^^^^
-* :func:`kinematics.analyze3Dmarkers` ... Kinematic analysis of video-basedrecordings of 3D markers
-* :func:`kinematics.findTrajectory` ... Calculation of point trajectory, from initial position + sensor position/orientation
+* :func:`markers.analyze3Dmarkers` ... Kinematic analysis of video-basedrecordings of 3D markers
+* :func:`markers.findTrajectory` ... Calculation of point trajectory, from initial position + sensor position/orientation
 
 Details
 -------
