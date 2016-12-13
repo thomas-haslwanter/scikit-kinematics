@@ -120,7 +120,7 @@ Indices and tables
 
 .. note::
     | *Author:*     Thomas Haslwanter
-    | *Version:*    0.3.3
+    | *Version:*    0.3.7
     | *Date:*       Nov 2016
     | *email:*      thomas.haslwanter@fh-linz.at
     | *Copyright (c):*      2016, Thomas Haslwanter. All rights reserved.

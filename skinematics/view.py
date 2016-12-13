@@ -115,7 +115,7 @@ def orientation(quats, out_file=None, title_text=None, deltaT=100):
                             skin.vector.rotate_vector(corner_arrays[1], quat)])
         
     # Animate the whole thing, using 'update_func'
-    num_frames = len(q)
+    num_frames = len(quats)
     ani = animation.FuncAnimation(fig, _update_func, num_frames,
                                   fargs=[all_corners, colors, ax, title_text],
                                   interval=deltaT)
@@ -599,7 +599,8 @@ class Display:
             np.savetxt(self.logFile, self.marks)
             print('right-Mouse clicks are saved into {0}'.format(self.logFile))
             
-        self.master.quit()  # somehow "self.master.destroy()" did not fully terminate the program
+        self.master.quit()  
+        self.master.destroy()  # If you don't use both, Python crashes under Python 2.x
         
     def updatePlot(self):
         '''update the figure'''
@@ -611,7 +612,7 @@ class Display:
             self.zeros[ii].remove()
             
             # plot the new data
-            self.axs[ii].set_color_cycle(None)
+            #self.axs[ii].set_color_cycle(None)
             self.lines[ii] = self.axs[ii].plot(self.varValues)
             self.zeros[ii] = self.axs[ii].hlines(0,0,len(self.varValues), linestyle='dotted')
         self.master.title(self.varName)
@@ -625,6 +626,7 @@ class Display:
         
         
         self.canvas.draw()
+        self.master.call('wm', 'attributes', '.', '-topmost', '1')
         
     def selectPlotVar(self):
         ''' Select a plottable variable from those in the workspace. '''
@@ -763,8 +765,8 @@ if __name__ == '__main__':
     x = np.sin(t)    
     
     # Show the data
-    #ts(data)
-    #ts(locals())
+    ts(locals())
+    ts(data)
     
     # 3D Viewer ----------------
     # Set the parameters

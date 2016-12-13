@@ -20,4 +20,7 @@ v0.3.0, 11-Nov-2016 -- "viewer.py" renamed to "view.py"; animated orientation vi
 v0.3.1, 11-Nov-2016 -- type in quat.py fixed ("to.lower()"
 v0.3.2, 11-Nov-2016 -- Fixed error in "__init__.py"
 v0.3.3, 11-Nov-2016 -- Substantially updated "setup.py", removed version.py
-
+v0.3.4, 12-Nov-2016 -- skipped (mistake)
+v0.3.5, 12-Nov-2016 -- Switched to wheels
+v0.3.6, 14-Nov-2016 -- Fixed the crash of "view.ts" with Python 2.x
+v0.3.7, 14-Nov-2016 -- ... and another two bugs in "view" that got eliminated ...

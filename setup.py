@@ -2,8 +2,11 @@ from setuptools import setup, find_packages
 
 setup(
     name='scikit-kinematics',
-    version="0.3.3",
+    version="0.3.7",
     packages=find_packages(),
+
+    include_package_data=True,
+    package_data = {'tests': ['*.txt', '*.csv', '*.BIN']},
 
     # Project uses reStructuredText, so ensure that the docutils get
     # installed or upgraded on the target machine
