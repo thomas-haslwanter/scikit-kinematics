@@ -19,6 +19,7 @@ Ver 1.0
 import matplotlib.pyplot as plt
 import os
 import sys
+from scipy.signal import savgol_filter
 
 if sys.version_info.major == 3:
     # Python 3.x
@@ -114,12 +115,12 @@ if __name__ == "__main__":
     width, height = get_screensize()
     print('Your screen is {0} x {1} pixels.'.format(width, height))
     
-    '''
     import time
     for ii in progressbar(range(50), 'Computing ', 25):
         #print(ii)
         time.sleep(0.05)
         
+    '''
 
     (myFile, myPath) = getfile('*.eps', 'Testing file-selection', r'c:\temp\test.eps')
     if myFile == 0:          
