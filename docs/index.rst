@@ -92,6 +92,11 @@ and type (on the command-line!):
 >>> cd [_your_installation_dir_]\skinematics\tests
 >>> python -m unittest
 
+**Note for Python 2.7.x**: While Python 3.x includes automatic test
+discovery, this has to be requested explicitly for *Python 2.7.x*:
+
+>>> python -m unittest discover
+
 Modules
 -------
 

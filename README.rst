@@ -11,6 +11,7 @@ This includes utilities to read in data from the following IMU-sensors:
 
 Compatible with Python 2 and 3.
 
+
 Dependencies
 ------------
 numpy, scipy, matplotlib, pandas, sympy, easygui
