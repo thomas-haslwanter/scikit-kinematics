@@ -28,7 +28,7 @@ Licence: BSD 2-Clause License (http://opensource.org/licenses/BSD-2-Clause)
 
 Installation
 ------------
-You can install thlib with
+You can install scikit-kinematics with
 
     pip install scikit-kinematics
 
