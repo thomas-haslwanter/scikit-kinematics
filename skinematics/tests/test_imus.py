@@ -88,6 +88,13 @@ class TestSequenceFunctions(unittest.TestCase):
         self.assertAlmostEqual((rate - 125), 0)
         self.assertAlmostEqual( (acc[0,1] + 0.004575), 0)
         
+    def test_IMU_calc_position(self):
+        # Get data, with a specified input from an XSens system
+        inFile = os.path.join(myPath, 'data', 'data_xsens.txt')
+        imu = imus.IMU(inFile)
+        start_position = np.r_[0,0,0]
+        imu.calc_position(start_position)
+        
 if __name__ == '__main__':
     unittest.main()
     print('Thanks for using programs from Thomas!')
