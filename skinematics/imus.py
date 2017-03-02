@@ -16,6 +16,7 @@ Date: Oct-2016
 
 import numpy as np
 import scipy as sp
+import sp.constants
 from scipy.integrate import cumtrapz
 import matplotlib.pyplot as plt
 import pandas as pd 
