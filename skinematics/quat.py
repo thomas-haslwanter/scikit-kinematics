@@ -12,8 +12,8 @@ A "Quaternion" class is defined, with
 
 '''
 author: Thomas Haslwanter
-date:   April 2016
-ver:    0.2
+date:   March 2017
+ver:    0.3
 '''
 
 import numpy as np
@@ -854,7 +854,7 @@ if __name__=='__main__':
     proper output.
     More extensive tests are found in tests/test_quat.py'''
     
-    from vector import rotate_vector
+    from skinematics.vector import rotate_vector
     
     v0 = np.r_[0., 0., 100.] * np.pi/180.
     vel = np.tile(v0, (1000,1))
@@ -871,7 +871,6 @@ if __name__=='__main__':
     vel = quat2vel(q, rate, 5, 2)
     qReturn = vel2quat(vel, q[0], rate, 'sf' )
     plt.plot(q)
-    plt.hold(True)
     plt.plot(qReturn[:,1:],'--')
     plt.show()
     
@@ -947,5 +946,3 @@ if __name__=='__main__':
     p[1:] = [[0,0,0],[0,0,0.01]]
     print(p)
     
-    '''
-    '''
