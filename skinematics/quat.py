@@ -854,7 +854,7 @@ if __name__=='__main__':
     proper output.
     More extensive tests are found in tests/test_quat.py'''
     
-    from vector import rotate_vector
+    from skinematics.vector import rotate_vector
     
     v0 = np.r_[0., 0., 100.] * np.pi/180.
     vel = np.tile(v0, (1000,1))

@@ -16,7 +16,7 @@ Date: Oct-2016
 
 import numpy as np
 import scipy as sp
-import sp.constants
+from scipy import constants
 from scipy.integrate import cumtrapz
 import matplotlib.pyplot as plt
 import pandas as pd 
@@ -208,7 +208,7 @@ class IMU:
 
         # Acceleration, velocity, and position ----------------------------
         # From q and the measured acceleration, get the \frac{d^2x}{dt^2}
-        g = sp.constants.g
+        g = constants.g
         g_v = np.r_[0, 0, g] 
         accReSensor = self.acc - vector.rotate_vector(g_v, quat.quatinv(self.quat))
         accReSpace = vector.rotate_vector(accReSensor, self.quat)

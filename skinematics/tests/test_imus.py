@@ -88,14 +88,27 @@ class TestSequenceFunctions(unittest.TestCase):
         self.assertAlmostEqual((rate - 125), 0)
         self.assertAlmostEqual( (acc[0,1] + 0.004575), 0)
         
-    def test_IMU_calc_position(self):
+    def test_IMU_calc_orientation_position(self):
+        """Currently, this only tests if the two functions are running through"""
+        
         # Get data, with a specified input from an XSens system
         inFile = os.path.join(myPath, 'data', 'data_xsens.txt')
         imu = imus.IMU(inFile)
-        start_position = np.r_[0,0,0]
-        imu.calc_position(start_position)
+        
+        initial_orientation = np.array([[1,0,0],
+                                       [0,0,-1],
+                                       [0,1,0]])
+        initial_position = np.r_[0,0,0]
+        
+        imu.calc_orientation(initial_orientation)
+        imu.calc_position(initial_position)
+        print('done')
         
 if __name__ == '__main__':
-    unittest.main()
+    suite = unittest.TestSuite()
+    suite.addTest(TestSequenceFunctions(methodName='test_IMU_calc_orientation_position'))
+    runner = unittest.TextTestRunner()
+    runner.run(suite)
+    #unittest.main()
     print('Thanks for using programs from Thomas!')
     sleep(2)
