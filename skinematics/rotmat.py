@@ -207,7 +207,7 @@ def sequence(R, to ='Euler'):
             alpha = np.arcsin(R[1,0])
         else:
             gamma = np.arcsin(R[0,2]/np.sin(beta))
-            alpha = np.arcsin(R[2,0]/np.cos(beta))
+            alpha = np.arcsin(R[2,0]/np.sin(beta))
             
     else:
         print('\nSorry, only know: \naero, \nFick, \nHelmholtz, \nEuler.\n')

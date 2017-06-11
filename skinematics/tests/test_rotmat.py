@@ -60,6 +60,13 @@ class TestSequenceFunctions(unittest.TestCase):
         correct = np.r_[[np.pi/4,0,0]]
         self.assertAlmostEqual(np.linalg.norm(correct - np.array(Euler)), 0)
         
+        alpha, beta, gamma = 10, 20, 30
+        mat_euler = rotmat.R(2, gamma) @ rotmat.R(0, beta) @ rotmat.R(2, alpha)
+        angles_euler = np.rad2deg(rotmat.sequence(mat_euler, to='Euler'))
+        correct = np.r_[alpha, beta, gamma]
+        self.assertAlmostEqual(np.linalg.norm(correct - np.array(angles_euler)), 0)
+        
+        
     def test_convert(self):
         result = rotmat.convert(quat.convert([0, 0, 0.1], to ='rotmat'), to ='quat')
         correct = np.array([[ 0.99498744,  0.        ,  0.        ,  0.1       ]])
