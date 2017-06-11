@@ -45,9 +45,17 @@ from matplotlib.mlab import dist
 from sys import _getframe
 from os.path import expanduser, join
 
-import skinematics as skin
+#import skinematics as skin
 from mpl_toolkits.mplot3d import axes3d    
 import matplotlib.animation as animation
+
+# The following construct is required since I want to run the module as a script
+# inside the skinematics-directory
+import os
+import sys
+sys.path.append( os.path.join( os.path.dirname(__file__), os.path.pardir ) ) 
+
+from skinematics import vector, quat
 
 # List if plottable datatypes
 plottable = [np.ndarray, pd.core.frame.DataFrame, pd.core.series.Series]
@@ -111,8 +119,8 @@ def orientation(quats, out_file=None, title_text=None, deltaT=100):
     # Calculate the new orientations, given the quaternion orientation
     all_corners = []
     for quat in quats:
-        all_corners.append([skin.vector.rotate_vector(corner_arrays[0], quat), 
-                            skin.vector.rotate_vector(corner_arrays[1], quat)])
+        all_corners.append([vector.rotate_vector(corner_arrays[0], quat), 
+                            vector.rotate_vector(corner_arrays[1], quat)])
         
     # Animate the whole thing, using 'update_func'
     num_frames = len(quats)
@@ -781,7 +789,7 @@ if __name__ == '__main__':
     dt = 1./rate
     num_rep = duration*rate
     omegas = np.tile(omega, [num_rep, 1])
-    q = skin.quat.vel2quat(omegas, q0, rate, 'sf')
+    q = quat.vel2quat(omegas, q0, rate, 'sf')
         
     #orientation(q)
     orientation(q, out_file, 'Well done!')

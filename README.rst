@@ -21,10 +21,10 @@ Homepage
 http://work.thaslwanter.at/skinematics/html/
 
 Author:  Thomas Haslwanter
-Date:    14-11-2016
-Ver:     0.3.7
+Date:    11-06-2017
+Ver:     0.4.0
 Licence: BSD 2-Clause License (http://opensource.org/licenses/BSD-2-Clause)
-        Copyright (c) 2016, Thomas Haslwanter
+        Copyright (c) 2017, Thomas Haslwanter
         All rights reserved.
 
 Installation
@@ -85,20 +85,22 @@ Quaternion class
 Functions for working with quaternions
 --------------------------------------
 
-- quat.quatconj ... Conjugate quaternion 
-- quat.quatinv ... Quaternion inversion
-- quat.quatmult ... Quaternion multiplication
+- quat.q_conj ... Conjugate quaternion 
+- quat.q_inv ... Quaternion inversion
+- quat.q_mult ... Quaternion multiplication
+- quat.q_scalar ... Extract the scalar part from a quaternion
+- quat.q_vector ... Extract the vector part from a quaternion
+- quat.unit_q ... Extend a quaternion vector to a unit quaternion.
 
 Conversion routines - quaternions
 ---------------------------------
 
+- quat.calc_angvel ... Calculates the velocity in space from quaternions
+- quat.calc_quat ... Calculate orientation from a starting orientation and angular velocity.
+- quat.convert ... Convert quaternion to corresponding rotation matrix or Gibbs vector
 - quat.deg2quat ... Convert number or axis angles to quaternion vectors
-- quat.quat2deg ... Convert quaternion to corresponding axis angle
-- quat.quat2rotmat ... Convert quaternion to corresponding rotation matrix
-- quat.quat2vect ... Extract the vector part from a quaternion
-- quat.rotmat2quat ... Convert a rotation matrix to the corresponding quaternion
-- quat.vect2quat ... Externd a quaternion vector to a unit quaternion.
-- quat.vel2quat ... Calculate orientation from a starting orientation and angular velocity.
+- quat.scale2deg ... Convert quaternion to corresponding axis angle
+
 
 
 Rotation Matrices
@@ -107,25 +109,21 @@ Rotation Matrices
 Definition of rotation matrices
 -------------------------------
 
-- rotmat.R1 ... 3D rotation matrix for rotation about the 1-axis
-- rotmat.R2 ... 3D rotation matrix for rotation about the 2-axis
-- rotmat.R3 ... 3D rotation matrix for rotation about the 3-axis
+- rotmat.R ... 3D rotation matrix for rotation about a coordinate axis
 
 Conversion Routines - rotation matrices
 ---------------------------------------
-- rotmat.rotmat2Fick ... Calculation of Fick angles
-- rotmat.rotmat2Helmholtz ... Calculation of Helmholtz angles
+- rotmat.convert ... Convert a rotation matrix to the corresponding quaternion
+- rotmat.sequence ... Calculation of Euler, Fick, Helmholtz, ... angles
 
 Symbolic matrices
 -----------------
 
-- rotmat.R1_s() ... symbolix matrix for rotation about the 1-axis
-- rotmat.R2_s() ... symbolix matrix for rotation about the 2-axis
-- rotmat.R3_s() ... symbolix matrix for rotation about the 3-axis
+- rotmat.R_s() ... symbolix matrix for rotation about a coordinate axis
 
 For example, you can e.g. generate a Fick-matrix, with
 
->>> R_Fick = R3_s() * R2_s() * R1_s()
+>>>    R_Fick = R_s(2, 'theta') * R_s(1, 'phi') * R_s(0, 'psi')
     
 Vectors
 =======
@@ -136,7 +134,7 @@ These routines can be used with vectors, as well as with matrices containing a v
 - vector.normalize ... Vector normalization
 - vector.project ... Projection of one vector onto another one
 - vector.GramSchmidt ... Gram-Schmidt orthogonalization of three points
-- vector.qrotate ... Quaternion indicating the shortest rotation from one vector into another.
+- vector.q_shortest_rotation ... Quaternion indicating the shortest rotation from one vector into another.
 - vector.rotate_vector ... Rotation of a vector
 
 Interactive Data Analysis

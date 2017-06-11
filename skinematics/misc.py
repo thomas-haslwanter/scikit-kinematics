@@ -30,7 +30,6 @@ else:
     import Tkinter as tk
     import tkFileDialog as tkf
     
-
 def get_screensize():
     '''
     Get the height and width of the screen. 

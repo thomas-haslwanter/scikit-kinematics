@@ -6,26 +6,21 @@ Rotation Matrices
 Definition of rotation matrices
 -------------------------------
 
-* :func:`rotmat.R1` ... 3D rotation matrix for rotation about the 1-axis
-* :func:`rotmat.R2` ... 3D rotation matrix for rotation about the 2-axis
-* :func:`rotmat.R3` ... 3D rotation matrix for rotation about the 3-axis
+* :func:`rotmat.R` ... 3D rotation matrix for rotation about a coordinate axis
 
 Conversion Routines
 -------------------
-* :func:`rotmat.rotmat2Euler` ... Calculation of Euler angles
-* :func:`rotmat.rotmat2Fick` ... Calculation of Fick angles
-* :func:`rotmat.rotmat2Helmholtz` ... Calculation of Helmholtz angles
+* :func:`rotmat.convert` ... Convert a rotation matrix to the corresponding quaternion
+* :func:`rotmat.sequence` ... Calculation of Euler, Fick, Helmholtz, ... angles
 
 Symbolic matrices
 -----------------
 
-* :func:`rotmat.R1_s()` ... symbolix matrix for rotation about the 1-axis
-* :func:`rotmat.R2_s()` ... symbolix matrix for rotation about the 2-axis
-* :func:`rotmat.R3_s()` ... symbolix matrix for rotation about the 3-axis
+* :func:`rotmat.R_s()` ... symbolix matrix for rotation about a coordinate axis
 
 For example, you can e.g. generate a Fick-matrix, with
 
-    R_Fick = R3_s() * R2_s() * R1_s()
+    R_Fick = R_s(2, 'theta') * R_s(1, 'phi') * R_s(0, 'psi')
 
 .. toctree::
    :maxdepth: 2

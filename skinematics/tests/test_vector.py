@@ -85,10 +85,10 @@ class TestSequenceFunctions(unittest.TestCase):
         
         correct = array([[ 0.,0.,0.38268343],
                          [ 0.,0.,-0.38268343]])
-        self.assertTrue(np.all(np.abs(vector.qrotate(v1,v2)-correct)<self.delta))
+        self.assertTrue(np.all(np.abs(vector.q_shortest_rotation(v1,v2)-correct)<self.delta))
         
         correct = array([ 0.,0.,0.38268343])
-        self.assertTrue(norm(vector.qrotate(v1[0],v2[0])-correct)<self.delta)
+        self.assertTrue(norm(vector.q_shortest_rotation(v1[0],v2[0])-correct)<self.delta)
         
     def test_rotate_vector(self):
         x = [[1,0,0], [0, 1, 0], [0,0,1]]

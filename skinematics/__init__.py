@@ -6,7 +6,7 @@ Compatible with Python 2 and 3.
 
 Dependencies
 ------------
-numpy, scipy, matplotlib, pandas, sympy, easygui
+numpy, scipy, matplotlib, pandas, sympy, easygui, libdeprecation
 
 Homepage
 --------
@@ -20,10 +20,10 @@ import importlib
 
 __author__ = "Thomas Haslwanter <thomas.haslwanter@fh-linz.at"
 __license__ = "BSD 2-Clause License"
-__version__ = "0.3.7"
+__version__ = "0.4.0"
 
-__all__ = ['imus', 'markers', 'quat', 'rotmat', 'vector', 'view',
-'sensors']
+__all__ = ['imus', 'markers', 'misc', 'quat', 'rotmat', 'vector', 'view', 'sensors']
+#__all__ = []
 
 for _m in __all__:
     importlib.import_module('.'+_m, package='skinematics')

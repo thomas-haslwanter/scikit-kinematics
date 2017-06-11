@@ -16,12 +16,10 @@ import pandas as pd
 from numpy import r_, sum
 
 # The following construct is required since I want to run the module as a script
-# inside the thLib-directory
+# inside the skinematics-directory
 import os
 import sys
-PACKAGE_PARENT = '..'
-SCRIPT_DIR = os.path.realpath(os.path.dirname(__file__))
-sys.path.append(os.path.normpath(os.path.join(SCRIPT_DIR, PACKAGE_PARENT)))
+sys.path.append( os.path.join( os.path.dirname(__file__), os.path.pardir ) ) 
 
 from skinematics import quat, vector
 
@@ -107,7 +105,7 @@ def analyze3Dmarkers(MarkerPos, ReferencePos):
 
         if np.cross(vector10_ref,Vector10).dot(curOrientation)<=0:
             q2 = -q2
-        orientation[ii,:] = quat.quatmult(q2, q1)
+        orientation[ii,:] = quat.q_mult(q2, q1)
 
     return (position, orientation)
 

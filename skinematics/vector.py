@@ -5,21 +5,30 @@ These routines can be used with vectors, as well as with matrices containing a v
  
 '''
 author :  Thomas Haslwanter
-date :    April-2016
-version : 1.6
+date :    June-2017
 '''
+__version__= '1.7'
 
 import numpy as np
 
+
 # The following construct is required since I want to run the module as a script
-# inside the thLib-directory
+# inside the skinematics-directory
 import os
 import sys
-PACKAGE_PARENT = '..'
-SCRIPT_DIR = os.path.realpath(os.path.dirname(__file__))
-sys.path.append(os.path.normpath(os.path.join(SCRIPT_DIR, PACKAGE_PARENT)))
+sys.path.append( os.path.join( os.path.dirname(__file__), os.path.pardir ) ) 
 
-from skinematics import quat 
+#PACKAGE_PARENT = '..'
+#SCRIPT_DIR = os.path.realpath(os.path.dirname(__file__))
+#sys.path.insert(0, os.path.normpath(os.path.join(SCRIPT_DIR, PACKAGE_PARENT)))
+
+from skinematics import quat
+
+# For deprecation warnings
+import deprecation
+import warnings
+#warnings.simplefilter('always', DeprecationWarning)
+
 
 def normalize(v):
     ''' Normalization of a given vector 
@@ -97,6 +106,10 @@ def angle(v1,v2):
         \\cdot | \\vec{v_2}|})
 
     '''
+    
+    # make sure lists are handled correctly
+    v1 = np.array(v1)
+    v2 = np.array(v2)
     
     if v1.ndim < v2.ndim:
         v1, v2 = v2, v1
@@ -240,7 +253,15 @@ def plane_orientation(p1, p2, p3):
     n = np.cross(v12,v13)
     return normalize(n)
 
-def qrotate(v1,v2):
+@deprecation.deprecated(deprecated_in="1.7", removed_in="1.9",
+                        current_version=__version__,
+                        details="Use the ``q_shortest_rotation`` function instead")
+def q_shortest_rotation(v1,v2):
+    '''Quaternion indicating the shortest rotation from one vector into another.
+    Deprecated. Use "q_shortest_rotation" instead.'''
+    return q_shortest_rotation(v1, v2)
+    
+def q_shortest_rotation(v1,v2):
     '''Quaternion indicating the shortest rotation from one vector into another.
     You can read "qrotate" as either "quaternion rotate" or as "quick
     rotate".
@@ -330,7 +351,7 @@ def rotate_vector(vector, q):
     '''
     vector = np.atleast_2d(vector)
     qvector = np.hstack((np.zeros((vector.shape[0],1)), vector))
-    vRotated = quat.quatmult(q, quat.quatmult(qvector, quat.quatinv(q)))
+    vRotated = quat.q_mult(q, quat.q_mult(qvector, quat.q_inv(q)))
     vRotated = vRotated[:,1:]
 
     if min(vRotated.shape)==1:
@@ -339,5 +360,7 @@ def rotate_vector(vector, q):
     return vRotated
 
 if __name__=='__main__':
-    print(normalize([3, 0, 0]))
+    a = [1,2,3.]
+    b = [1., 0, 0.1]
+    print(angle(a,b))
    

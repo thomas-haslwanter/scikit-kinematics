@@ -12,24 +12,25 @@ A "Quaternion" class is defined, with
 
 '''
 author: Thomas Haslwanter
-date:   March 2017
-ver:    0.3
+date:   June 2017
 '''
+__version__ = '0.4'
 
 import numpy as np
 import matplotlib.pyplot as plt
-
 from scipy import signal
 
 # The following construct is required since I want to run the module as a script
-# inside the thLib-directory
+# inside the skinematics-directory
 import os
 import sys
-PACKAGE_PARENT = '..'
-SCRIPT_DIR = os.path.realpath(os.path.dirname(__file__))
-sys.path.append(os.path.normpath(os.path.join(SCRIPT_DIR, PACKAGE_PARENT)))
+sys.path.append( os.path.join( os.path.dirname(__file__), os.path.pardir ) ) 
 
-from skinematics import rotmat
+from skinematics import vector, rotmat
+
+import deprecation
+import warnings
+#warnings.simplefilter('always', DeprecationWarning)
 
 pi = np.pi
 
@@ -127,7 +128,7 @@ class Quaternion():
 
         if inType.lower() == 'vector':
             if isinstance(inData, np.ndarray) or isinstance(inData, list):
-                self.values = vect2quat(inData)
+                self.values = unit_q(inData)
             elif isinstance(inData, Quaternion):
                 self.values = inData.values
             else:
@@ -190,34 +191,34 @@ class Quaternion():
         if isinstance(other, int) or isinstance(other, float):
             return Quaternion(self.values * other)
         else:
-            return Quaternion(quatmult(self.values, other.values))
+            return Quaternion(q_mult(self.values, other.values))
     
     def __div__(self, other):
         '''Operator overloading for division.'''
         if isinstance(other, int) or isinstance(other, float):
             return Quaternion(self.values / other)
         else:
-            return Quaternion(quatmult(self.values, quatinv(other.values)))
+            return Quaternion(q_mult(self.values, q_inv(other.values)))
     
     def __truediv__(self, other):
         '''Operator overloading for division.'''
         if isinstance(other, int) or isinstance(other, float):
             return Quaternion(self.values / other)
         else:
-            return Quaternion(quatmult(self.values, quatinv(other.values)))
+            return Quaternion(q_mult(self.values, q_inv(other.values)))
     
     def __getitem__(self, select):
         return Quaternion(self.values[select])
         
     def __setitem__(self, select, item):
-        self.values[select] = vect2quat(item)
+        self.values[select] = unit_q(item)
         
     #def __delitem__(self, select):
         #np.delete(self.values, select, axis=0)
         
     def inv(self):
         '''Inverse of a quaternion.'''
-        return Quaternion(quatinv(self.values))
+        return Quaternion(q_inv(self.values))
     
     def __repr__(self):
         return 'Quaternion ' + str(self.values)
@@ -251,7 +252,7 @@ class Quaternion():
         
         '''
         if to.lower() == 'rotmat' :
-           return quat2rotmat(self.values)
+           return convert(self.values, 'rotmat')
        
         if to.lower() == 'vector' :
             return self.values[:,1:]
@@ -282,6 +283,74 @@ class Quaternion():
             for ii in range(len(self)):
                Helmholtz[ii,:] = rotmat.rotmat2Helmholtz(rm[ii].reshape((3,3)))
             return Helmholtz
+        
+def convert(quat, to='rotmat'):
+    ''' Calculate the rotation matrix corresponding to the quaternion. If
+    "inQuat" contains more than one quaternion, the matrix is flattened (to
+    facilitate the work with rows of quaternions), and can be restored to
+    matrix form by "reshaping" the resulting rows into a (3,3) shape.
+    
+    Parameters
+    ----------
+    inQuat : array_like, shape ([3,4],) or (N,[3,4])
+        quaternions or quaternion vectors
+    to : string
+        'rotmat' : rotation matrix
+        'Gibbs'  : Gibbs vector
+    
+    Returns
+    -------
+    rotMat : corresponding rotation matrix/matrices (flattened)
+    
+    Notes
+    -----
+
+    .. math::
+        {\\bf{R}} = \\left( {\\begin{array}{*{20}{c}}
+        {q_0^2 + q_1^2 - q_2^2 - q_3^2}&{2({q_1}{q_2} - {q_0}{q_3})}&{2({q_1}{q_3} + {q_0}{q_2})}\\\\
+        {2({q_1}{q_2} + {q_0}{q_3})}&{q_0^2 - q_1^2 + q_2^2 - q_3^2}&{2({q_2}{q_3} - {q_0}{q_1})}\\\\
+        {2({q_1}{q_3} - {q_0}{q_2})}&{2({q_2}{q_3} + {q_0}{q_1})}&{q_0^2 - q_1^2 - q_2^2 + q_3^2} \\\\
+        \\end{array}} \\right)
+
+    More info under 
+    http://en.wikipedia.org/wiki/Quaternion
+    
+    Examples
+    --------
+    >>> r = quat.convert([0, 0, 0.1], to='rotmat')
+    >>> r.shape
+    (1, 9)
+    >>> r.reshape((3,3))
+    array([[ 0.98      , -0.19899749,  0.        ],
+        [ 0.19899749,  0.98      ,  0.        ],
+        [ 0.        ,  0.        ,  1.        ]])
+    '''
+    
+    if to == 'rotmat':
+        q = unit_q(quat).T
+        
+        R = np.zeros((9, q.shape[1]))
+        R[0] = q[0]**2 + q[1]**2 - q[2]**2 - q[3]**2
+        R[1] = 2*(q[1]*q[2] - q[0]*q[3])
+        R[2] = 2*(q[1]*q[3] + q[0]*q[2])
+        R[3] = 2*(q[1]*q[2] + q[0]*q[3])
+        R[4] = q[0]**2 - q[1]**2 + q[2]**2 - q[3]**2
+        R[5] = 2*(q[2]*q[3] - q[0]*q[1])
+        R[6] = 2*(q[1]*q[3] - q[0]*q[2])
+        R[7] = 2*(q[2]*q[3] + q[0]*q[1])
+        R[8] = q[0]**2 - q[1]**2 - q[2]**2 + q[3]**2
+        
+        if R.shape[1] == 1:
+            return np.reshape(R, (3,3))
+        else:
+            return R.T
+        
+    elif to == 'Gibbs':
+        q_0 = q_scalar(quat)      # cos(alpha/2)
+        gibbs = (q_vector(quat).T / q_0).T    # tan = sin/cos
+        
+        return gibbs
+        
         
 def deg2quat(inDeg):
     '''
@@ -320,7 +389,16 @@ def deg2quat(inDeg):
     deg = (inDeg+180)%360-180
     return np.sin(0.5 * deg * pi/180)
     
+@deprecation.deprecated(deprecated_in="0.4", removed_in="0.6",
+                        current_version=__version__,
+                        details="Use the ``q_conj`` function instead")
 def quatconj(q):
+    ''' Conjugate quaternion 
+    Deprecated. Use "q_conj" '''
+    
+    return q_conj(q)
+
+def q_conj(q):
     ''' Conjugate quaternion 
     
     Parameters
@@ -335,10 +413,10 @@ def quatconj(q):
     
     Examples
     --------
-    >>>  quat.quatconj([0,0,0.1])
+    >>>  quat.q_conj([0,0,0.1])
     array([ 0., -0., -0., -1.])
     
-    >>> quat.quatconj([[cos(0.1),0,0,sin(0.1)],
+    >>> quat.q_conj([[cos(0.1),0,0,sin(0.1)],
     >>>    [cos(0.2), 0, sin(0.2), 0]])
     array([[ 0.99500417, -0.        , -0.        , -0.09983342],
            [ 0.98006658, -0.        , -0.19866933, -0.        ]])
@@ -347,7 +425,7 @@ def quatconj(q):
     
     q = np.atleast_2d(q)
     if q.shape[1]==3:
-        q = vect2quat(q)
+        q = unit_q(q)
 
     qConj = q * np.r_[1, -1,-1,-1]
 
@@ -356,7 +434,16 @@ def quatconj(q):
 
     return qConj
 
+@deprecation.deprecated(deprecated_in="0.4", removed_in="0.6",
+                        current_version=__version__,
+                        details="Use the ``q_inv`` function instead")
 def quatinv(q):
+    ''' Quaternion inversion 
+    Deprecated. Use "q_inv" instead.'''
+    
+    return q_inv(q)
+
+def q_inv(q):
     ''' Quaternion inversion 
 
     Parameters
@@ -379,10 +466,10 @@ def quatinv(q):
     
     Examples
     --------
-    >>>  quat.quatinv([0,0,0.1])
+    >>>  quat.q_inv([0,0,0.1])
     array([[-0. , -0. , -0.1]])
     
-    >>> quat.quatinv([[cos(0.1),0,0,sin(0.1)],
+    >>> quat.q_inv([[cos(0.1),0,0,sin(0.1)],
     >>> [cos(0.2),0,sin(0.2),0]])
     array([[ 0.99500417, -0.        , -0.        , -0.09983342],
            [ 0.98006658, -0.        , -0.19866933, -0.        ]])
@@ -396,7 +483,17 @@ def quatinv(q):
         qConj = q * np.r_[1, -1,-1,-1]
         return (qConj.T / qLength).T
 
+@deprecation.deprecated(deprecated_in="0.4", removed_in="0.6",
+                        current_version=__version__,
+                        details="Use the ``q_mult`` function instead")
 def quatmult(p,q):
+    ''' Quaternion multiplication: Calculates the product of two quaternions r = p * q
+    Deprecated. Use "q_mult" instead.
+    ''' 
+    
+    return q_mult(p,q)
+
+def q_mult(p,q):
     '''
     Quaternion multiplication: Calculates the product of two quaternions r = p * q
     If one of both of the quaterions have only three columns,
@@ -433,7 +530,7 @@ def quatmult(p,q):
     >>> p = [cos(0.2), 0, 0, sin(0.2)]
     >>> q = [[0, 0, 0.1],
     >>>    [0, 0.1, 0]]
-    >>> r = quat.quatmult(p,q)
+    >>> r = quat.q_mult(p,q)
 
     '''
 
@@ -447,8 +544,8 @@ def quatmult(p,q):
         assert (len(p)==1 or len(q)==1), \
             'Both arguments in the quaternion multiplication must have the same number of rows, unless one has only one row.'
 
-    p = vect2quat(p).T
-    q = vect2quat(q).T
+    p = unit_q(p).T
+    q = unit_q(q).T
     
     if np.prod(np.shape(p)) > np.prod(np.shape(q)):
         r=np.zeros(np.shape(p))
@@ -468,7 +565,7 @@ def quatmult(p,q):
     r = r.T
     return r
 
-def quat2deg(inQuat):
+def scale2deg(inQuat):
     '''Calculate the axis-angle corresponding to a given quaternion.
     
     Parameters
@@ -492,75 +589,48 @@ def quat2deg(inQuat):
     
     Examples
     --------
-    >>> quat.quat2deg(0.1)
+    >>> quat.scale2deg(0.1)
     array([ 11.47834095])
 
-    >>> quat.quat2deg([0.1, 0.1, 0])
+    >>> quat.scale2deg([0.1, 0.1, 0])
     array([ 11.47834095,  11.47834095,   0.        ])
 
-    >>> quat.quat2deg([cos(0.1), 0, sin(0.1), 0])
+    >>> quat.scale2deg([cos(0.1), 0, sin(0.1), 0])
     array([  0.       ,  11.4591559,   0.       ])
     '''
-    return 2 * np.arcsin(quat2vect(inQuat)) * 180 / pi
+    return 2 * np.arcsin(q_vector(inQuat)) * 180 / pi
 
+
+@deprecation.deprecated(deprecated_in="0.4", removed_in="0.6",
+                        current_version=__version__,
+                        details="Use the ``scale2deg`` function instead")
+def quat2deg(inQuat):
+    '''Calculate the axis-angle corresponding to a given quaternion.
+        Deprecated. Use 'scale2deg" instead.'''
+    
+    return scale2deg(inQuat)
+ 
+
+@deprecation.deprecated(deprecated_in="0.4", removed_in="0.6",
+                        current_version=__version__,
+                        details="Use the ``convert(quat, to='rotmat')`` function instead")
 def quat2rotmat(inQuat):
-    ''' Calculate the rotation matrix corresponding to the quaternion. If
-    "inQuat" contains more than one quaternion, the matrix is flattened (to
-    facilitate the work with rows of quaternions), and can be restored to
-    matrix form by "reshaping" the resulting rows into a (3,3) shape.
-    
-    Parameters
-    ----------
-    inQuat : array_like, shape ([3,4],) or (N,[3,4])
-        quaternions or quaternion vectors
-    
-    Returns
-    -------
-    rotMat : corresponding rotation matrix/matrices (flattened)
-    
-    Notes
-    -----
+    ''' Calculate the rotation matrix corresponding to the quaternion.
+    Deprecated. Use "convert(quat, to='rotmat')" instead.'''
 
-    .. math::
-        {\\bf{R}} = \\left( {\\begin{array}{*{20}{c}}
-        {q_0^2 + q_1^2 - q_2^2 - q_3^2}&{2({q_1}{q_2} - {q_0}{q_3})}&{2({q_1}{q_3} + {q_0}{q_2})}\\\\
-        {2({q_1}{q_2} + {q_0}{q_3})}&{q_0^2 - q_1^2 + q_2^2 - q_3^2}&{2({q_2}{q_3} - {q_0}{q_1})}\\\\
-        {2({q_1}{q_3} - {q_0}{q_2})}&{2({q_2}{q_3} + {q_0}{q_1})}&{q_0^2 - q_1^2 - q_2^2 + q_3^2} \\\\
-        \\end{array}} \\right)
-
-    More info under 
-    http://en.wikipedia.org/wiki/Quaternion
+    return convert(inQuat, to='rotmat')
     
-    Examples
-    --------
-    >>> r = quat.quat2rotmat([0, 0, 0.1])
-    >>> r.shape
-    (1, 9)
-    >>> r.reshape((3,3))
-    array([[ 0.98      , -0.19899749,  0.        ],
-        [ 0.19899749,  0.98      ,  0.        ],
-        [ 0.        ,  0.        ,  1.        ]])
-    '''
     
-    q = vect2quat(inQuat).T
-    
-    R = np.zeros((9, q.shape[1]))
-    R[0] = q[0]**2 + q[1]**2 - q[2]**2 - q[3]**2
-    R[1] = 2*(q[1]*q[2] - q[0]*q[3])
-    R[2] = 2*(q[1]*q[3] + q[0]*q[2])
-    R[3] = 2*(q[1]*q[2] + q[0]*q[3])
-    R[4] = q[0]**2 - q[1]**2 + q[2]**2 - q[3]**2
-    R[5] = 2*(q[2]*q[3] - q[0]*q[1])
-    R[6] = 2*(q[1]*q[3] - q[0]*q[2])
-    R[7] = 2*(q[2]*q[3] + q[0]*q[1])
-    R[8] = q[0]**2 - q[1]**2 - q[2]**2 + q[3]**2
-    
-    if R.shape[1] == 1:
-        return np.reshape(R, (3,3))
-    else:
-        return R.T
-    
+@deprecation.deprecated(deprecated_in="0.4", removed_in="0.5",
+                        current_version=__version__,
+                        details="Use the ``q_vector`` function instead")
 def quat2vect(inQuat):
+    ''' Extract the quaternion vector from a full quaternion.
+    Deprecated. Use "q_vector" instead.'''
+    
+    return q_vector(inQuat)
+
+def q_vector(inQuat):
     '''
     Extract the quaternion vector from a full quaternion.
 
@@ -581,7 +651,7 @@ def quat2vect(inQuat):
     
     Examples
     --------
-    >>> quat.quat2vect([[cos(0.2), 0, 0, sin(0.2)],[cos(0.1), 0, sin(0.1), 0]])
+    >>> quat.q_vector([[cos(0.2), 0, 0, sin(0.2)],[cos(0.1), 0, sin(0.1), 0]])
     array([[ 0.        ,  0.        ,  0.19866933],
            [ 0.        ,  0.09983342,  0.        ]])
 
@@ -596,72 +666,59 @@ def quat2vect(inQuat):
         vect = vect.ravel()
     return vect
 
-def rotmat2quat(rMat):
+def q_scalar(inQuat):
     '''
-    Assumes that R has the shape (3,3), or the matrix elements in columns
+    Extract the quaternion scalar from a full quaternion.
 
     Parameters
     ----------
-    rMat : array, shape (3,3) or (N,9)
-        single rotation matrix, or matrix with rotation-matrix elements.
+    inQuat : array_like, shape ([3,4],) or (N,[3,4])
+        quaternions or quaternion vectors.
     
     Returns
     -------
-    outQuat : array, shape (4,) or (N,4)
-        corresponding quaternion vector(s)
+    vect : array, shape (1,) or (N,1)
+        corresponding quaternion scalar
     
     Notes
     -----
-
-    .. math::
-         \\vec q = 0.5*copysign\\left( {\\begin{array}{*{20}{c}}
-        {\\sqrt {1 + {R_{11}} - {R_{22}} - {R_{33}}} ,}\\\\
-        {\\sqrt {1 - {R_{11}} + {R_{22}} - {R_{33}}} ,}\\\\
-        {\\sqrt {1 - {R_{11}} - {R_{22}} + {R_{33}}} ,}
-        \\end{array}\\begin{array}{*{20}{c}}
-        {{R_{32}} - {R_{23}}}\\\\
-        {{R_{13}} - {R_{31}}}\\\\
-        {{R_{21}} - {R_{12}}}
-        \\end{array}} \\right) 
-    
     More info under 
     http://en.wikipedia.org/wiki/Quaternion
     
     Examples
     --------
+    >>> quat.q_scalar([[cos(0.2), 0, 0, sin(0.2)],[cos(0.1), 0, sin(0.1), 0]])
+
+    '''
     
-    >>> rotMat = array([[cos(alpha), -sin(alpha), 0],
-    >>>    [sin(alpha), cos(alpha), 0],
-    >>>    [0, 0, 1]])
-    >>> quat.rotmat2quat(rotMat)
-    array([[ 0.99500417,  0.        ,  0.        ,  0.09983342]])
-    
-    '''    
-    
-    if rMat.shape == (3,3) or rMat.shape == (9,):
-        rMat=np.atleast_2d(rMat.ravel()).T
+    inQuat = np.atleast_2d(inQuat)
+    if inQuat.shape[1] == 4:
+        scalar = inQuat[:,0]
     else:
-        rMat = rMat.T
-    q = np.zeros((4, rMat.shape[1]))
+        scalar = np.sqrt(1-np.linalg.norm(inQuat, axis=1))
+    if np.min(scalar.shape)==1:
+        scalar = scalar.ravel()
+    return scalar
+
+@deprecation.deprecated(deprecated_in="0.4", removed_in="0.6",
+                        current_version=__version__,
+                        details="Use the ``rotmat.convert(R, 'quat')`` function instead")
+def rotmat2quat(rMat):
+    ''' Convert a rotation matrix to the corresponding quaternion.
+    Depracated, use rotmat.convert(R, 'quat') instead. '''
     
-    R11 = rMat[0]
-    R12 = rMat[1]
-    R13 = rMat[2]
-    R21 = rMat[3]
-    R22 = rMat[4]
-    R23 = rMat[5]
-    R31 = rMat[6]
-    R32 = rMat[7]
-    R33 = rMat[8]
+    return rotmat.convert(rMat, 'quat')
     
-    q[1] = 0.5 * np.copysign(np.sqrt(1+R11-R22-R33), R32-R23)
-    q[2] = 0.5 * np.copysign(np.sqrt(1-R11+R22-R33), R13-R31)
-    q[3] = 0.5 * np.copysign(np.sqrt(1-R11-R22+R33), R21-R12)
-    q[0] = np.sqrt(1-(q[1]**2+q[2]**2+q[3]**2))
-    
-    return q.T
-    
+@deprecation.deprecated(deprecated_in="0.4", removed_in="0.6",
+                        current_version=__version__,
+                        details="Use the ``unit_q`` function instead")
 def vect2quat(inData):
+    ''' Utility function, which turns a quaternion vector into a unit quaternion.
+    Deprecated, use "unit_q" instead.'''
+    
+    return unit_q(inData)
+
+def unit_q(inData):
     ''' Utility function, which turns a quaternion vector into a unit quaternion.
 
     Parameters
@@ -682,7 +739,7 @@ def vect2quat(inData):
     Examples
     --------
     >>> quats = array([[0,0, sin(0.1)],[0, sin(0.2), 0]])
-    >>> quat.vect2quat(quats)
+    >>> quat.unit_q(quats)
     array([[ 0.99500417,  0.        ,  0.        ,  0.09983342],
            [ 0.98006658,  0.        ,  0.19866933,  0.        ]])
 
@@ -707,7 +764,7 @@ def vect2quat(inData):
         
     return outData
 
-def vel2quat(omega, q0, rate, CStype):
+def calc_quat(omega, q0, rate, CStype):
     '''
     Take an angular velocity (in rad/s), and convert it into the
     corresponding orientation quaternion.
@@ -770,7 +827,7 @@ def vel2quat(omega, q0, rate, CStype):
     # initialize the quaternion
     q_delta = np.zeros(omega.shape)
     q_pos = np.zeros((len(omega),4))
-    q_pos[0,:] = vect2quat(q0)
+    q_pos[0,:] = unit_q(q0)
 
     # magnitude of position steps
     dq_total = np.sin(omega_t[omega_nonZero]/(2.*rate))
@@ -778,19 +835,29 @@ def vel2quat(omega, q0, rate, CStype):
     q_delta[omega_nonZero,:] = omega[omega_nonZero,:] * np.tile(dq_total/omega_t[omega_nonZero], (3,1)).T
 
     for ii in range(len(omega)-1):
-        q1 = vect2quat(q_delta[ii,:])
+        q1 = unit_q(q_delta[ii,:])
         q2 = q_pos[ii,:]
         if CStype == 'sf':            
-            qm = quatmult(q1,q2)
+            qm = q_mult(q1,q2)
         elif CStype == 'bf':
-            qm = quatmult(q2,q1)
+            qm = q_mult(q2,q1)
         else:
             print('I don''t know this type of coordinate system!')
         q_pos[ii+1,:] = qm
 
     return q_pos
 
+@deprecation.deprecated(deprecated_in="0.4", removed_in="0.6",
+                        current_version=__version__,
+                        details="Use the ``calc_angvel`` function instead")
 def quat2vel(q, rate=1, winSize=5, order=2):
+    ''' Take a quaternion, and convert it into the corresponding angular velocity.
+    Deprecated, use "calc_angvel" instead.'''
+    
+    return calc_angvel(q, rate, winSize, order)
+
+
+def calc_angvel(q, rate=1, winSize=5, order=2):
     '''
     Take a quaternion, and convert it into the
     corresponding angular velocity
@@ -809,7 +876,7 @@ def quat2vel(q, rate=1, winSize=5, order=2):
 
     Returns
     -------
-    vel : array, shape (3,) or (N,3)
+    angvel : array, shape (3,) or (N,3)
         angular velocity [rad/s].
 
     Notes
@@ -839,13 +906,13 @@ def quat2vel(q, rate=1, winSize=5, order=2):
     if numCols < 3 or numCols > 4:
         raise TypeError('quaternions must have 3 or 4 columns')
     
-    # This has to be done: otherwise quatmult will "complete" dq_dt to be a unit
+    # This has to be done: otherwise q_mult will "complete" dq_dt to be a unit
     # quaternion, resulting in wrong value
     if numCols == 3:
-        q = vect2quat(q)
+        q = unit_q(q)
     
     dq_dt = signal.savgol_filter(q, window_length=winSize, polyorder=order, deriv=1, delta=1./rate, axis=0)
-    angVel = 2 * quatmult(dq_dt, quatinv(q))
+    angVel = 2 * q_mult(dq_dt, q_inv(q))
     
     return angVel[:,1:]
     
@@ -854,6 +921,11 @@ if __name__=='__main__':
     proper output.
     More extensive tests are found in tests/test_quat.py'''
     
+    a = np.r_[np.cos(0.1), 0,0,np.sin(0.1)]
+    print('The inverse of {0} is {1}'.format(a, q_inv(a)))
+    
+    
+    '''
     from skinematics.vector import rotate_vector
     
     v0 = np.r_[0., 0., 100.] * np.pi/180.
@@ -868,8 +940,9 @@ if __name__=='__main__':
     z = np.zeros_like(t)
     
     q = np.column_stack( (x,y,z) )
-    vel = quat2vel(q, rate, 5, 2)
+    vel = calc_angvel(q, rate, 5, 2)
     qReturn = vel2quat(vel, q[0], rate, 'sf' )
+    
     plt.plot(q)
     plt.plot(qReturn[:,1:],'--')
     plt.show()
@@ -888,21 +961,21 @@ if __name__=='__main__':
     d = np.r_[np.sin(0.1), 0, 0]
     e = np.r_[2, 0, np.sin(0.1), 0]
 
-    print(quatmult(a,a))
-    print(quatmult(a,b))
-    print(quatmult(c,c))
-    print(quatmult(c,a))
-    print(quatmult(d,d))
+    print(q_mult(a,a))
+    print(q_mult(a,b))
+    print(q_mult(c,c))
+    print(q_mult(c,a))
+    print(q_mult(d,d))
 
-    print('The inverse of {0} is {1}'.format(a, quatinv(a)))
-    print('The inverse of {0} is {1}'.format(d, quatinv(d)))
-    print('The inverse of {0} is {1}'.format(e, quatinv(e)))
-    print(quatmult(e, quatinv(e)))
+    print('The inverse of {0} is {1}'.format(a, q_inv(a)))
+    print('The inverse of {0} is {1}'.format(d, q_inv(d)))
+    print('The inverse of {0} is {1}'.format(e, q_inv(e)))
+    print(q_mult(e, q_inv(e)))
 
-    print(quat2vect(a))
-    print('{0} is {1} degree'.format(a, quat2deg(a)))
-    print('{0} is {1} degree'.format(c, quat2deg(c)))
-    print(quat2deg(0.2))
+    print(q_vector(a))
+    print('{0} is {1} degree'.format(a, scale2deg(a)))
+    print('{0} is {1} degree'.format(c, scale2deg(c)))
+    print(scale2deg(0.2))
     x = np.r_[1,0,0]
     vNull = np.r_[0,0,0]
     print(rotate_vector(x, a))
@@ -913,15 +986,16 @@ if __name__=='__main__':
     
     out = vel2quat(vel, [0., 0., 0.], rate, 'sf')
     print(out[-1:])
+    
     plt.plot(out[:,1:4])
     plt.show()
     
     print(deg2quat(15))
-    print(deg2quat(quat2deg(a)))
+    print(deg2quat(scale2deg(a)))
     
     q = np.array([[0, 0, np.sin(0.1)],
                [0, np.sin(0.01), 0]])
-    rMat = quat2rotmat(q)
+    rMat = convert(q, to='rotmat)
     print(rMat[1].reshape((3,3)))
     qNew = rotmat2quat(rMat)
     print(qNew)
@@ -945,4 +1019,5 @@ if __name__=='__main__':
     p = Quaternion(np.array([[0,0,0.5], [0,0,0.1], [0,0,0.1]]))
     p[1:] = [[0,0,0],[0,0,0.01]]
     print(p)
-    
+
+    '''

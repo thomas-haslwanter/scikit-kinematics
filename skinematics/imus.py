@@ -16,23 +16,22 @@ Date: Oct-2016
 
 import numpy as np
 import scipy as sp
-import sp.constants
+from scipy import constants
 from scipy.integrate import cumtrapz
 import matplotlib.pyplot as plt
 import pandas as pd 
 from numpy import r_, sum
 import re
+import os
+import easygui
 
 # The following construct is required since I want to run the module as a script
 # inside the skinematics-directory
 import os
 import sys
-PACKAGE_PARENT = '..'
-SCRIPT_DIR = os.path.realpath(os.path.dirname(__file__))
-sys.path.append(os.path.normpath(os.path.join(SCRIPT_DIR, PACKAGE_PARENT)))
+sys.path.append( os.path.join( os.path.dirname(__file__), os.path.pardir ) ) 
 
 from skinematics import quat, vector, misc
-import easygui
 
 class IMU:
     '''
@@ -208,9 +207,9 @@ class IMU:
 
         # Acceleration, velocity, and position ----------------------------
         # From q and the measured acceleration, get the \frac{d^2x}{dt^2}
-        g = sp.constants.g
+        g = constants.g
         g_v = np.r_[0, 0, g] 
-        accReSensor = self.acc - vector.rotate_vector(g_v, quat.quatinv(self.quat))
+        accReSensor = self.acc - vector.rotate_vector(g_v, quat.q_inv(self.quat))
         accReSpace = vector.rotate_vector(accReSensor, self.quat)
 
         # Position and Velocity through integration, assuming 0-velocity at t=0
@@ -283,16 +282,16 @@ def import_data(inFile=None, type='XSens', paramList=['rate', 'acc', 'omega', 'm
         dataDict[var]=None
     
     if type == 'XSens':
-        from skinematics.sensors import xsens
+        from sensors import xsens
         data = xsens.get_data(inFile)
     elif type == 'xio':
-        from skinematics.sensors import xio
+        from sensors import xio
         data = xio.get_data(inFile)
     elif type == 'yei':
-        from skinematics.sensors import yei
+        from sensors import yei
         data = yei.get_data(inFile)
     elif type == 'polulu':
-        from skinematics.sensors import polulu
+        from sensors import polulu
         data = polulu.get_data(inFile)
     else:
         raise ValueError
@@ -442,8 +441,8 @@ def calc_QPos(R_initialOrientation, omega, initialPosition, accMeasured, rate):
     g0 = np.linalg.inv(R_initialOrientation).dot(r_[0,0,g])
 
     # for the remaining deviation, assume the shortest rotation to there
-    q0 = vector.qrotate(accMeasured[0], g0)    
-    R0 = quat.quat2rotmat(q0)
+    q0 = vector.q_shortest_rotation(accMeasured[0], g0)    
+    R0 = quat.convert(q0, 'rotmat')
 
     # combine the two, to form a reference orientation. Note that the sequence
     # is very important!
@@ -451,16 +450,16 @@ def calc_QPos(R_initialOrientation, omega, initialPosition, accMeasured, rate):
     q_ref = quat.rotmat2quat(R_ref)
 
     # Calculate orientation q by "integrating" omega -----------------
-    q = quat.vel2quat(omega, q_ref, rate, 'bf')
+    q = quat.calc_quat(omega, q_ref, rate, 'bf')
 
     # Acceleration, velocity, and position ----------------------------
     # From q and the measured acceleration, get the \frac{d^2x}{dt^2}
     g_v = r_[0, 0, g] 
-    accReSensor = accMeasured - vector.rotate_vector(g_v, quat.quatinv(q))
+    accReSensor = accMeasured - vector.rotate_vector(g_v, quat.q_inv(q))
     accReSpace = vector.rotate_vector(accReSensor, q)
 
     # Make the first position the reference position
-    q = quat.quatmult(q, quat.quatinv(q[0]))
+    q = quat.q_mult(q, quat.q_inv(q[0]))
 
     # compensate for drift
     #drift = np.mean(accReSpace, 0)
@@ -550,7 +549,7 @@ def kalman_quat(rate, acc, omega, mag):
         magVec_hor = magVec - accelVec_n * accelVec_n.dot(magVec)
         magVec_n   = vector.normalize(magVec_hor)
         basisVectors = np.vstack( (magVec_n, np.cross(accelVec_n, magVec_n), accelVec_n) ).T
-        quatRef = quat.quatinv(quat.rotmat2quat(basisVectors)).flatten()
+        quatRef = quat.q_inv(quat.rotmat2quat(basisVectors)).flatten()
 
         # Update measurement vector z_k
         z_k[:3] = angvelVec
@@ -576,7 +575,7 @@ def kalman_quat(rate, acc, omega, mag):
         P_k = (H_k - K_k) * P_k
 
         # Projection of state quaternions
-        x_k[3:] += quat.quatmult(0.5*x_k[3:],r_[0, x_k[:3]]).flatten()
+        x_k[3:] += quat.q_mult(0.5*x_k[3:],r_[0, x_k[:3]]).flatten()
         x_k[3:] = vector.normalize( x_k[3:] )
         x_k[:3] = np.zeros(3)
         x_k[:3] = tstep * (-x_k[:3]+z_k[:3])
@@ -587,7 +586,7 @@ def kalman_quat(rate, acc, omega, mag):
         P_k = Phi_k * P_k * Phi_k.T + Q_k
 
     # Make the first position the reference position
-    qOut = quat.quatmult(qOut, quat.quatinv(qOut[0]))
+    qOut = quat.q_mult(qOut, quat.q_inv(qOut[0]))
         
     return qOut
 
@@ -637,7 +636,7 @@ class MadgwickAHRS:
         step = vector.normalize(step)	# normalise step magnitude
 
         # Compute rate of change of quaternion
-        qDot = 0.5 * quat.quatmult(q, np.hstack([0, Gyroscope])) - self.Beta * step
+        qDot = 0.5 * quat.q_mult(q, np.hstack([0, Gyroscope])) - self.Beta * step
 
         # Integrate to yield quaternion
         q = q + qDot * self.SamplePeriod
@@ -694,7 +693,7 @@ class MahonyAHRS:
         Gyroscope += self.Kp * e + self.Ki * self._eInt;            
         
         # Compute rate of change of quaternion
-        qDot = 0.5 * quat.quatmult(q, np.hstack([0, Gyroscope])).flatten()
+        qDot = 0.5 * quat.q_mult(q, np.hstack([0, Gyroscope])).flatten()
 
         # Integrate to yield quaternion
         q += qDot * self.SamplePeriod

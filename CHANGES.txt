@@ -24,3 +24,4 @@ v0.3.4, 12-Nov-2016 -- skipped (mistake)
 v0.3.5, 12-Nov-2016 -- Switched to wheels
 v0.3.6, 14-Nov-2016 -- Fixed the crash of "view.ts" with Python 2.x
 v0.3.7, 14-Nov-2016 -- ... and another two bugs in "view" that got eliminated ...
+v0.4.0, 11-June-2017 -- Switched to a more consistent naming convention

@@ -30,7 +30,7 @@ class TestSequenceFunctions(unittest.TestCase):
         dt = 1./rate
         num_rep = duration*rate
         omegas = np.tile(omega, [num_rep, 1])
-        quaternion = quat.vel2quat(omegas, q0, rate, 'sf')
+        quaternion = quat.calc_quat(omegas, q0, rate, 'sf')
             
         view.orientation(quaternion, out_file, 'Well done!')        
         

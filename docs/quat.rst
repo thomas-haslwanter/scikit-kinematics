@@ -14,21 +14,21 @@ Quaternion class
 Functions for working with quaternions
 --------------------------------------
 
-* :func:`quat.quatconj` ... Conjugate quaternion
-* :func:`quat.quatinv` ... Quaternion inversion
-* :func:`quat.quatmult` ... Quaternion multiplication
+* :func:`quat.q_conj` ... Conjugate quaternion
+* :func:`quat.q_inv` ... Quaternion inversion
+* :func:`quat.q_mult` ... Quaternion multiplication
+* :func:`quat.q_scalar` ... Extract the scalar part from a quaternion
+* :func:`quat.q_vector` ... Extract the vector part from a quaternion
+* :func:`quat.unit_q` ... Extend a quaternion vector to a unit quaternion.
 
 Conversion routines
 -------------------
 
+* :func:`quat.calc_angvel` ... Calculates the velocity in space from quaternions
+* :func:`quat.calc_quat` ... Calculate orientation from a starting orientation and angular velocity.
+* :func:`quat.convert` ... Convert quaternion to corresponding rotation matrix or Gibbs vector
 * :func:`quat.deg2quat` ... Convert number or axis angles to quaternion vectors
-* :func:`quat.quat2deg` ... Convert quaternion to corresponding axis angle
-* :func:`quat.quat2rotmat` ... Convert quaternion to corresponding rotation matrix
-* :func:`quat.quat2vect` ... Extract the vector part from a quaternion
-* :func:`quat.quat2vel` ... Calculates the velocity in space from quaternions
-* :func:`quat.rotmat2quat` ... Convert a rotation matrix to the corresponding quaternion
-* :func:`quat.vect2quat` ... Extend a quaternion vector to a unit quaternion.
-* :func:`quat.vel2quat` ... Calculate orientation from a starting orientation and angular velocity.
+* :func:`quat.scale2deg` ... Convert quaternion to corresponding axis angle
 
 .. toctree::
    :maxdepth: 2
