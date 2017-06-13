@@ -188,37 +188,43 @@ def sequence(R, to ='Euler'):
     
     '''
 
+    # Reshape the input such that I can use the standard matrix indices
+    # For a simple (3,3) matrix, a superfluous first index is added.
+    Rs = R.reshape((-1,3,3), order='C')
+    
     if to=='Fick' or to=='aero':
-        if R.size == 9:
-            gamma = np.arctan2(R[1,0], R[0,0])
-            alpha = np.arctan2(R[2,1], R[2,2])
-            beta = -np.arcsin(R[2,0])
-        else:
-            Rs = R.T.reshape((-1,:,:))
+        gamma =  np.arctan2(Rs[:,1,0], Rs[:,0,0])
+        alpha =  np.arctan2(Rs[:,2,1], Rs[:,2,2])
+        beta  = -np.arcsin(Rs[:,2,0])
     
     elif to == 'Helmholtz':
-        gamma = np.arcsin(R[1,0])
-        beta = -np.arcsin(R[2,0]/np.cos(gamma))
-        alpha = -np.arcsin(R[1,2]/np.cos(gamma))
+        gamma =  np.arcsin( Rs[:,1,0] )
+        beta  = -np.arcsin( Rs[:,2,0]/np.cos(gamma) )
+        alpha = -np.arcsin( Rs[:1,2]/np.cos(gamma) )
         
     elif to == 'Euler':
         epsilon = 1e-6
-        beta = - np.arcsin(np.sqrt(R[0,2]**2 + R[1,2]**2)) * np.sign(R[1,2])
-        if beta < 1e-6:
-            beta = 0
-            gamma = 0
-            alpha = np.arcsin(R[1,0])
-        else:
-            gamma = np.arcsin(R[0,2]/np.sin(beta))
-            alpha = np.arcsin(R[2,0]/np.sin(beta))
+        beta = - np.arcsin(np.sqrt(Rs[:,0,2]**2 + Rs[:,1,2]**2)) * np.sign(Rs[:,1,2])
+        small_indices =  beta < epsilon
+        
+        # For small beta
+        beta[small_indices] = 0
+        gamma[small_indices] = 0
+        alpha[small_indices] = np.arcsin(Rs[small_indices,1,0])
+        
+        # for the rest
+        gamma[~small_indices] = np.arcsin( Rs[~small_indices,0,2]/np.sin(beta) )
+        alpha[~small_indices] = np.arcsin( Rs[~small_indices,2,0]/np.sin(beta) )
             
     else:
         print('\nSorry, only know: \naero, \nFick, \nHelmholtz, \nEuler.\n')
         raise IOError
         
     # Return the parameter-angles
-    Angles = namedtuple('Angles', ['first', 'second', 'third'])
-    return Angles(alpha, beta, gamma)
+    if R.size == 9:
+        return np.r_[alpha, beta, gamma]
+    else:
+        return np.column_stack( (alpha, beta, gamma) )
 
 # ------------ Everything below here is deprecated -------------------------------
 @deprecation.deprecated(deprecated_in="2.0", removed_in="2.2",
@@ -384,6 +390,10 @@ if __name__ == '__main__':
     print(Fick)
     
     angles = sequence(testmat, to='aero')
+    print(angles)
+    
+    testmat2 = np.tile(np.reshape(testmat, (1,-1)), (2,1))
+    angles = sequence(testmat2, to='aero')
     print(angles)
     
     print('Done testing')
