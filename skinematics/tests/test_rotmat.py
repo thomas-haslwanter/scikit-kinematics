@@ -1,9 +1,9 @@
 import sys
 import os
 myPath = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, myPath + '/../')
+sys.path.insert(0, os.path.join(myPath, '..', '..'))
 
-import rotmat, quat
+from skinematics import rotmat, quat
 import unittest
 import numpy as np
 

@@ -156,32 +156,32 @@ def sequence(R, to ='Euler'):
     Euler:
     
     .. math::
-        \\beta   = -arcsin(\\sqrt{ R_{13}^2 + R_{23}^2 }) * sign(R_{23})
+        \\beta   = -arcsin(\\sqrt{ R_{xz}^2 + R_{yz}^2 }) * sign(R_{yz})
 
-        \\gamma = arcsin(\\frac{R_{13}}{sin\\beta})
+        \\gamma = arcsin(\\frac{R_{xz}}{sin\\beta})
 
-        \\alpha   = arcsin(\\frac{R_{31}}{sin\\beta})
+        \\alpha   = arcsin(\\frac{R_{zx}}{sin\\beta})
     
     aero / Fick:
     
     .. math::
 
-        \\theta   = arctan(\\frac{R_{21}}{R_{11}})
+        \\theta   = arctan(\\frac{R_{yx}}{R_{xx}})
 
-        \\phi = arcsin(R_{31})
+       \\phi = arcsin(R_{zx})
 
-        \\psi   = arctan(\\frac{R_{32}}{R_{33}})
+        \\psi   = arctan(\\frac{R_{zy}}{R_{zz}})
 
     Note that it is assumed that psi < pi !
     
     Helmholtz: 
     
     .. math::
-        \\theta = arcsin(R_{21})
+        \\theta = arcsin(R_{yx})
 
-        \\phi = -arcsin(\\frac{R_{31}}{cos\\theta})
+        \\phi = -arcsin(\\frac{R_{zx}}{cos\\theta})
 
-        \\psi = -arcsin(\\frac{R_{23}}{cos\\theta})
+        \\psi = -arcsin(\\frac{R_{yz}}{cos\\theta})
 
 
     Note that it is assumed that psi < pi
@@ -189,9 +189,12 @@ def sequence(R, to ='Euler'):
     '''
 
     if to=='Fick' or to=='aero':
-        gamma = np.arctan2(R[1,0], R[0,0])
-        alpha = np.arctan2(R[2,1], R[2,2])
-        beta = -np.arcsin(R[2,0])
+        if R.size == 9:
+            gamma = np.arctan2(R[1,0], R[0,0])
+            alpha = np.arctan2(R[2,1], R[2,2])
+            beta = -np.arcsin(R[2,0])
+        else:
+            Rs = R.T.reshape((-1,:,:))
     
     elif to == 'Helmholtz':
         gamma = np.arcsin(R[1,0])
@@ -323,13 +326,13 @@ def convert(rMat, to ='quat'):
 
     .. math::
          \\vec q = 0.5*copysign\\left( {\\begin{array}{*{20}{c}}
-        {\\sqrt {1 + {R_{11}} - {R_{22}} - {R_{33}}} ,}\\\\
-        {\\sqrt {1 - {R_{11}} + {R_{22}} - {R_{33}}} ,}\\\\
-        {\\sqrt {1 - {R_{11}} - {R_{22}} + {R_{33}}} ,}
+        {\\sqrt {1 + {R_{xx}} - {R_{yy}} - {R_{zz}}} ,}\\\\
+        {\\sqrt {1 - {R_{xx}} + {R_{yy}} - {R_{zz}}} ,}\\\\
+        {\\sqrt {1 - {R_{xx}} - {R_{yy}} + {R_{zz}}} ,}
         \\end{array}\\begin{array}{*{20}{c}}
-        {{R_{32}} - {R_{23}}}\\\\
-        {{R_{13}} - {R_{31}}}\\\\
-        {{R_{21}} - {R_{12}}}
+        {{R_{zy}} - {R_{yz}}}\\\\
+        {{R_{xz}} - {R_{zx}}}\\\\
+        {{R_{yx}} - {R_{xy}}}
         \\end{array}} \\right) 
     
     More info under 

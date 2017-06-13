@@ -2,7 +2,7 @@
 import sys
 import os
 myPath = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, os.path.join(myPath, '..'))
+sys.path.insert(0, os.path.join(myPath, '..', '..'))
 
 import unittest
 import numpy as np
@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 from numpy import sin, cos, array, r_, vstack, abs, tile, pi
 from numpy.linalg import norm
 import os
-import imus, quat, vector, rotmat
+from skinematics import imus, quat, vector, rotmat
 from time import sleep
 
 class TestSequenceFunctions(unittest.TestCase):
@@ -29,7 +29,7 @@ class TestSequenceFunctions(unittest.TestCase):
     def test_calc_QPos(self):
         # Get data
         inFile = os.path.join(myPath, 'data', 'data_xsens.txt')
-        data = imus.import_data(inFile, type='XSens', paramList=['rate', 'acc', 'omega', 'mag'])
+        data = imus.import_data(inFile, inType='XSens', paramList=['rate', 'acc', 'omega', 'mag'])
         rate = data[0]
         acc = data[2]
         omega = data[3]
@@ -48,7 +48,7 @@ class TestSequenceFunctions(unittest.TestCase):
     def test_import_xsens(self):
         # Get data, with a specified input from an XSens system
         inFile = os.path.join(myPath, 'data', 'data_xsens.txt')
-        data = imus.import_data(inFile, type='XSens', paramList=['rate', 'acc', 'omega'])
+        data = imus.import_data(inFile, inType='XSens', paramList=['rate', 'acc', 'omega'])
         rate = data[0]
         acc = data[1]
         omega = data[2]
@@ -59,7 +59,7 @@ class TestSequenceFunctions(unittest.TestCase):
     def test_import_xio(self):
         # Get data, with a specified input from an XIO system
         inFile = os.path.join(myPath, 'data', 'data_xio', '00033_CalInertialAndMag.csv')
-        data = imus.import_data(inFile, type='xio', paramList=['rate', 'acc', 'omega', 'mag'])
+        data = imus.import_data(inFile, inType='xio', paramList=['rate', 'acc', 'omega', 'mag'])
         rate = data[0]
         acc = data[1]
         omega = data[2]
@@ -70,7 +70,7 @@ class TestSequenceFunctions(unittest.TestCase):
     def test_import_yei(self):
         # Get data, with a specified input from a YEI system
         inFile = os.path.join(myPath, 'data', 'data_yei.txt')
-        data = imus.import_data(inFile, type='yei', paramList=['rate', 'acc', 'omega', 'mag'])
+        data = imus.import_data(inFile, inType='yei', paramList=['rate', 'acc', 'omega', 'mag'])
         rate = data[0]
         acc = data[1]
         omega = data[2]
@@ -81,7 +81,7 @@ class TestSequenceFunctions(unittest.TestCase):
     def test_import_polulu(self):
         # Get data, with a specified input from a POLULU system
         inFile = os.path.join(myPath, 'data', 'data_polulu.txt')
-        data = imus.import_data(inFile, type='polulu', paramList=['rate', 'acc', 'omega', 'mag'])
+        data = imus.import_data(inFile, inType='polulu', paramList=['rate', 'acc', 'omega', 'mag'])
         rate = data[0]
         acc = data[1]
         omega = data[2]

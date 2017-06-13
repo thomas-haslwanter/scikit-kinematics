@@ -109,7 +109,7 @@ class IMU:
                 self.source = inFile
 
                 try:
-                    data = import_data(inFile=self.source, type=inType, paramList=['rate', 'acc', 'omega', 'mag'])
+                    data = import_data(inFile=self.source, inType=inType, paramList=['rate', 'acc', 'omega', 'mag'])
                     self.rate = data[0]
                     self.acc= data[1]
                     self.omega = data[2]
@@ -137,7 +137,7 @@ class IMU:
         self.source = None
         self._setInfo()
 
-    def calc_orientation(self, R_initialOrientation, type='quatInt'):
+    def calc_orientation(self, R_initialOrientation, method='quatInt'):
         '''
         Calculate the current orientation
 
@@ -155,14 +155,14 @@ class IMU:
 
         initialPosition = np.r_[0,0,0]
 
-        if type == 'quatInt':
+        if method == 'quatInt':
             (quaternion, position) = calc_QPos(R_initialOrientation, self.omega, initialPosition, self.acc, self.rate)
 
-        elif type == 'Kalman':
+        elif method == 'Kalman':
             self._checkRequirements()
             quaternion =  kalman_quat(self.rate, self.acc, self.omega, self.mag)
 
-        elif type == 'Madgwick':
+        elif method == 'Madgwick':
             self._checkRequirements()
                     
             # Initialize object
@@ -179,7 +179,7 @@ class IMU:
                 AHRS.Update(Gyr[t], Acc[t], Mag[t])
                 quaternion[t] = AHRS.Quaternion
                 
-        elif type == 'Mahony':
+        elif method == 'Mahony':
             self._checkRequirements()
                     
             # Initialize object
@@ -197,7 +197,7 @@ class IMU:
                 quaternion[t] = AHRS.Quaternion
             
         else:
-            print('Unknown orientation type: {0}'.format(type))
+            print('Unknown orientation type: {0}'.format(method))
             return
 
         self.quat = quaternion
@@ -244,7 +244,7 @@ class IMU:
         self.duration = np.float(self.totalSamples)/self.rate # [sec]
         self.dataType = str(self.omega.dtype)
 
-def import_data(inFile=None, type='XSens', paramList=['rate', 'acc', 'omega', 'mag']):
+def import_data(inFile=None, inType='XSens', paramList=['rate', 'acc', 'omega', 'mag']):
     '''
     Read in Rate and stored 3D parameters from IMUs
 
@@ -281,16 +281,16 @@ def import_data(inFile=None, type='XSens', paramList=['rate', 'acc', 'omega', 'm
     for var in varList:
         dataDict[var]=None
     
-    if type == 'XSens':
+    if inType == 'XSens':
         from sensors import xsens
         data = xsens.get_data(inFile)
-    elif type == 'xio':
+    elif inType == 'xio':
         from sensors import xio
         data = xio.get_data(inFile)
-    elif type == 'yei':
+    elif inType == 'yei':
         from sensors import yei
         data = yei.get_data(inFile)
-    elif type == 'polulu':
+    elif inType == 'polulu':
         from sensors import polulu
         data = polulu.get_data(inFile)
     else:

@@ -204,6 +204,11 @@ def GramSchmidt(p1,p2,p3):
 
     '''
     
+    # If inputs are lists, convert them to arrays:
+    p1 = np.array(p1)
+    p2 = np.array(p2)
+    p3 = np.array(p3)
+    
     v1 = np.atleast_2d(p2-p1)
     v2 = np.atleast_2d(p3-p1)
         

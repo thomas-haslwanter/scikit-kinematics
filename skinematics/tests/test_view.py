@@ -2,12 +2,12 @@ import sys
 import os
 
 myPath = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, myPath + '/../')
+sys.path.insert(0, os.path.join(myPath, '..', '..'))
 
 import unittest
 import numpy as np
 from time import sleep
-import view, quat
+from skinematics import view, quat
 
 class TestSequenceFunctions(unittest.TestCase):
 

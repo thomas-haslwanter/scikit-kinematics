@@ -1,14 +1,14 @@
 import sys
 import os
 myPath = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, myPath + '/../')
+sys.path.insert(0, os.path.join(myPath, '..', '..'))
 
 import unittest
 import numpy as np
 import matplotlib.pyplot as plt
 from numpy import sin, cos, array, r_, vstack, abs, tile, pi
 from numpy.linalg import norm
-import markers, quat, vector, rotmat
+from skinematics import markers, quat, vector, rotmat
 from time import sleep
 
 class TestSequenceFunctions(unittest.TestCase):
