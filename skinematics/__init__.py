@@ -6,13 +6,13 @@ Compatible with Python 2 and 3.
 
 Dependencies
 ------------
-numpy, scipy, matplotlib, pandas, sympy, easygui, libdeprecation
+numpy, scipy, matplotlib, pandas, sympy, libdeprecation
 
 Homepage
 --------
 http://work.thaslwanter.at/skinematics/html/
 
-Copyright (c) 2016 Thomas Haslwanter <thomas.haslwanter@fh-linz.at>
+Copyright (c) 2017 Thomas Haslwanter <thomas.haslwanter@fh-linz.at>
 
 '''
 

@@ -40,7 +40,7 @@ def get_data(inFile, rate=125):
     # Get the sampling rate from the second line in the file
     try:
         # Get the data, and label them
-        data = pd.read_csv(inFile, header=None, sep='[ ]*')
+        data = pd.read_csv(inFile, header=None, sep='[ ]*', engine='python')
         data.columns = ['acc_x', 'acc_y', 'acc_z', 'gyr_x', 'gyr_y', 'gyr_z', 'mag_x', 'mag_y', 'mag_z', 'taccgyr', 'tmag']
         
         # interpolate with a manually set rate
