@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='scikit-kinematics',
-    version="0.4.1",
+    version="0.4.2",
     packages=find_packages(),
 
     include_package_data=True,
@@ -10,7 +10,7 @@ setup(
 
     # Project uses reStructuredText, so ensure that the docutils get
     # installed or upgraded on the target machine
-    install_requires=['docutils>=0.3', 'easygui', 'matplotlib', 'numpy',
+    install_requires=['docutils>=0.3', 'matplotlib', 'numpy',
                       'pandas', 'scipy', 'sympy', 'libdeprecation'],
 
     # metadata for upload to PyPI

@@ -108,29 +108,152 @@ def progressbar(it, prefix = "", size = 60):
     sys.stdout.write("\n")
     sys.stdout.flush()
     
+def get_file(FilterSpec='*', DialogTitle='Select File: ', DefaultName=''):
+    '''
+    Selecting an existing file.
+    
+    Parameters
+    ----------
+    FilterSpec : query-string
+        File filters
+    DialogTitle : string
+        Window title
+    DefaultName : string
+        Can be a directory AND filename
+    
+    Returns
+    -------
+    filename :  string
+        selected existing file
+    pathname:   string
+        selected path
+    
+    Examples
+    --------
+    >>> (myFile, myPath) = thLib.ui.getfile('*.py', 'Testing file-selection', 'c:\\temp\\test.py')
+    
+    '''
+    
+    root = tk.Tk()
+    root.withdraw()
+    fullInFile = tkf.askopenfilename(initialfile=DefaultName,
+            title=DialogTitle, filetypes=[('all files','*'), ('Select',
+                FilterSpec)])
+    
+    # Close the Tk-window manager again
+    root.destroy()
+    
+    if not os.path.exists(fullInFile):
+        return (0, 0)
+    else:
+        print('Selection: ' + fullInFile)
+        dirName = os.path.dirname(fullInFile)
+        fileName = os.path.basename(fullInFile)
+        return (fileName, dirName)
+        
+def save_file(FilterSpec='*',DialogTitle='Save File: ', DefaultName=''):
+    '''
+    Selecting an existing or new file:
+    
+    Parameters
+    ----------
+    FilterSpec : string
+        File filters.
+    DialogTitle : string
+        Window title.
+    DefaultName : string
+        Can be a directory AND filename.
+    
+
+    Returns
+    -------
+    filename : string
+        Selected file.
+    pathname : string
+        Selecte path.
+    
+
+    Examples
+    --------
+    >>> (myFile, myPath) = thLib.ui.savefile('*.py', 'Testing file-selection', 'c:\\temp\\test.py')
+
+    '''
+    
+    root = tk.Tk()
+    root.withdraw()
+    outFile = tkf.asksaveasfile(mode='w', title=DialogTitle, initialfile=DefaultName, filetypes=[('Save as', FilterSpec)])
+    
+    # Close the Tk-window manager again
+    root.destroy()
+    
+    if outFile == None:
+        (fileName, dirName) = (0,0)
+    else:
+        fullOutFile = outFile.name
+        print('Selection: ' + fullOutFile)
+        dirName = os.path.dirname(fullOutFile)
+        fileName = os.path.basename(fullOutFile)
+        
+    return (fileName, dirName)
+
+def get_dir(DialogTitle='Select Directory', DefaultName='.'):
+    ''' Select a directory
+    
+    Parameters
+    ----------
+    DialogTitle : string
+        Window title
+    DefaultName : string
+        Can be a directory AND filename
+
+    
+    Returns
+    -------
+    directory : string
+        Selected directory.
+
+    
+    Examples
+    --------
+    >>> myDir = thLib.ui.getdir('c:\\temp', 'Pick your directory')
+    
+    '''
+    
+    root = tk.Tk()
+    root.withdraw()
+    fullDir = tkf.askdirectory(initialdir=DefaultName, title=DialogTitle)
+    
+    # Close the Tk-window manager again
+    root.destroy()
+    
+    if not os.path.exists(fullDir):
+        return 0
+    else:
+        print('Selection: ' + fullDir)
+        return fullDir
 if __name__ == "__main__":   
     # Test functions
     
     width, height = get_screensize()
     print('Your screen is {0} x {1} pixels.'.format(width, height))
     
-    import time
-    for ii in progressbar(range(50), 'Computing ', 25):
-        #print(ii)
-        time.sleep(0.05)
+    #import time
+    #for ii in progressbar(range(50), 'Computing ', 25):
+        ##print(ii)
+        #time.sleep(0.05)
         
-    '''
 
-    (myFile, myPath) = getfile('*.eps', 'Testing file-selection', r'c:\temp\test.eps')
+    (myFile, myPath) = get_file('*.eps', 'Testing file-selection', r'c:\temp\test.eps')
     if myFile == 0:          
         print(0)
     else:
         print('File: %s, Path: %s' % (myFile, myPath))
-    (myFile, myPath) = savefile('*.txt', 'Testing saving-selection', r'c:\temp\test.txt')
+    (myFile, myPath) = save_file('*.txt', 'Testing saving-selection', r'c:\temp\test.txt')
         
-    myDir = getdir()
+    myDir = get_dir()
     print(myDir)
 
+    '''
     
     items = ['Peter', 'Paul', 'Mary']    
     selected = listbox(items*4)

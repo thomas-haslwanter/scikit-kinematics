@@ -14,7 +14,7 @@ A "Quaternion" class is defined, with
 author: Thomas Haslwanter
 date:   June 2017
 '''
-__version__ = '0.4'
+__version__ = '0.5'
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -717,6 +717,18 @@ def vect2quat(inData):
     Deprecated, use "unit_q" instead.'''
     
     return unit_q(inData)
+
+@deprecation.deprecated(deprecated_in="0.4", removed_in="0.6",
+                        current_version=__version__,
+                        details="Use the ``calc_quat`` function instead")
+def vel2quat(omega, q0, rate, CStype):
+    '''
+    Take an angular velocity (in rad/s), and convert it into the corresponding orientation quaternion.
+    Deprecated, use "calc_quat" instead.
+    '''
+    
+    return calc_quat(omega, q0, rate, CStype)
+
 
 def unit_q(inData):
     ''' Utility function, which turns a quaternion vector into a unit quaternion.

@@ -200,12 +200,16 @@ def sequence(R, to ='Euler'):
     elif to == 'Helmholtz':
         gamma =  np.arcsin( Rs[:,1,0] )
         beta  = -np.arcsin( Rs[:,2,0]/np.cos(gamma) )
-        alpha = -np.arcsin( Rs[:1,2]/np.cos(gamma) )
+        alpha = -np.arcsin( Rs[:,1,2]/np.cos(gamma) )
         
     elif to == 'Euler':
         epsilon = 1e-6
         beta = - np.arcsin(np.sqrt(Rs[:,0,2]**2 + Rs[:,1,2]**2)) * np.sign(Rs[:,1,2])
         small_indices =  beta < epsilon
+        
+        # Assign memory for alpha and gamma
+        alpha = np.nan * np.ones_like(beta)
+        gamma = np.nan * np.ones_like(beta)
         
         # For small beta
         beta[small_indices] = 0

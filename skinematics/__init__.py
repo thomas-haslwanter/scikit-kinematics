@@ -6,13 +6,13 @@ Compatible with Python 2 and 3.
 
 Dependencies
 ------------
-numpy, scipy, matplotlib, pandas, sympy, easygui, libdeprecation
+numpy, scipy, matplotlib, pandas, sympy, libdeprecation
 
 Homepage
 --------
 http://work.thaslwanter.at/skinematics/html/
 
-Copyright (c) 2016 Thomas Haslwanter <thomas.haslwanter@fh-linz.at>
+Copyright (c) 2017 Thomas Haslwanter <thomas.haslwanter@fh-linz.at>
 
 '''
 
@@ -20,7 +20,7 @@ import importlib
 
 __author__ = "Thomas Haslwanter <thomas.haslwanter@fh-linz.at"
 __license__ = "BSD 2-Clause License"
-__version__ = "0.4.1"
+__version__ = "0.4.2"
 
 __all__ = ['imus', 'markers', 'misc', 'quat', 'rotmat', 'vector', 'view', 'sensors']
 #__all__ = []

@@ -23,7 +23,7 @@ import pandas as pd
 from numpy import r_, sum
 import re
 import os
-import easygui
+#import easygui
 
 # The following construct is required since I want to run the module as a script
 # inside the skinematics-directory
@@ -233,7 +233,9 @@ class IMU:
     def _selectInput(self):
         '''GUI for the selection of an in-file. '''
 
-        fullInFile = easygui.fileopenbox(msg='Input data: ', title='Selection', default='*.txt')
+        #fullInFile = easygui.fileopenbox(msg='Input data: ', title='Selection', default='*.txt')
+        (file, path) = misc.get_file('*.txt', 'Input data: ')
+        fullInFile = os.path.join(path, file)
         print('Selection: ' + fullInFile)
         return fullInFile
 
@@ -273,7 +275,9 @@ def import_data(inFile=None, inType='XSens', paramList=['rate', 'acc', 'omega', 
     '''
 
     if inFile is None:
-        inFile = easygui.fileopenbox(msg='Please select an in-file containing XSens-IMU data: ', title='Data-selection', default='*.txt')
+        #inFile = easygui.fileopenbox(msg='Please select an in-file containing XSens-IMU data: ', title='Data-selection', default='*.txt')
+        (file, path) = misc.get_file('*.txt', 'Please select an in-file containing XSens-IMU data: ')
+        inFile = os.path.join(path, file)
 
     varList = ['acc', 'omega', 'mag', 'rate', 'others']
     
@@ -702,7 +706,7 @@ class MahonyAHRS:
 
 if __name__ == '__main__':
     myIMU = IMU(inFile = r'tests/data/data_xsens.txt', inType='XSens')
-    myIMU.calc_orientation(np.eye(3), type='Madgwick')
+    myIMU.calc_orientation(np.eye(3), method='Madgwick')
     quat = myIMU.quat[:,1:]
     fig, axs = plt.subplots(3,1)
     axs[0].plot(myIMU.omega)
