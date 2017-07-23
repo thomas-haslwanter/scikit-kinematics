@@ -267,7 +267,7 @@ def import_data(inFile=None, inType='XSens', paramList=['rate', 'acc', 'omega', 
 
     Examples
     --------
-    >>> data = import_data(fullInFile, type='XSens', paramList=['rate', 'acc', 'omega'])
+    >>> data = import_data(fullInFile, inType='XSens', paramList=['rate', 'acc', 'omega'])
     >>> rate = data[0]
     >>> accValues = data[1]
     >>> Omega = data[2]
