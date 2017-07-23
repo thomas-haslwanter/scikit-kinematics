@@ -5,9 +5,9 @@ These routines can be used with vectors, as well as with matrices containing a v
  
 '''
 author :  Thomas Haslwanter
-date :    June-2017
+date :    July-2017
 '''
-__version__= '1.7'
+__version__= '1.8'
 
 import numpy as np
 
@@ -31,7 +31,7 @@ import warnings
 
 
 def normalize(v):
-    ''' Normalization of a given vector 
+    ''' Normalization of a given vector (with image)
     
     Parameters
     ----------
@@ -43,8 +43,13 @@ def normalize(v):
     v_normalized : array (N,) or (M,N)
         normalized input vector
 
+
+    .. image:: ../docs/Images/vector_normalize.png
+        :scale: 33%
+
     Example
     -------
+
     >>> thLib.vector.normalize([3, 0, 0])
     array([[ 1.,  0.,  0.]])
     
@@ -58,6 +63,8 @@ def normalize(v):
 
     .. math::
         \\vec{n} = \\frac{\\vec{v}}{|\\vec{v}|}
+
+        
 
     '''
     
@@ -88,6 +95,10 @@ def angle(v1,v2):
     -------
     angle : double or array(M,)
         angle between v1 and v2
+
+
+    .. image:: ../docs/Images/vector_angle.png
+        :scale: 33%
 
     Example
     -------
@@ -136,6 +147,10 @@ def project(v1,v2):
     v_projected : array (N,) or (M,N)
         projection of v1 onto v2
 
+
+    .. image:: ../docs/Images/vector_project.png
+        :scale: 33%
+
     Example
     -------
     >>> v1 = np.array([[1,2,3],
@@ -166,16 +181,16 @@ def project(v1,v2):
     else:
         return (e2.T * list(map(np.dot, v1, e2))).T
  
-def GramSchmidt(p1,p2,p3):
+def GramSchmidt(p0,p1,p2):
     '''Gram-Schmidt orthogonalization
     
     Parameters
     ----------
-    p1 : array (3,) or (M,3)
+    p0 : array (3,) or (M,3)
         coordinates of Point 1
-    p2 : array (3,) or (M,3)
+    p1 : array (3,) or (M,3)
         coordinates of Point 2
-    p3 : array (3,) or (M,3)
+    p2 : array (3,) or (M,3)
         coordinates of Point 3
 
     Returns
@@ -183,12 +198,16 @@ def GramSchmidt(p1,p2,p3):
     Rmat : array (9,) or (M,9)
         flattened rotation matrix
 
+
+    .. image:: ../docs/Images/GramSchmidt.png
+        :scale: 33%
+
     Example
     -------
-    >>> P1 = np.array([[0, 0, 0], [1,2,3]])
-    >>> P2 = np.array([[1, 0, 0], [4,1,0]])
-    >>> P3 = np.array([[1, 1, 0], [9,-1,1]])
-    >>> GramSchmidt(P1,P2,P3)
+    >>> P0 = np.array([[0, 0, 0], [1,2,3]])
+    >>> P1 = np.array([[1, 0, 0], [4,1,0]])
+    >>> P2 = np.array([[1, 1, 0], [9,-1,1]])
+    >>> GramSchmidt(P0,P1,P2)
     array([[ 1.        ,  0.        ,  0.        ,  0.        ,  1.        ,
          0.        ,  0.        ,  0.        ,  1.        ],
        [ 0.6882472 , -0.22941573, -0.6882472 ,  0.62872867, -0.28470732,
@@ -205,42 +224,46 @@ def GramSchmidt(p1,p2,p3):
     '''
     
     # If inputs are lists, convert them to arrays:
+    p0 = np.array(p0)
     p1 = np.array(p1)
     p2 = np.array(p2)
-    p3 = np.array(p3)
     
-    v1 = np.atleast_2d(p2-p1)
-    v2 = np.atleast_2d(p3-p1)
+    v1 = np.atleast_2d(p1-p0)
+    v2 = np.atleast_2d(p2-p0)
         
-    e1 = normalize(v1)
-    e2 = normalize(v2- project(v2,e1))
-    e3 = np.cross(e1,e2)
+    ex = normalize(v1)
+    ey = normalize(v2- project(v2,ex))
+    ez = np.cross(ex,ey)
     
-    return np.hstack((e1,e2,e3))
+    return np.hstack((ex,ey,ez))
 
-def plane_orientation(p1, p2, p3):
+def plane_orientation(p0, p1, p2):
     '''The vector perpendicular to the plane defined by three points.
     
     Parameters
     ----------
+    p0 : array (3,) or (M,3)
+        coordinates of Point 0
     p1 : array (3,) or (M,3)
         coordinates of Point 1
     p2 : array (3,) or (M,3)
         coordinates of Point 2
-    p3 : array (3,) or (M,3)
-        coordinates of Point 3
 
     Returns
     -------
     n : array (3,) or (M,3)
         vector perpendicular to the plane
 
+
+    .. image:: ../docs/Images/vector_plane_orientation.png
+        :scale: 33%
+
     Example
     -------
-    >>> P1 = np.array([[0, 0, 0], [1,2,3]])
-    >>> P2 = np.array([[1, 0, 0], [4,1,0]])
-    >>> P3 = np.array([[1, 1, 0], [9,-1,1]])
-    >>> plane_orientation(P1,P2,P3)
+    >>> P0 = np.array([[0, 0, 0], [1,2,3]])
+    >>> P1 = np.array([[1, 0, 0], [4,1,0]])
+    >>> P2 = np.array([[1, 1, 0], [9,-1,1]])
+    >>> plane_orientation(P0,P1,P2)
     array([[ 0.        ,  0.        ,  1.        ],
            [-0.36196138, -0.93075784, -0.05170877]])
 
@@ -252,10 +275,15 @@ def plane_orientation(p1, p2, p3):
     
 
     '''
+    
+    # If inputs are lists, convert them to arrays:
+    p0 = np.array(p0)
+    p1 = np.array(p1)
+    p2 = np.array(p2)
 
-    v12 = p2-p1
-    v13 = p3-p2
-    n = np.cross(v12,v13)
+    v01 = p1-p0
+    v02 = p2-p0
+    n = np.cross(v01,v02)
     return normalize(n)
 
 @deprecation.deprecated(deprecated_in="1.7", removed_in="1.9",
@@ -283,6 +311,10 @@ def q_shortest_rotation(v1,v2):
     q : ndarray (3,) 
         quaternion rotating v1 into v2
         
+
+    .. image:: ../docs/Images/vector_q_shortest_rotation.png
+        :scale: 33%
+
     Example
     -------
     >>> v1 = np.r_[1,0,0]
@@ -331,6 +363,10 @@ def rotate_vector(vector, q):
     rotated : array, shape (3,) or (N,3)
         rotated vector(s)
     
+
+    .. image:: ../docs/Images/vector_rotate_vector.png
+        :scale: 33%
+
     Notes
     -----
     .. math::

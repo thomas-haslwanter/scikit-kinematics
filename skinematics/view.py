@@ -23,8 +23,8 @@ supported by many packages/groups, fixes will only be tried on request!
 '''
 
 '''
-ThH, Nov 2016
-Ver 2.0
+ThH, July-2017
+Ver 2.1
 '''
 
 import sys
@@ -465,7 +465,11 @@ class Display:
         
         # Initially, show all data
         for ii in range(self.numData):
-            self.axs[ii].set_xlim([0, np.max(time)])
+            # to avoid some spurious UserWarning
+            max_range = np.max(time)
+            if max_range == 0.0:
+                max_range += 0.001
+            self.axs[ii].set_xlim([0, max_range])
         
         # Make sure small numbers are nicely formatted
         if max(np.abs([minVal, maxVal])) < 0.01:
@@ -508,8 +512,16 @@ class Display:
         ''' Show all the data '''
         
         for ii in range(self.numData):
-            self.axs[ii].set_xlim(self.range[:2])
-            self.axs[ii].set_ylim(self.range[2:])
+            # The "if" is to avoid some spurious "UserWarning"
+            if np.diff(self.range[:2])== 0.:
+                self.axs[ii].set_xlim([-0.001, 0.001])
+            else:
+                self.axs[ii].set_xlim(self.range[:2])
+                
+            if np.diff(self.range[2:])== 0.:
+                self.axs[ii].set_ylim([-0.001, 0.001])
+            else:
+                self.axs[ii].set_ylim(self.range[2:])
         self.xRange = self.range[1]
         self.scale.set(0)
         self.canvas.draw()
@@ -774,8 +786,10 @@ if __name__ == '__main__':
     
     # Show the data
     ts(locals())
-    ts(data)
+    #ts(data)
+    print('Done')
     
+    '''
     # 3D Viewer ----------------
     # Set the parameters
     omega = np.r_[0, 10, 10]     # [deg/s]
@@ -789,7 +803,8 @@ if __name__ == '__main__':
     dt = 1./rate
     num_rep = duration*rate
     omegas = np.tile(omega, [num_rep, 1])
-    q = quat.vel2quat(omegas, q0, rate, 'sf')
+    q = quat.calc_quat(omegas, q0, rate, 'sf')
         
     #orientation(q)
     orientation(q, out_file, 'Well done!')
+    '''
