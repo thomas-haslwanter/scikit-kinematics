@@ -5,8 +5,8 @@ systems.
 
 '''
 Author: Thomas Haslwanter
-Version: 1.1
-Date: April-2016
+Version: 1.2
+Date: Aug-2017
 '''
 
 import numpy as np
@@ -23,7 +23,7 @@ sys.path.append( os.path.join( os.path.dirname(__file__), os.path.pardir ) )
 
 from skinematics import quat, vector
 
-def analyze3Dmarkers(MarkerPos, ReferencePos):
+def analyze_3Dmarkers(MarkerPos, ReferencePos):
     '''
     Take recorded positions from 3 markers, and calculate center-of-mass (COM) and orientation
     Can be used e.g. for the analysis of Optotrac data.
@@ -45,7 +45,7 @@ def analyze3Dmarkers(MarkerPos, ReferencePos):
 
     Example
     -------
-    >>> (PosOut, OrientOut) = analyze3Dmarkers(MarkerPos, ReferencePos)
+    >>> (PosOut, OrientOut) = analyze_3Dmarkers(MarkerPos, ReferencePos)
 
 
     '''
@@ -109,7 +109,7 @@ def analyze3Dmarkers(MarkerPos, ReferencePos):
 
     return (position, orientation)
 
-def findTrajectory(r0, Position, Orientation):
+def find_trajectory(r0, Position, Orientation):
     '''
     Movement trajetory of a point on an object, from the position and
     orientation of a sensor, and the relative position of the point at t=0.
@@ -152,9 +152,9 @@ def findTrajectory(r0, Position, Orientation):
     >>> M1 = vector.rotate_vector(M[1], q) + translation
     >>> M2 = vector.rotate_vector(M[2], q) + translation
     >>> data = np.hstack((M0,M1,M2))
-    >>> (pos, ori) = signals.analyze3Dmarkers(data, data[0])
+    >>> (pos, ori) = signals.analyze_3Dmarkers(data, data[0])
     >>> r0 = np.r_[1,2,3]
-    >>> movement = movement_from_markers(r0, pos, ori)
+    >>> movement = find_trajectory(r0, pos, ori)
 
     '''
 
