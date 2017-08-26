@@ -37,7 +37,7 @@ class TestSequenceFunctions(unittest.TestCase):
         initialPosition = array([0,0,0])
         R_initialOrientation = rotmat.R1(90)
         
-        q1, pos1 = imus.calc_QPos(R_initialOrientation, omega, initialPosition, acc, rate)
+        q1, pos1 = imus.analytical(R_initialOrientation, omega, initialPosition, acc, rate)
         plt.plot(q1)
         plt.show()
         

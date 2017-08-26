@@ -156,17 +156,17 @@ class IMU:
         initialPosition = np.r_[0,0,0]
 
         if method == 'quatInt':
-            (quaternion, position) = calc_QPos(R_initialOrientation, self.omega, initialPosition, self.acc, self.rate)
+            (quaternion, position) = analytical(R_initialOrientation, self.omega, initialPosition, self.acc, self.rate)
 
         elif method == 'Kalman':
             self._checkRequirements()
-            quaternion =  kalman_quat(self.rate, self.acc, self.omega, self.mag)
+            quaternion =  kalman(self.rate, self.acc, self.omega, self.mag)
 
         elif method == 'Madgwick':
             self._checkRequirements()
                     
             # Initialize object
-            AHRS = MadgwickAHRS(SamplePeriod=1./self.rate, Beta=0.1)
+            AHRS = Madgwick(SamplePeriod=1./self.rate, Beta=0.1)
             quaternion = np.zeros((self.totalSamples, 4))
             
             # The "Update"-function uses angular velocity in radian/s, and only the directions of acceleration and magnetic field
@@ -183,7 +183,7 @@ class IMU:
             self._checkRequirements()
                     
             # Initialize object
-            AHRS = MahonyAHRS(SamplePeriod=1./np.float(self.rate), Kp=0.5)
+            AHRS = Mahony(SamplePeriod=1./np.float(self.rate), Kp=0.5)
             quaternion = np.zeros((self.totalSamples, 4))
             
             # The "Update"-function uses angular velocity in radian/s, and only the directions of acceleration and magnetic field
@@ -407,8 +407,9 @@ def _read_yei(inFile):
     return returnValues
 
     
-def calc_QPos(R_initialOrientation, omega, initialPosition, accMeasured, rate):
-    ''' Reconstruct position and orientation, from angular velocity and linear acceleration.
+def analytical(R_initialOrientation, omega, initialPosition, accMeasured, rate):
+    ''' Reconstruct position and orientation with an analytical solution,
+    from angular velocity and linear acceleration.
     Assumes a start in a stationary position. No compensation for drift.
 
     Parameters
@@ -434,7 +435,7 @@ def calc_QPos(R_initialOrientation, omega, initialPosition, accMeasured, rate):
 
     Example
     -------
-    >>> q1, pos1 = calc_QPos(R_initialOrientation, omega, initialPosition, acc, rate)
+    >>> q1, pos1 = analytical(R_initialOrientation, omega, initialPosition, acc, rate)
 
     '''
 
@@ -479,7 +480,7 @@ def calc_QPos(R_initialOrientation, omega, initialPosition, accMeasured, rate):
 
     return (q, pos)
 
-def kalman_quat(rate, acc, omega, mag):
+def kalman(rate, acc, omega, mag):
     '''
     Calclulate the orientation from IMU magnetometer data.
 
@@ -594,7 +595,7 @@ def kalman_quat(rate, acc, omega, mag):
         
     return qOut
 
-class MadgwickAHRS:
+class Madgwick:
     '''Madgwick's gradient descent filter.
     '''
     
@@ -646,7 +647,7 @@ class MadgwickAHRS:
         q = q + qDot * self.SamplePeriod
         self.Quaternion = vector.normalize(q).flatten()
         
-class MahonyAHRS:
+class Mahony:
     '''Madgwick's implementation of Mayhony's AHRS algorithm
     '''
     def __init__(self, SamplePeriod=1./256, Kp=1.0, Ki=0, Quaternion=[1,0,0,0]):

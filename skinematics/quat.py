@@ -12,7 +12,7 @@ A "Quaternion" class is defined, with
 
 '''
 author: Thomas Haslwanter
-date:   June 2017
+date:   Aug 2017
 '''
 __version__ = '0.5'
 
@@ -414,7 +414,7 @@ def q_conj(q):
     Examples
     --------
     >>>  quat.q_conj([0,0,0.1])
-    array([ 0., -0., -0., -1.])
+    array([ 0.99498744, -0.        , -0.        , -0.1       ])
     
     >>> quat.q_conj([[cos(0.1),0,0,sin(0.1)],
     >>>    [cos(0.2), 0, sin(0.2), 0]])
@@ -467,7 +467,7 @@ def q_inv(q):
     Examples
     --------
     >>>  quat.q_inv([0,0,0.1])
-    array([[-0. , -0. , -0.1]])
+    array([-0., -0., -0.1])
     
     >>> quat.q_inv([[cos(0.1),0,0,sin(0.1)],
     >>> [cos(0.2),0,sin(0.2),0]])
@@ -651,7 +651,7 @@ def q_vector(inQuat):
     
     Examples
     --------
-    >>> quat.q_vector([[cos(0.2), 0, 0, sin(0.2)],[cos(0.1), 0, sin(0.1), 0]])
+    >>> quat.q_vector([[np.cos(0.2), 0, 0, np.sin(0.2)],[cos(0.1), 0, np.sin(0.1), 0]])
     array([[ 0.        ,  0.        ,  0.19866933],
            [ 0.        ,  0.09983342,  0.        ]])
 
@@ -678,7 +678,9 @@ def q_scalar(inQuat):
     Returns
     -------
     vect : array, shape (1,) or (N,1)
-        corresponding quaternion scalar
+        Corresponding quaternion scalar.
+        If the input is only the quaternion-vector, the scalar part for a unit
+        quaternion is calculated and returned.
     
     Notes
     -----
@@ -687,7 +689,8 @@ def q_scalar(inQuat):
     
     Examples
     --------
-    >>> quat.q_scalar([[cos(0.2), 0, 0, sin(0.2)],[cos(0.1), 0, sin(0.1), 0]])
+    >>> quat.q_scalar([[np.cos(0.2), 0, 0, np.sin(0.2)],[np.cos(0.1), 0, np.sin(0.1), 0]])
+    array([ 0.98006658,  0.99500417])    
 
     '''
     
@@ -732,6 +735,7 @@ def vel2quat(omega, q0, rate, CStype):
 
 def unit_q(inData):
     ''' Utility function, which turns a quaternion vector into a unit quaternion.
+    If the input is already a full quaternion, the output equals the input.
 
     Parameters
     ----------

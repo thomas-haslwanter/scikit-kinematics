@@ -199,8 +199,8 @@ def GramSchmidt(p0,p1,p2):
         flattened rotation matrix
 
 
-    .. image:: ../docs/Images/GramSchmidt.png
-        :scale: 33%
+    .. image:: ../docs/Images/GramSchmidt.jpg
+        :scale: 25%
 
     Example
     -------

@@ -41,7 +41,7 @@ class TestSequenceFunctions(unittest.TestCase):
     
         data = np.hstack((M0,M1,M2))
     
-        (pos, ori) = markers.analyze3Dmarkers(data, data[0])
+        (pos, ori) = markers.analyze_3Dmarkers(data, data[0])
         
         self.assertAlmostEqual(np.max(np.abs(pos-translation)), 0)
         self.assertAlmostEqual(np.max(np.abs(ori-q)), 0)
