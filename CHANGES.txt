@@ -29,3 +29,5 @@ v0.4.1, 11-June-2017 -- Fixed Error in rotmat.sequence(R, to='Euler')
 v0.4.2, 16-June-2017 -- Fixed Error in rotmat.sequence(R, to='Helmholz'); added deprecation info for "vel2quat"
 v0.4.3, 25-June-2017 -- eliminated easygui, because it kept crashing on OSX (i.e. Macs)
 v0.4.4, 17-July-2017 -- erroneous variable "type" eliminated in imus.import_data
+v0.4.5, 08-Aug-2017 -- make functions in "vector" also work with list input; adjust names to Python standards
+v0.4.6, 27-Aug-2017 -- made function names in "imus.py" more consistent/clear

@@ -25,8 +25,8 @@ Data-Handling
 
 Data-Analysis
 ^^^^^^^^^^^^^
-* :func:`imus.calc_QPos` ... Calculate orientation and position, from angular velocity and linear acceleration 
-* :func:`imus.kalman_quat` ... Calculate orientation from IMU-data using an Extended Kalman Filter
+* :func:`imus.analytical` ... Calculate orientation and position analytically from angular velocity and linear acceleration 
+* :func:`imus.kalman` ... Calculate orientation from IMU-data using an Extended Kalman Filter
 
 .. toctree::
    :maxdepth: 2
@@ -35,6 +35,7 @@ Class
 -----
 .. autosummary::
     imus.IMU
+
 
 Methods
 ^^^^^^^
@@ -49,8 +50,8 @@ Methods
 Classes for Sensor-Integration
 ------------------------------
 .. autosummary::
-    imus.MahonyAHRS
-    imus.MadgwickAHRS
+    imus.Mahony
+    imus.Madgwick
 
 Details
 -------

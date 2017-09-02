@@ -1,7 +1,7 @@
 .. _view-label:
 
-view
-====
+Data-Visualization
+==================
 
 Visualization of data:
     - ts : Interactive analysis of time-series data (1D and 3D).

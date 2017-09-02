@@ -1,7 +1,7 @@
 .. _vector-label:
 
-vector
-======
+Vectors
+=======
 
 Routines for working with vectors
 These routines can be used with vectors, as well as with matrices containing a vector in each row.

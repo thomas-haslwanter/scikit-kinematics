@@ -10,9 +10,11 @@ Currently data from the following systems are supported
 
 '''
 Author: Thomas Haslwanter
-Version: 1.8
-Date: Oct-2016
+Version: 2.0
+Date: Aug-2017
 '''
+
+__version__ = '2.0'
 
 import numpy as np
 import scipy as sp
@@ -33,6 +35,10 @@ sys.path.append( os.path.join( os.path.dirname(__file__), os.path.pardir ) )
 
 from skinematics import quat, vector, misc
 
+# For deprecation warnings
+import deprecation
+import warnings
+
 class IMU:
     '''
     Class for working with working with inertial measurement units (IMUs)
@@ -42,6 +48,16 @@ class IMU:
         - by providing measurement data and a samplerate
         - without giving any parameter; in that case the user is prompted
           to select an infile
+
+    Attributes:
+        acc (Nx3 array): 3D linear acceleration
+        dataType (string): Type of data (commonly float)
+        duration (float): Duration of recording [sec]
+        mag (Nx3 array): 3D orientation of local magnectic field
+        omega (Nx3 array): 3D angular velocity
+        rate (int): Sampling rate
+        source (str): Name of data-file
+        totalSamples (int): Number of samples
 
     Parameters
     ----------
@@ -65,18 +81,6 @@ class IMU:
         rate: integer
             sample rate [Hz]
 
-    Notes
-    -----
-    
-    IMU-Properties:
-        - source
-        - acc
-        - omega
-        - mag
-        - rate
-        - totalSamples
-        - duration
-        - dataType
 
     Examples
     --------
@@ -92,12 +96,16 @@ class IMU:
 	>>> 
 	>>> calcType = 'Madgwick'
 	>>> myimu.calc_orientation(initialOrientation, type=calcType)
+	>>> q_Madgwick = myimu.quat[:,1:]
+	>>> 
+	>>> calcType = 'Kalman'
+	>>> myimu.calc_orientation(initialOrientation, type=calcType)
 	>>> q_Kalman = myimu.quat[:,1:]
  
     '''
 
 
-    def __init__(self, inFile = None, inType='XSens', inData = None):
+    def __init__(self, inFile = None, inType='XSens', q_type='analytical', inData = None):
         '''Initialize an IMU-object'''
 
         if inData is not None:
@@ -114,6 +122,7 @@ class IMU:
                     self.acc= data[1]
                     self.omega = data[2]
                     self.mag = data[3]
+                    self._qtype = q_type
                     self._setInfo()
 
                     print('data read in!')
@@ -122,6 +131,30 @@ class IMU:
             else:
                 print(inFile + ' does NOT exist!')
 
+    @property
+    def q_type(self):
+        """q_type determines how the orientation is calculated.
+        
+        It has to be one of the following values:
+        * analytical
+        * Kalman
+        * Madgwick
+        * Mahony
+        """
+        return self._qtype
+    
+    @q_type.setter
+    def q_type(self, value):
+        allowed_values = ['analytical',
+                          'Kalman',
+                          'Madgwick'
+                          'Mahony']
+        if value in allowed_values:
+            self.calc_orientation(R_initialOrientation)
+        else:
+            raise ValueError('q_type must be one of the following: {0}'.format(allowed_values))
+        
+        
     def setData(self, data):
         ''' Set the properties of an IMU-object. '''
 
@@ -137,7 +170,7 @@ class IMU:
         self.source = None
         self._setInfo()
 
-    def calc_orientation(self, R_initialOrientation, method='quatInt'):
+    def calc_orientation(self, R_initialOrientation = np.eye(3), method='analytical'):
         '''
         Calculate the current orientation
 
@@ -146,7 +179,7 @@ class IMU:
         R_initialOrientation : 3x3 array
                 approximate alignment of sensor-CS with space-fixed CS
         type : string
-                - 'quatInt' .... quaternion integration of angular velocity
+                - 'analytical' .... quaternion integration of angular velocity
                 - 'Kalman' ..... quaternion Kalman filter
                 - 'Madgwick' ... gradient descent method, efficient
                 - 'Mahony' ....  formula from Mahony, as implemented by Madgwick
@@ -155,7 +188,7 @@ class IMU:
 
         initialPosition = np.r_[0,0,0]
 
-        if method == 'quatInt':
+        if method == 'analytical':
             (quaternion, position) = analytical(R_initialOrientation, self.omega, initialPosition, self.acc, self.rate)
 
         elif method == 'Kalman':
@@ -166,7 +199,7 @@ class IMU:
             self._checkRequirements()
                     
             # Initialize object
-            AHRS = Madgwick(SamplePeriod=1./self.rate, Beta=0.1)
+            AHRS = Madgwick(SamplePeriod=1./self.rate, Beta=1.5)
             quaternion = np.zeros((self.totalSamples, 4))
             
             # The "Update"-function uses angular velocity in radian/s, and only the directions of acceleration and magnetic field
@@ -406,6 +439,15 @@ def _read_yei(inFile):
         
     return returnValues
 
+@deprecation.deprecated(deprecated_in="2.0", removed_in="2.2",
+                        current_version=__version__,
+                        details="Use the ``analytical`` function instead")
+
+def calc_QPos(R_initialOrientation, omega, initialPosition, accMeasured, rate):
+    ''' Reconstruct position and orientation with an analytical solution
+    Deprecated, use analytical'''
+    
+    return calc_QPos(R_initialOrientation, omega, initialPosition, accMeasured, rate)
     
 def analytical(R_initialOrientation, omega, initialPosition, accMeasured, rate):
     ''' Reconstruct position and orientation with an analytical solution,
@@ -480,6 +522,16 @@ def analytical(R_initialOrientation, omega, initialPosition, accMeasured, rate):
 
     return (q, pos)
 
+@deprecation.deprecated(deprecated_in="2.0", removed_in="2.2",
+                        current_version=__version__,
+                        details="Use the ``kalman`` function instead")
+
+def kalman_quat(rate, acc, omega, mag):
+    '''Calclulate the orientation from IMU magnetometer data.
+    Deprecated, use kalman'''
+    
+    return kalman_quat(rate, acc, omega, mag)
+    
 def kalman(rate, acc, omega, mag):
     '''
     Calclulate the orientation from IMU magnetometer data.

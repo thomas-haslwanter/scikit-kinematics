@@ -21,8 +21,8 @@ Homepage
 http://work.thaslwanter.at/skinematics/html/
 
 Author:  Thomas Haslwanter
-Date:    17-07-2017
-Ver:     0.4.4
+Date:    08-08-2017
+Ver:     0.4.6
 Licence: BSD 2-Clause License (http://opensource.org/licenses/BSD-2-Clause)
         Copyright (c) 2017, Thomas Haslwanter
         All rights reserved.
@@ -52,23 +52,23 @@ Data-Import
 
 MARG Systems
 ------------
-- imus.calc_QPos ... Calculate orientation and position, from angular velocity and linear acceleration
-- imus.kalman_quat ... Calculate orientation from IMU-data using an Extended Kalman Filter.
+- imus.analytical ... Calculate orientation and position, from angular velocity and linear acceleration
+- imus.kalman ... Calculate orientation from IMU-data using an Extended Kalman Filter.
 
 - imus.IMU ... Class for working with data from IMUs
     - imus.IMU.calc_orientation ... calculate orientation
     - imus.IMU.calc_position ... calculate position
     - imus.IMU.setData ... set the properties of an IMU-object
-- imus.MadgwickAHRS ... Class for calculating the 3D orientation with the Madgwick-algorithm
-- imus.MahonyAHRS ... Class for calculating the 3D orientation with the Mahony-algorithm
+- imus.Madgwick ... Class for calculating the 3D orientation with the Madgwick-algorithm
+- imus.Mahony ... Class for calculating the 3D orientation with the Mahony-algorithm
 
 Markers
 =======
 
 Analysis of signals from video-based marker-recordings of 3D movements
 
-- markers.analyze3Dmarkers ... Kinematic analysis of video-basedrecordings of 3D markers
-- markers.movement_from_markers ... Calculation of joint-movements from 3D marker positions
+- markers.analyze_3Dmarkers ... Kinematic analysis of video-basedrecordings of 3D markers
+- markers.find_trajectory ... Calculation of joint-movements from 3D marker positions
 
 Quaternions
 ===========
