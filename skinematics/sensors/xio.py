@@ -1,15 +1,26 @@
 '''
-Import data saved with XIO-sensors
+Import data saved with xio-sensors, through subclassing "IMU_Base"
+Note that the data are in two files:
+
+    - a data-file
+    - a reg-file
+
 '''
 
 '''
 Author: Thomas Haslwanter
-Version: 0.2
-Date: May-2016
+Version: 0.1
+Date: Sept-2017
 '''
 
-import os
+import numpy as np
 import pandas as pd
+import os
+
+import abc
+import sys
+sys.path.append("..")
+from skinematics.imus import IMU_Base
 
 def read_ratefile(reg_file):
     '''Read send-rates from an XIO sensor.
@@ -86,58 +97,67 @@ def read_datafile(in_file):
         
     return out_list
 
-def get_data(in_selection):
-    '''Get the sampling rates, as well as the recorded data.
+class XIO(IMU_Base):
+    """Concrete class based on abstract base class IMU_Base """    
     
-    Parameters
-    ----------
-    in_selection : string
-            Directory containing all the data-files, or
-            filename of one file in that directory
-    
-    Returns
-    -------
-    out_list: list
-            Contains the following parameters:
-            
-            - rate
-            - acceleration
-            - angular_velocity
-            - mag_field_direction
-            - packet_nr
-    '''
-    
-    if os.path.isdir(in_selection):
-        in_dir = in_selection
-    else:
-        in_file = in_selection
-        in_dir = os.path.split(in_file)[0]
+    def get_data(self, in_file, in_data=None):
+        '''
+        Get the sampling rate, as well as the recorded data,
+        and assign them to the corresponding attributes of "self".
         
-    file_list = os.listdir(in_dir)
-   
-    # Get the filenames, based on the XIO-definitions
-    files = {}
-    for file in file_list:
-        if file.find('Registers') > 0:
-            files['register'] = os.path.join(in_dir, file)
-        if file.find('CalInertialAndMag') > 0:
-            files['data'] = os.path.join(in_dir, file)
-    
-    # Read in the registers-file, and extract the sampling rates
-    rates = read_ratefile(files['register'])
-    
-    # Read the sensor-data
-    data  = read_datafile(files['data'])
-    
-    return ([rates['InertialAndMagnetic']] + data)
+        Parameters
+        ----------
+        in_selection : string
+                Directory containing all the data-files, or
+                filename of one file in that directory
+        in_data : not used here
+        
+        Assigns
+        -------
+        - rate : rate
+        - acc : acceleration
+        - omega : angular_velocity
+        - mag : mag_field_direction
+        - packet_nr : packet_nr
+        '''
+        in_selection = in_file
+        if os.path.isdir(in_selection):
+            in_dir = in_selection
+        else:
+            in_file = in_selection
+            in_dir = os.path.split(in_file)[0]
             
-if __name__=='__main__':
-    test_dir = r'../../tests/data/data_xio'    
+        file_list = os.listdir(in_dir)
+       
+        # Get the filenames, based on the XIO-definitions
+        files = {}
+        for file in file_list:
+            if file.find('Registers') > 0:
+                files['register'] = os.path.join(in_dir, file)
+            if file.find('CalInertialAndMag') > 0:
+                files['data'] = os.path.join(in_dir, file)
+        
+        # Read in the registers-file, and extract the sampling rates
+        rates = read_ratefile(files['register'])
+        
+        # Read the sensor-data
+        data  = read_datafile(files['data'])
+        
+        returnValues= [rates['InertialAndMagnetic']] + data[:-1]
+        
+        self._set_info(*returnValues)
+        self.packet_nr = data[-1]
+
+if __name__ == '__main__':
+    test_dir = r'../tests/data/data_xio'    
     assert os.path.exists(test_dir)
     
-    data = get_data(test_dir)
+    my_sensor = XIO(in_file=test_dir)
     
-    print('Rate: {0} [Hz]'.format(data[0]))
-    print('Acceleration [m/s^2]:\n {0}'.format(data[1]))
+    import matplotlib.pyplot as plt    
     
+    plt.plot(my_sensor.acc)    
+    print(my_sensor.rate)
+    plt.show()
+    print('Done')
     

@@ -120,19 +120,19 @@ class TestSequenceFunctions(unittest.TestCase):
         self.assertTrue(error < self.delta)
 
 
-    def test_scale2deg(self):
-        result = quat.scale2deg(self.qz)
+    def test_quat2deg(self):
+        result = quat.quat2deg(self.qz)
         correct =  array([  0.       ,   0.       ,  11.4591559])
         error = norm(result - correct)
         self.assertTrue(error < self.delta)
 
-        result = quat.scale2deg(self.quatMat)
+        result = quat.quat2deg(self.quatMat)
         correct =  array([[  0.       ,   0.       ,  11.4591559],
        [  0.       ,  11.4591559,   0.       ]])
         error = norm(result - correct)
         self.assertTrue(error < self.delta)
 
-        result = quat.scale2deg(0.2)
+        result = quat.quat2deg(0.2)
         correct =  array([ 23.07391807])
         error = abs(result - correct)
         self.assertTrue(error < self.delta)

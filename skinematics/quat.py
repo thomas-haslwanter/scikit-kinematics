@@ -565,7 +565,7 @@ def q_mult(p,q):
     r = r.T
     return r
 
-def scale2deg(inQuat):
+def quat2deg(inQuat):
     '''Calculate the axis-angle corresponding to a given quaternion.
     
     Parameters
@@ -589,27 +589,17 @@ def scale2deg(inQuat):
     
     Examples
     --------
-    >>> quat.scale2deg(0.1)
+    >>> quat.quat2deg(0.1)
     array([ 11.47834095])
 
-    >>> quat.scale2deg([0.1, 0.1, 0])
+    >>> quat.quat2deg([0.1, 0.1, 0])
     array([ 11.47834095,  11.47834095,   0.        ])
 
-    >>> quat.scale2deg([cos(0.1), 0, sin(0.1), 0])
+    >>> quat.quat2deg([cos(0.1), 0, sin(0.1), 0])
     array([  0.       ,  11.4591559,   0.       ])
     '''
     return 2 * np.arcsin(q_vector(inQuat)) * 180 / pi
 
-
-@deprecation.deprecated(deprecated_in="0.4", removed_in="0.6",
-                        current_version=__version__,
-                        details="Use the ``scale2deg`` function instead")
-def quat2deg(inQuat):
-    '''Calculate the axis-angle corresponding to a given quaternion.
-        Deprecated. Use 'scale2deg" instead.'''
-    
-    return scale2deg(inQuat)
- 
 
 @deprecation.deprecated(deprecated_in="0.4", removed_in="0.6",
                         current_version=__version__,
@@ -989,9 +979,9 @@ if __name__=='__main__':
     print(q_mult(e, q_inv(e)))
 
     print(q_vector(a))
-    print('{0} is {1} degree'.format(a, scale2deg(a)))
-    print('{0} is {1} degree'.format(c, scale2deg(c)))
-    print(scale2deg(0.2))
+    print('{0} is {1} degree'.format(a, quat2deg(a)))
+    print('{0} is {1} degree'.format(c, quat2deg(c)))
+    print(quat2deg(0.2))
     x = np.r_[1,0,0]
     vNull = np.r_[0,0,0]
     print(rotate_vector(x, a))
@@ -1007,7 +997,7 @@ if __name__=='__main__':
     plt.show()
     
     print(deg2quat(15))
-    print(deg2quat(scale2deg(a)))
+    print(deg2quat(quat2deg(a)))
     
     q = np.array([[0, 0, np.sin(0.1)],
                [0, np.sin(0.01), 0]])

@@ -5,44 +5,59 @@ IMUs
 
 These routines facilitate the calculation of 3d movement kinematics for
 recordings from inertial measurement units (IMUs).
-Currently data from 4 systems are supported:
+
+They are implemented in an object oriented way. (Don't worry if you have not
+used objects before, it won't be a problem here!) All sensor implementations
+are based on the abstract base class "IMU_Base". For each sensor, the
+corresponding method "get_data" has to be implemented, by sub-classing
+IMU_Base. Currently 4 sensor types are supported:
 
 * XSens
 * xio
 * YEI
 * polulu
 
-Functions
----------
+To create a sensor object, choose one of the existing sensor classes, as
+demonstrated in the example below. You have to provide at least the
+file-name of the file containing the sensor data. Optionally, you can also
+provide:
 
-Data-Handling
-^^^^^^^^^^^^^
-* :func:`imus.import_data` ... Read in rate and 3D parameters from different IMUs.
-* :func:`sensors.xio.get_data` ... Read in rate and 3D parameters from *xio* sensors.
-* :func:`sensors.xsens.get_data` ... Read in rate and 3D parameters from *XSens* sensors.
-* :func:`sensors.yei.get_data` ... Read in rate and 3D parameters from *YEI* sensors.
-* :func:`sensors.polulu.get_data` ... Read in rate and 3D parameters from *polulu* sensors.
+* R_init ... initial orientation [default = np.eye(3)]
+* pos_init ... initial position [default = np.ones(3)]
+* q_type ... method to calculate orientation. The options are:
+  
+    - "analytical" [default] ... analytical solution, using only acc and omega
+    - "kalman" ... quaternion Kalman filter, using acc, omega, and mag
+    - "madgwick" ... Madgwick algorithm, using acc, omega, and mag
+    - "mahony" ... Mahony algorithm, using, acc and omega
+    - "None" ... If you want to only read in the sensor data
 
-Data-Analysis
-^^^^^^^^^^^^^
-* :func:`imus.analytical` ... Calculate orientation and position analytically from angular velocity and linear acceleration 
-* :func:`imus.kalman` ... Calculate orientation from IMU-data using an Extended Kalman Filter
+Data are read in, and by default the orientation is automatically calculated
+based on the parameter "q_type" and using the function _calc_orientation.
 
-.. toctree::
-   :maxdepth: 2
+Sub-classing IMU-Base for your own sensor type
+----------------------------------------------
+If you have your own data format, you have to implement the corresponding
+"get_data" method. You can base it on:
+
+* "xsens.py" ... if all your data are in one file
+* "polulu.py" ... if you have to manually enter data not stored by your program
+* "xio.py" ... if your data are stored in multiple files
 
 Class
 -----
 .. autosummary::
-    imus.IMU
+    imus.IMU_Base
+
+.. automodule:: imus
+    :members:
 
 
 Methods
 ^^^^^^^
 .. autosummary::
-    imus.IMU.calc_orientation
-    imus.IMU.calc_position
-    imus.IMU.setData
+    imus.IMU_Base.calc_position
+    imus.IMU_Base.get_data
 
 .. toctree::
    :maxdepth: 2
@@ -53,10 +68,19 @@ Classes for Sensor-Integration
     imus.Mahony
     imus.Madgwick
 
-Details
--------
-.. automodule:: imus
-    :members:
+Functions
+---------
+
+Data-Analysis
+^^^^^^^^^^^^^
+* :func:`imus.analytical` ... Calculate orientation and position analytically from angular velocity and linear acceleration 
+* :func:`imus.kalman` ... Calculate orientation from IMU-data using an Extended Kalman Filter
+
+.. toctree::
+   :maxdepth: 2
+
+Existing Sensor Implementations
+-------------------------------
 
 .. automodule:: sensors.xio
     :members:

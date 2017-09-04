@@ -1,31 +1,22 @@
 '''
-Utilities for movements recordings with inertial measurement units (IMUs)
-Currently data from the following systems are supported
-
-    - XIO
-    - XSens
-    - YEI
-    - Polulu
+Abstract base class for analyzing movements recordings with inertial measurement units (IMUs)
 '''
 
 '''
 Author: Thomas Haslwanter
-Version: 2.0
+Version: 3.0
 Date: Aug-2017
 '''
 
-__version__ = '2.0'
+__version__ = '3.0'
 
 import numpy as np
-import scipy as sp
-from scipy import constants
-from scipy.integrate import cumtrapz
 import matplotlib.pyplot as plt
 import pandas as pd 
-from numpy import r_, sum
+import scipy as sp
+from scipy import constants     # for "g"
+from scipy.integrate import cumtrapz
 import re
-import os
-#import easygui
 
 # The following construct is required since I want to run the module as a script
 # inside the skinematics-directory
@@ -39,36 +30,32 @@ from skinematics import quat, vector, misc
 import deprecation
 import warnings
 
-class IMU:
-    '''
-    Class for working with working with inertial measurement units (IMUs)
-    
-    An IMU object can be initialized
-        - by giving a filename
-        - by providing measurement data and a samplerate
-        - without giving any parameter; in that case the user is prompted
-          to select an infile
+# For the definition of the abstract base class IMU_Base
+import abc
 
+class IMU_Base(metaclass=abc.ABCMeta):
+    '''
+    Abstract BaseClass for working with working with inertial measurement units (IMUs)
+    A concrete class must be instantiated, which implements "get_data". (See example below.)
+    
     Attributes:
-        acc (Nx3 array): 3D linear acceleration
-        dataType (string): Type of data (commonly float)
-        duration (float): Duration of recording [sec]
-        mag (Nx3 array): 3D orientation of local magnectic field
-        omega (Nx3 array): 3D angular velocity
-        rate (int): Sampling rate
-        source (str): Name of data-file
-        totalSamples (int): Number of samples
+        acc (Nx3 array) : 3D linear acceleration
+        dataType (string) : Type of data (commonly float)
+        duration (float) : Duration of recording [sec]
+        mag (Nx3 array) : 3D orientation of local magnectic field
+        omega (Nx3 array) : 3D angular velocity
+        pos_init (3-vector) : Initial position. default is np.ones(3)
+        quat (Nx4 array) : 
+        q_type (string) : Method of calculation for orientation quaternion
+        rate (int) : Sampling rate
+        R_init (3x3 array) : Rotation matrix defining the initial orientation. Default is np.eye(3)
+        source (str) : Name of data-file
+        totalSamples (int) : Number of samples
 
     Parameters
     ----------
     inFile : string
-        path- and file-name of data file
-    inType : string
-        Description of the type of the in-file. Has to be one of the following:
-            - xio
-            - XSens
-            - yei
-            - polulu
+        path- and file-name of data file / input source
     inData : dictionary
         The following fields are required:
 
@@ -84,79 +71,120 @@ class IMU:
 
     Examples
     --------
-	>>> myimu = IMU(r'tests/data/data_xsens.txt', inType='XSens')
-	>>> 
-	>>> initialOrientation = np.array([[1,0,0],
-	>>>                                [0,0,-1],
-	>>>                                [0,1,0]])
-	>>> initialPosition = np.r_[0,0,0]
-	>>> 
-	>>> myimu.calc_orientation(initialOrientation)
-	>>> q_simple = myimu.quat[:,1:]
-	>>> 
-	>>> calcType = 'Madgwick'
-	>>> myimu.calc_orientation(initialOrientation, type=calcType)
-	>>> q_Madgwick = myimu.quat[:,1:]
-	>>> 
-	>>> calcType = 'Kalman'
-	>>> myimu.calc_orientation(initialOrientation, type=calcType)
-	>>> q_Kalman = myimu.quat[:,1:]
- 
+    >>> # Set the in-file, initial sensor orientation 
+    >>> in_file = r'tests/data/data_xsens.txt'
+    >>> initial_orientation = np.array([[1,0,0],
+    >>>                                 [0,0,-1],
+    >>>                                 [0,1,0]])
+    >>>  
+    >>> # Choose a sensor 
+    >>> from skinematics.sensors.xsens import XSens
+    >>> sensor = XSens(in_file=in_file, R_init=initial_orientation)
+    >>>  
+    >>> # By default, the orientation quaternion gets automatically calculated, using the option "analytical"
+    >>> q_analytical = sensor.quat
+    >>>  
+    >>> # Automatic re-calculation of orientation if "q_type" is changed
+    >>> sensor.q_type = 'madgwick'
+    >>> q_Madgwick = sensor.quat
+    >>>  
+    >>> sensor.q_type = 'kalman'
+    >>> q_Kalman = sensor.quat
+    
     '''
+    
+    @abc.abstractmethod
+    def get_data(self, in_file=None, in_data=None):
+        """Retrieve "rate", "acc", "omega", "mag" from the input source
+        and set the corresponding values of "self".
+        With some sensors, "rate" has to be provided, and is taken from "in_data".
+        """
 
+    def __init__(self, in_file = None, q_type='analytical', R_init = np.eye(3), pos_init = np.zeros(3), in_data = None ):
+        """Initialize an IMU-object
+        
+        in_file : string
+                Location of infile / input
+        q_type : string
+                Determines how the orientation gets calculated:
+                - 'analytical' .... quaternion integration of angular velocity
+                - 'kalman' ..... quaternion Kalman filter
+                - 'madgwick' ... gradient descent method, efficient
+                - 'mahony' ....  formula from Mahony, as implemented by Madgwick
+                - 'None' ... data are only read in, no orientation calculated
+        R_init : 3x3 array
+                approximate alignment of sensor-CS with space-fixed CS
+                currently only used in "analytical"
+        pos_init : (,3) vector
+                initial position
+                currently only used in "analytical"
+        in_data : dictionary
+                If the data are provided directly, not from a file
+                Also used to provide "rate" for "polulu" sensors.
+        """
 
-    def __init__(self, inFile = None, inType='XSens', q_type='analytical', inData = None):
-        '''Initialize an IMU-object'''
-
-        if inData is not None:
-            self.setData(inData)
+        if in_data is None and in_file is None:
+            raise ValueError('Either in_data or in_file must be provided.')
+        
+        elif in_file is None:
+            # Get the data from "in_data"
+            # In that case, "in_data"
+            #   - must contain the fields ['acc', 'omega']
+            #   - can contain the fields ['rate', 'mag']
+            # self.source is set to "None"
+            self._set_data(in_data)
+            
         else: 
-            if inFile is None:
-                inFile = self._selectInput()
-            if os.path.exists(inFile):    
-                self.source = inFile
+            # Set rate, acc, omega, mag
+            # Note: this is implemented in the concrete class, implenented in 
+            # the corresponding module in "sensors"
+            self.get_data(in_file, in_data)
+            
+        # Set information not determined by the IMU-data
+        self.R_init = R_init
+        self.pos_init = pos_init
 
-                try:
-                    data = import_data(inFile=self.source, inType=inType, paramList=['rate', 'acc', 'omega', 'mag'])
-                    self.rate = data[0]
-                    self.acc= data[1]
-                    self.omega = data[2]
-                    self.mag = data[3]
-                    self._qtype = q_type
-                    self._setInfo()
-
-                    print('data read in!')
-                except IOError:
-                    print('Could not read ' + inFile)
-            else:
-                print(inFile + ' does NOT exist!')
+        # Set the analysis method, and consolidate the object (see below)
+        # This also means calculating the orientation quaternion.
+        self.q_type = q_type
 
     @property
     def q_type(self):
         """q_type determines how the orientation is calculated.
-        
+		If "q_type" is "None", no orientation gets calculated; otherwise,
+		the orientation calculation is performed with 
+		"_calc_orientation", using the option "q_type".
+		
         It has to be one of the following values:
-        * analytical
-        * Kalman
-        * Madgwick
-        * Mahony
+        
+			* analytical
+			* kalman
+			* madgwick
+			* mahony
+			* None
+        
         """
-        return self._qtype
+        return self._q_type
     
     @q_type.setter
     def q_type(self, value):
         allowed_values = ['analytical',
-                          'Kalman',
-                          'Madgwick'
-                          'Mahony']
+                          'kalman',
+                          'madgwick',
+                          'mahony',
+                          None]
         if value in allowed_values:
-            self.calc_orientation(R_initialOrientation)
+            self._q_type = value
+            if value == None:
+                self.quat = None
+            else:
+                self._calc_orientation()
         else:
-            raise ValueError('q_type must be one of the following: {0}'.format(allowed_values))
+            raise ValueError('q_type must be one of the following: {0}, not {1}'.format(allowed_values, value))
         
         
-    def setData(self, data):
-        ''' Set the properties of an IMU-object. '''
+    def _set_data(self, data):
+        # Set the properties of an IMU-object directly
 
         if 'rate' not in data.keys():
             print('Set the "rate" to the default value (100 Hz).')
@@ -168,34 +196,34 @@ class IMU:
         if 'mag' in data.keys():
             self.mag = data['mag']
         self.source = None
-        self._setInfo()
+        self._set_info()
 
-    def calc_orientation(self, R_initialOrientation = np.eye(3), method='analytical'):
+        
+    def _calc_orientation(self):
         '''
         Calculate the current orientation
 
         Parameters
         ----------
-        R_initialOrientation : 3x3 array
-                approximate alignment of sensor-CS with space-fixed CS
         type : string
                 - 'analytical' .... quaternion integration of angular velocity
-                - 'Kalman' ..... quaternion Kalman filter
-                - 'Madgwick' ... gradient descent method, efficient
-                - 'Mahony' ....  formula from Mahony, as implemented by Madgwick
+                - 'kalman' ..... quaternion Kalman filter
+                - 'madgwick' ... gradient descent method, efficient
+                - 'mahony' ....  formula from Mahony, as implemented by Madgwick
 
         '''
 
         initialPosition = np.r_[0,0,0]
 
+        method = self._q_type
         if method == 'analytical':
-            (quaternion, position) = analytical(R_initialOrientation, self.omega, initialPosition, self.acc, self.rate)
+            (quaternion, position) = analytical(self.R_init, self.omega, initialPosition, self.acc, self.rate)
 
-        elif method == 'Kalman':
+        elif method == 'kalman':
             self._checkRequirements()
-            quaternion =  kalman(self.rate, self.acc, self.omega, self.mag)
+            quaternion = kalman(self.rate, self.acc, self.omega, self.mag)
 
-        elif method == 'Madgwick':
+        elif method == 'madgwick':
             self._checkRequirements()
                     
             # Initialize object
@@ -212,7 +240,7 @@ class IMU:
                 AHRS.Update(Gyr[t], Acc[t], Mag[t])
                 quaternion[t] = AHRS.Quaternion
                 
-        elif method == 'Mahony':
+        elif method == 'mahony':
             self._checkRequirements()
                     
             # Initialize object
@@ -235,9 +263,10 @@ class IMU:
 
         self.quat = quaternion
 
-    def calc_position(self, initialPosition):
+    def calc_position(self):
         '''Calculate the position, assuming that the orientation is already known.'''
 
+        initialPosition = self.pos_init
         # Acceleration, velocity, and position ----------------------------
         # From q and the measured acceleration, get the \frac{d^2x}{dt^2}
         g = constants.g
@@ -263,192 +292,18 @@ class IMU:
             if field not in vars(self):
                 print('Cannot find {0} in calc_orientation!'.format(field))
             
-    def _selectInput(self):
-        '''GUI for the selection of an in-file. '''
-
-        #fullInFile = easygui.fileopenbox(msg='Input data: ', title='Selection', default='*.txt')
-        (file, path) = misc.get_file('*.txt', 'Input data: ')
-        fullInFile = os.path.join(path, file)
-        print('Selection: ' + fullInFile)
-        return fullInFile
-
-    def _setInfo(self):
+    def _set_info(self, rate, acc, omega, mag):
         '''Set the information properties of that IMU'''
 
+        self.rate = rate
+        self.acc = acc
+        self.omega = omega
+        self.mag = mag
+        
         self.totalSamples = len(self.omega)
         self.duration = np.float(self.totalSamples)/self.rate # [sec]
         self.dataType = str(self.omega.dtype)
 
-def import_data(inFile=None, inType='XSens', paramList=['rate', 'acc', 'omega', 'mag']):
-    '''
-    Read in Rate and stored 3D parameters from IMUs
-
-    Parameters
-    ----------
-    inFile : string
-             Path and name of input file
-    type : sensor-type. Has to be either ['XSens', 'xio', 'yei', 'polulu']
-    paramList: list of strings
-               You can select between ['rate', 'acc', 'omega', 'mag', 'others']
-
-    Returns
-    -------
-    List, containing
-    rate : float
-        Sampling rate
-    [List of x/y/z Parameter Values]
-
-    Examples
-    --------
-    >>> data = import_data(fullInFile, inType='XSens', paramList=['rate', 'acc', 'omega'])
-    >>> rate = data[0]
-    >>> accValues = data[1]
-    >>> Omega = data[2]
-    
-    '''
-
-    if inFile is None:
-        #inFile = easygui.fileopenbox(msg='Please select an in-file containing XSens-IMU data: ', title='Data-selection', default='*.txt')
-        (file, path) = misc.get_file('*.txt', 'Please select an in-file containing XSens-IMU data: ')
-        inFile = os.path.join(path, file)
-
-    varList = ['acc', 'omega', 'mag', 'rate', 'others']
-    
-    dataDict = {}
-    for var in varList:
-        dataDict[var]=None
-    
-    if inType == 'XSens':
-        from sensors import xsens
-        data = xsens.get_data(inFile)
-    elif inType == 'xio':
-        from sensors import xio
-        data = xio.get_data(inFile)
-    elif inType == 'yei':
-        from sensors import yei
-        data = yei.get_data(inFile)
-    elif inType == 'polulu':
-        from sensors import polulu
-        data = polulu.get_data(inFile)
-    else:
-        raise ValueError
-        
-    dataDict['rate'] = data[0]
-    dataDict['acc']  = data[1]
-    dataDict['omega']  = data[2]
-    dataDict['mag']  = data[3]
-    
-    returnValues = []
-    
-    # By default, return all values, in alphabetical order
-    if paramList == []:
-        paramList = list(dataDict.keys())
-        paramList.sort()
-        print('Return-values: {0}'.format(paramList))
-        
-    for param in paramList:
-        try:
-            returnValues.append(dataDict[param])
-        except KeyError as err:
-            print('Please check the parameter {0}'.format(param))
-            print(err)
-            
-    return returnValues
-        
-        
-def _read_xsens(inFile):
-    '''Read data from an XSens sensor.
-    The data returned are (in that order): [rate, acceleration, angular_velocity, mag_field_direction]'''
-    
-    # Get the sampling rate from the second line in the file
-    try:
-        fh = open(inFile)
-        fh.readline()
-        line = fh.readline()
-        rate = np.float(line.split(':')[1].split('H')[0])
-        fh.close()
-        returnValues = [rate]
-
-    except FileNotFoundError:
-        print('{0} does not exist!'.format(inFile))
-        return -1
-
-    # Read the data
-    data = pd.read_csv(inFile,
-                       sep='\t',
-                       skiprows=4, 
-                       index_col=False)
-
-    # Extract the columns that you want, by name
-    paramList=['Acc', 'Gyr', 'Mag']
-    for param in paramList:
-        Expression = param + '*'
-        returnValues.append(data.filter(regex=Expression).values)
-
-    return returnValues
-
-def _read_xio(inFile):
-    '''Read data from an XIO sensor.
-    The data returned are (in that order): [rate, acceleration, angular_velocity, mag_field_direction, packet_nr]'''
-    
-    # XIO-definition of the sampling rate 
-    # Get the "Register"
-    inFile = '_'.join(inFile.split('_')[:-1]) + '_Registers.csv'
-    
-    # Make sure that we read in the correct one
-    inFile = '_'.join(inFile.split('_')[:-1]) + '_CalInertialAndMag.csv'
-    data = pd.read_csv(inFile)
-    
-    # Generate a simple list of column names
-    rate = 256  # currently hardcoded
-    
-    returnValues = [rate]
-    
-    # Extract the columns that you want, by name
-    paramList=['Acc', 'Gyr', 'Mag', 'Packet']
-    for Expression in paramList:
-        returnValues.append(data.filter(regex=Expression).values)
-        
-    return returnValues    
-
-def _read_yei(inFile):
-    '''Read data from an YEI sensor.
-    The data returned are (in that order): [rate, acceleration, angular_velocity, mag_field_direction]'''
-    
-    data = pd.read_csv(inFile)
-    
-    # Generate a simple list of column names
-    newColumns = []
-    pattern = re.compile('.*%(\w+)\((\w+)\)')
-    for name in data.columns:
-        newColumns.append(pattern.match(name).groups()[1])
-    data.columns = newColumns
-    
-    
-    # Calculate rate (ChipTime is in microsec)
-    start = data.ChipTimeUS[0] * 1e-6    # microseconds to seconds
-    stop = data.ChipTimeUS.values[-1] * 1e-6    # pandas can't count backwards
-    rate = len(data) / (stop-start)
-    
-    returnValues = [rate]
-    
-    # Extract the columns that you want, by name
-    paramList=['Accel', 'Gyro', 'Compass']
-    for Expression in paramList:
-        returnValues.append(data.filter(regex=Expression).values)
-        
-    return returnValues
-
-@deprecation.deprecated(deprecated_in="2.0", removed_in="2.2",
-                        current_version=__version__,
-                        details="Use the ``analytical`` function instead")
-
-def calc_QPos(R_initialOrientation, omega, initialPosition, accMeasured, rate):
-    ''' Reconstruct position and orientation with an analytical solution
-    Deprecated, use analytical'''
-    
-    return calc_QPos(R_initialOrientation, omega, initialPosition, accMeasured, rate)
-    
 def analytical(R_initialOrientation, omega, initialPosition, accMeasured, rate):
     ''' Reconstruct position and orientation with an analytical solution,
     from angular velocity and linear acceleration.
@@ -485,7 +340,7 @@ def analytical(R_initialOrientation, omega, initialPosition, accMeasured, rate):
 
     # Orientation of \vec{g} with the sensor in the "R_initialOrientation"
     g = 9.81
-    g0 = np.linalg.inv(R_initialOrientation).dot(r_[0,0,g])
+    g0 = np.linalg.inv(R_initialOrientation).dot(np.r_[0,0,g])
 
     # for the remaining deviation, assume the shortest rotation to there
     q0 = vector.q_shortest_rotation(accMeasured[0], g0)    
@@ -501,7 +356,7 @@ def analytical(R_initialOrientation, omega, initialPosition, accMeasured, rate):
 
     # Acceleration, velocity, and position ----------------------------
     # From q and the measured acceleration, get the \frac{d^2x}{dt^2}
-    g_v = r_[0, 0, g] 
+    g_v = np.r_[0, 0, g] 
     accReSensor = accMeasured - vector.rotate_vector(g_v, quat.q_inv(q))
     accReSpace = vector.rotate_vector(accReSensor, q)
 
@@ -522,16 +377,6 @@ def analytical(R_initialOrientation, omega, initialPosition, accMeasured, rate):
 
     return (q, pos)
 
-@deprecation.deprecated(deprecated_in="2.0", removed_in="2.2",
-                        current_version=__version__,
-                        details="Use the ``kalman`` function instead")
-
-def kalman_quat(rate, acc, omega, mag):
-    '''Calclulate the orientation from IMU magnetometer data.
-    Deprecated, use kalman'''
-    
-    return kalman_quat(rate, acc, omega, mag)
-    
 def kalman(rate, acc, omega, mag):
     '''
     Calclulate the orientation from IMU magnetometer data.
@@ -577,7 +422,7 @@ def kalman(rate, acc, omega, mag):
     H_k = np.matrix( np.eye(7) )		# Identity matrix
 
     Q_k = np.matrix( np.zeros((7,7)) )	# process noise matrix Q_k
-    D = 0.0001*r_[0.4, 0.4, 0.4]		# [rad^2/sec^2]; from Yun, 2006
+    D = 0.0001*np.r_[0.4, 0.4, 0.4]		# [rad^2/sec^2]; from Yun, 2006
                                                                             # check 0.0001 in Yun
     for ii in range(3):
         Q_k[ii,ii] =  D[ii]/(2*tau[ii])  * ( 1-np.exp(-2*tstep/tau[ii]) )
@@ -621,10 +466,10 @@ def kalman(rate, acc, omega, mag):
         x_k += np.array( K_k.dot(z_k-z_k_pre) ).ravel()
 
         # Evaluate discrete state transition matrix Phi_k
-        Phi_k[3,:] = r_[-x_k[4]*tstep/2, -x_k[5]*tstep/2, -x_k[6]*tstep/2,              1, -x_k[0]*tstep/2, -x_k[1]*tstep/2, -x_k[2]*tstep/2]
-        Phi_k[4,:] = r_[ x_k[3]*tstep/2, -x_k[6]*tstep/2,  x_k[5]*tstep/2, x_k[0]*tstep/2,               1,  x_k[2]*tstep/2, -x_k[1]*tstep/2]
-        Phi_k[5,:] = r_[ x_k[6]*tstep/2,  x_k[3]*tstep/2, -x_k[4]*tstep/2, x_k[1]*tstep/2, -x_k[2]*tstep/2,               1,  x_k[0]*tstep/2]
-        Phi_k[6,:] = r_[-x_k[5]*tstep/2,  x_k[4]*tstep/2,  x_k[3]*tstep/2, x_k[2]*tstep/2,  x_k[1]*tstep/2, -x_k[0]*tstep/2,               1]
+        Phi_k[3,:] = np.r_[-x_k[4]*tstep/2, -x_k[5]*tstep/2, -x_k[6]*tstep/2,              1, -x_k[0]*tstep/2, -x_k[1]*tstep/2, -x_k[2]*tstep/2]
+        Phi_k[4,:] = np.r_[ x_k[3]*tstep/2, -x_k[6]*tstep/2,  x_k[5]*tstep/2, x_k[0]*tstep/2,               1,  x_k[2]*tstep/2, -x_k[1]*tstep/2]
+        Phi_k[5,:] = np.r_[ x_k[6]*tstep/2,  x_k[3]*tstep/2, -x_k[4]*tstep/2, x_k[1]*tstep/2, -x_k[2]*tstep/2,               1,  x_k[0]*tstep/2]
+        Phi_k[6,:] = np.r_[-x_k[5]*tstep/2,  x_k[4]*tstep/2,  x_k[3]*tstep/2, x_k[2]*tstep/2,  x_k[1]*tstep/2, -x_k[0]*tstep/2,               1]
 
         # Update error covariance matrix
         #P_k = (eye(7)-K_k*H_k)*P_k
@@ -632,7 +477,7 @@ def kalman(rate, acc, omega, mag):
         P_k = (H_k - K_k) * P_k
 
         # Projection of state quaternions
-        x_k[3:] += quat.q_mult(0.5*x_k[3:],r_[0, x_k[:3]]).flatten()
+        x_k[3:] += quat.q_mult(0.5*x_k[3:],np.r_[0, x_k[:3]]).flatten()
         x_k[3:] = vector.normalize( x_k[3:] )
         x_k[:3] = np.zeros(3)
         x_k[:3] = tstep * (-x_k[:3]+z_k[:3])
@@ -757,46 +602,39 @@ class Mahony:
 
         self.Quaternion = vector.normalize(q)
 
+        
+        
 if __name__ == '__main__':
-    myIMU = IMU(inFile = r'tests/data/data_xsens.txt', inType='XSens')
-    myIMU.calc_orientation(np.eye(3), method='Madgwick')
-    quat = myIMU.quat[:,1:]
-    fig, axs = plt.subplots(3,1)
-    axs[0].plot(myIMU.omega)
-    axs[0].set_ylabel('Omega')
-    axs[1].plot(myIMU.acc)
-    axs[1].set_ylabel('Acc')
-    axs[2].plot(quat)
-    axs[2].set_ylabel('Quat')
-    plt.show()
+    from sensors.xsens import XSens
     
+    in_file = r'tests/data/data_xsens.txt'
+    initial_orientation = np.array([ [1,0,0],
+									[0,0,-1],
+									[0,1,0]])
+    initial_position = np.r_[0,0,0]
     
-    '''
-    myimu = IMU(r'tests/data/data_xsens.txt')
-
-    initialOrientation = np.array([[1,0,0],
-                                   [0,0,-1],
-                                   [0,1,0]])
-
-    myimu.calc_orientation(initialOrientation, type='quatInt')
-    q_simple = myimu.quat[:,1:]
+    sensor = XSens(in_file=in_file, R_init=initial_orientation, pos_init=initial_position)
+	# By default, the orientation quaternion gets automatically calculated, using "analytical"
+    q_analytical = sensor.quat
     
-    #calcType = 'Mahony'
-    calcType = 'Madgwick'
-    calcType = 'Kalman'
-    myimu.calc_orientation(initialOrientation, type=calcType)
-    q_Kalman = myimu.quat[:,1:]
+	# Automatic re-calculation of orientation if "q_type" is changed
+    sensor.q_type = 'madgwick'
+    q_Madgwick = sensor.quat
+	
+    sensor.q_type = 'kalman'
+    q_Kalman = sensor.quat
+	
+    def show_result(imu_data):
+        fig, axs = plt.subplots(3,1)
+        axs[0].plot(imu_data.omega)
+        axs[0].set_ylabel('Omega')
+        axs[0].set_title(imu_data.q_type)
+        axs[1].plot(imu_data.acc)
+        axs[1].set_ylabel('Acc')
+        axs[2].plot(imu_data.quat[:,1:])
+        axs[2].set_ylabel('Quat')
+        plt.show()
     
-    #myimu.calc_position(initialPosition)
-
-    t = np.arange(myimu.totalSamples)/myimu.rate
-    plt.plot(t, q_simple, '-', label='simple')
-    plt.hold(True)
-    plt.plot(t, q_Kalman, '--', label=calcType)
-    plt.legend()
-    #plt.plot(t, myimu.pos)
-    plt.show()
-    '''
-
-    
+    show_result(sensor)
+	
     print('Done')

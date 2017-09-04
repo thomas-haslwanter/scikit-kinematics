@@ -21,8 +21,8 @@ Homepage
 http://work.thaslwanter.at/skinematics/html/
 
 Author:  Thomas Haslwanter
-Date:    08-08-2017
-Ver:     0.4.6
+Date:    04-09-2017
+Ver:     0.5.0
 Licence: BSD 2-Clause License (http://opensource.org/licenses/BSD-2-Clause)
         Copyright (c) 2017, Thomas Haslwanter
         All rights reserved.
@@ -41,14 +41,15 @@ IMUs
 ====
 
 Analysis of signals from IMUs (intertial-measurement-units).
+Read in data, calculate orientation (with one of the algorithms below)
 
-Data-Import
------------
-- imyus.import_data ... Read in Rate and stored 3D parameters from a variety of IMUs
-
-- sensors.xio ... Import data recorded with xio-systems
-- sensors.xsens ... Import data recorded with XSens-systems
-- sensors.yei ... Import data recorded with YEI-systems
+- get_data ... This method must be taken from one of the existing sensors,
+  or from your own sensor. Currenlty the following sensors types are available:
+  * XSens
+  * xio
+  * yei
+  * polulu
+- calc_position
 
 MARG Systems
 ------------
@@ -56,7 +57,6 @@ MARG Systems
 - imus.kalman ... Calculate orientation from IMU-data using an Extended Kalman Filter.
 
 - imus.IMU ... Class for working with data from IMUs
-    - imus.IMU.calc_orientation ... calculate orientation
     - imus.IMU.calc_position ... calculate position
     - imus.IMU.setData ... set the properties of an IMU-object
 - imus.Madgwick ... Class for calculating the 3D orientation with the Madgwick-algorithm

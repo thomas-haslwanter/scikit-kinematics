@@ -27,8 +27,8 @@ Conversion routines
 * :func:`quat.calc_angvel` ... Calculates the velocity in space from quaternions
 * :func:`quat.calc_quat` ... Calculate orientation from a starting orientation and angular velocity.
 * :func:`quat.convert` ... Convert quaternion to corresponding rotation matrix or Gibbs vector
-* :func:`quat.deg2quat` ... Convert number or axis angles to quaternion vectors
-* :func:`quat.scale2deg` ... Convert quaternion to corresponding axis angle
+* :func:`quat.deg2quat` ... Convert number or axis angles to quaternion values
+* :func:`quat.quat2deg` ... Convert quaternions to corresponding axis angle
 
 .. toctree::
    :maxdepth: 2

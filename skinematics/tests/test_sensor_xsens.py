@@ -1,29 +1,41 @@
+'''
+Test import from import data saved with XSens-sensors, through subclassing "IMU_Base"
+'''
+
+'''
+Author: Thomas Haslwanter
+Version: 0.1
+Date: Sept-2017
+'''
+
 import sys
 import os
 myPath = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, os.path.join(myPath, '..', '..'))
+sys.path.insert(0, os.path.join(myPath, '..'))
 
 import unittest
 from skinematics import imus
 from time import sleep
+from sensors.xsens import XSens
 
 class TestSequenceFunctions(unittest.TestCase):
     
     def test_import_xsens(self):
         # Get data, with a specified input from an XSens system
-        inFile = os.path.join(myPath, 'data', 'data_xsens.txt')
-        data = imus.import_data(inFile, inType='XSens', paramList=['rate', 'acc', 'omega'])
-        rate = data[0]
-        acc = data[1]
-        omega = data[2]
+        in_file = os.path.join(myPath, 'data', 'data_xsens.txt')
+        
+        sensor = XSens(in_file=in_file, q_type=None)
+        rate = sensor.rate
+        acc = sensor.acc
+        omega = sensor.omega
         
         self.assertEqual(rate, 50.)
         self.assertAlmostEqual( (omega[0,2] - 0.050860000000000002), 0)
         
     def test_IMU_xsens(self):
         # Get data, with a specified input from an XSens system
-        inFile = os.path.join(myPath, 'data', 'data_xsens.txt')
-        my_IMU = imus.IMU(inFile, inType='XSens')
+        in_file = os.path.join(myPath, 'data', 'data_xsens.txt')
+        my_IMU = XSens(in_file=in_file)
         
         self.assertEqual(my_IMU.omega.size, 2859)
         
