@@ -100,7 +100,7 @@ def R_s(axis=0, angle='alpha'):
 
     >>> R_yaw = R_s(axis=2, angle='theta')
     
-    >>> R_aero = R_s(2) * R_s(1) * R_s(0)
+    >>> R_nautical = R_s(2) * R_s(1) * R_s(0)
 
     '''
 
@@ -140,7 +140,7 @@ def sequence(R, to ='Euler'):
         Has to be one the following:
         - Euler ... Rz * Rx * Rz
         - Fick ... Rz * Ry * Rx
-        - aero ... same as "Fick"
+        - nautical ... same as "Fick"
         - Helmholtz ... Ry * Rz * Rx
 
     Returns
@@ -162,7 +162,7 @@ def sequence(R, to ='Euler'):
 
         \\alpha   = arcsin(\\frac{R_{zx}}{sin\\beta})
     
-    aero / Fick:
+    nautical / Fick:
     
     .. math::
 
@@ -192,7 +192,7 @@ def sequence(R, to ='Euler'):
     # For a simple (3,3) matrix, a superfluous first index is added.
     Rs = R.reshape((-1,3,3), order='C')
     
-    if to=='Fick' or to=='aero':
+    if to=='Fick' or to=='nautical':
         gamma =  np.arctan2(Rs[:,1,0], Rs[:,0,0])
         alpha =  np.arctan2(Rs[:,2,1], Rs[:,2,2])
         beta  = -np.arcsin(Rs[:,2,0])
@@ -221,7 +221,7 @@ def sequence(R, to ='Euler'):
         alpha[~small_indices] = np.arcsin( Rs[~small_indices,2,0]/np.sin(beta) )
             
     else:
-        print('\nSorry, only know: \naero, \nFick, \nHelmholtz, \nEuler.\n')
+        print('\nSorry, only know: \nnautical, \nFick, \nHelmholtz, \nEuler.\n')
         raise IOError
         
     # Return the parameter-angles
@@ -393,11 +393,11 @@ if __name__ == '__main__':
     Fick = rotmat2Fick(testmat)
     print(Fick)
     
-    angles = sequence(testmat, to='aero')
+    angles = sequence(testmat, to='nautical')
     print(angles)
     
     testmat2 = np.tile(np.reshape(testmat, (1,-1)), (2,1))
-    angles = sequence(testmat2, to='aero')
+    angles = sequence(testmat2, to='nautical')
     print(angles)
     
     print('Done testing')

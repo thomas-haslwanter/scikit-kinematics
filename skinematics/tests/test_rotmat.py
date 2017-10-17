@@ -33,14 +33,14 @@ class TestSequenceFunctions(unittest.TestCase):
         self.assertTrue(np.all(np.abs(R2 - rotmat.R(2, 45))< self.delta))
 
     def test_symbolic(self):
-        R_aero = rotmat.R_s(2, 'theta')*rotmat.R_s(1, 'phi')*rotmat.R_s(0, 'psi')
-        print(R_aero)
+        R_nautical = rotmat.R_s(2, 'theta')*rotmat.R_s(1, 'phi')*rotmat.R_s(0, 'psi')
+        print(R_nautical)
         
     def test_Fick(self):
         testmat = np.array([[np.sqrt(2)/2, -np.sqrt(2)/2, 0],
                        [np.sqrt(2)/2,  np.sqrt(2)/2, 0],
                        [0, 0, 1]])
-        Fick = rotmat.sequence(testmat, to ='aero')
+        Fick = rotmat.sequence(testmat, to ='nautical')
         correct = np.r_[[0,0,np.pi/4]]
         self.assertAlmostEqual(np.linalg.norm(correct - np.array(Fick)), 0)
     

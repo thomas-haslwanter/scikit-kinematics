@@ -37,7 +37,7 @@ class IMU_Base(metaclass=abc.ABCMeta):
     '''
     Abstract BaseClass for working with working with inertial measurement units (IMUs)
     A concrete class must be instantiated, which implements "get_data". (See example below.)
-    
+
     Attributes:
         acc (Nx3 array) : 3D linear acceleration
         dataType (string) : Type of data (commonly float)
@@ -90,9 +90,9 @@ class IMU_Base(metaclass=abc.ABCMeta):
     >>>  
     >>> sensor.q_type = 'kalman'
     >>> q_Kalman = sensor.quat
-    
+
     '''
-    
+
     @abc.abstractmethod
     def get_data(self, in_file=None, in_data=None):
         """Retrieve "rate", "acc", "omega", "mag" from the input source
@@ -102,7 +102,7 @@ class IMU_Base(metaclass=abc.ABCMeta):
 
     def __init__(self, in_file = None, q_type='analytical', R_init = np.eye(3), pos_init = np.zeros(3), in_data = None ):
         """Initialize an IMU-object
-        
+
         in_file : string
                 Location of infile / input
         q_type : string
@@ -125,7 +125,7 @@ class IMU_Base(metaclass=abc.ABCMeta):
 
         if in_data is None and in_file is None:
             raise ValueError('Either in_data or in_file must be provided.')
-        
+
         elif in_file is None:
             # Get the data from "in_data"
             # In that case, "in_data"
@@ -133,13 +133,13 @@ class IMU_Base(metaclass=abc.ABCMeta):
             #   - can contain the fields ['rate', 'mag']
             # self.source is set to "None"
             self._set_data(in_data)
-            
+
         else: 
             # Set rate, acc, omega, mag
             # Note: this is implemented in the concrete class, implenented in 
             # the corresponding module in "sensors"
             self.get_data(in_file, in_data)
-            
+
         # Set information not determined by the IMU-data
         self.R_init = R_init
         self.pos_init = pos_init
@@ -151,21 +151,21 @@ class IMU_Base(metaclass=abc.ABCMeta):
     @property
     def q_type(self):
         """q_type determines how the orientation is calculated.
-		If "q_type" is "None", no orientation gets calculated; otherwise,
-		the orientation calculation is performed with 
-		"_calc_orientation", using the option "q_type".
-		
+        If "q_type" is "None", no orientation gets calculated; otherwise,
+        the orientation calculation is performed with 
+        "_calc_orientation", using the option "q_type".
+
         It has to be one of the following values:
-        
-			* analytical
-			* kalman
-			* madgwick
-			* mahony
-			* None
-        
+
+        * analytical
+        * kalman
+        * madgwick
+        * mahony
+        * None
+
         """
         return self._q_type
-    
+
     @q_type.setter
     def q_type(self, value):
         allowed_values = ['analytical',
@@ -181,8 +181,8 @@ class IMU_Base(metaclass=abc.ABCMeta):
                 self._calc_orientation()
         else:
             raise ValueError('q_type must be one of the following: {0}, not {1}'.format(allowed_values, value))
-        
-        
+
+
     def _set_data(self, data):
         # Set the properties of an IMU-object directly
 
@@ -198,7 +198,7 @@ class IMU_Base(metaclass=abc.ABCMeta):
         self.source = None
         self._set_info()
 
-        
+
     def _calc_orientation(self):
         '''
         Calculate the current orientation
@@ -225,38 +225,38 @@ class IMU_Base(metaclass=abc.ABCMeta):
 
         elif method == 'madgwick':
             self._checkRequirements()
-                    
+
             # Initialize object
             AHRS = Madgwick(SamplePeriod=1./self.rate, Beta=1.5)
             quaternion = np.zeros((self.totalSamples, 4))
-            
+
             # The "Update"-function uses angular velocity in radian/s, and only the directions of acceleration and magnetic field
             Gyr = self.omega
             Acc = vector.normalize(self.acc)
             Mag = vector.normalize(self.mag)
-            
+
             #for t in range(len(time)):
             for t in misc.progressbar(range(self.totalSamples), 'Calculating the Quaternions ', 25) :
                 AHRS.Update(Gyr[t], Acc[t], Mag[t])
                 quaternion[t] = AHRS.Quaternion
-                
+
         elif method == 'mahony':
             self._checkRequirements()
-                    
+
             # Initialize object
             AHRS = Mahony(SamplePeriod=1./np.float(self.rate), Kp=0.5)
             quaternion = np.zeros((self.totalSamples, 4))
-            
+
             # The "Update"-function uses angular velocity in radian/s, and only the directions of acceleration and magnetic field
             Gyr = self.omega
             Acc = vector.normalize(self.acc)
             Mag = vector.normalize(self.mag)
-            
+
             #for t in range(len(time)):
             for t in misc.progressbar(range(self.totalSamples), 'Calculating the Quaternions ', 25) :
                 AHRS.Update(Gyr[t], Acc[t], Mag[t])
                 quaternion[t] = AHRS.Quaternion
-            
+
         else:
             print('Unknown orientation type: {0}'.format(method))
             return
@@ -287,11 +287,11 @@ class IMU_Base(metaclass=abc.ABCMeta):
     def _checkRequirements(self):
         '''Check if all the necessary variables are available.'''
         required = [ 'rate', 'acc', 'omega', 'mag' ]
-    
+
         for field in required:
             if field not in vars(self):
                 print('Cannot find {0} in calc_orientation!'.format(field))
-            
+
     def _set_info(self, rate, acc, omega, mag):
         '''Set the information properties of that IMU'''
 
@@ -299,7 +299,7 @@ class IMU_Base(metaclass=abc.ABCMeta):
         self.acc = acc
         self.omega = omega
         self.mag = mag
-        
+
         self.totalSamples = len(self.omega)
         self.duration = np.float(self.totalSamples)/self.rate # [sec]
         self.dataType = str(self.omega.dtype)
@@ -489,16 +489,16 @@ def kalman(rate, acc, omega, mag):
 
     # Make the first position the reference position
     qOut = quat.q_mult(qOut, quat.q_inv(qOut[0]))
-        
+
     return qOut
 
 class Madgwick:
     '''Madgwick's gradient descent filter.
     '''
-    
+
     def __init__(self, SamplePeriod=1./256, Beta=1.0, Quaternion=[1,0,0,0]):
         '''Initialization
-        
+
         Parameters
         ----------
         SamplePeriod : sample period
@@ -508,10 +508,10 @@ class Madgwick:
         self.SamplePeriod = SamplePeriod
         self.Beta = Beta
         self.Quaternion = Quaternion
-    
+
     def Update(self, Gyroscope, Accelerometer, Magnetometer):
         '''Calculate the best quaternion to the given measurement values.'''
-        
+
         q = self.Quaternion; # short name local variable for readability
 
         # Reference direction of Earth's magnetic field
@@ -525,7 +525,7 @@ class Madgwick:
              2*b[1]*(0.5 - q[2]**2 - q[3]**2) + 2*b[3]*(q[1]*q[3] - q[0]*q[2])   - Magnetometer[0],
              2*b[1]*(q[1]*q[2] - q[0]*q[3])   + 2*b[3]*(q[0]*q[1] + q[2]*q[3])   - Magnetometer[1],
              2*b[1]*(q[0]*q[2] + q[1]*q[3])   + 2*b[3]*(0.5 - q[1]**2 - q[2]**2) - Magnetometer[2]]
-        
+
         J = np.array([
             [-2*q[2],                 	2*q[3],                    -2*q[0],                         2*q[1]],
             [ 2*q[1],                 	2*q[0],                	    2*q[3],                         2*q[2]],
@@ -533,7 +533,7 @@ class Madgwick:
             [-2*b[3]*q[2],              2*b[3]*q[3],               -4*b[1]*q[2]-2*b[3]*q[0],       -4*b[1]*q[3]+2*b[3]*q[1]],
             [-2*b[1]*q[3]+2*b[3]*q[1],	2*b[1]*q[2]+2*b[3]*q[0],    2*b[1]*q[1]+2*b[3]*q[3],       -2*b[1]*q[0]+2*b[3]*q[2]],
             [ 2*b[1]*q[2],              2*b[1]*q[3]-4*b[3]*q[1],    2*b[1]*q[0]-4*b[3]*q[2],        2*b[1]*q[1]]])
-        
+
         step = J.T.dot(F)
         step = vector.normalize(step)	# normalise step magnitude
 
@@ -543,13 +543,13 @@ class Madgwick:
         # Integrate to yield quaternion
         q = q + qDot * self.SamplePeriod
         self.Quaternion = vector.normalize(q).flatten()
-        
+
 class Mahony:
     '''Madgwick's implementation of Mayhony's AHRS algorithm
     '''
     def __init__(self, SamplePeriod=1./256, Kp=1.0, Ki=0, Quaternion=[1,0,0,0]):
         '''Initialization
-        
+
         Parameters
         ----------
         SamplePeriod : sample period
@@ -565,7 +565,7 @@ class Mahony:
 
     def Update(self, Gyroscope, Accelerometer, Magnetometer):
         '''Calculate the best quaternion to the given measurement values.'''
-        
+
         q = self.Quaternion; # short name local variable for readability
 
         # Reference direction of Earth's magnetic field
@@ -574,26 +574,26 @@ class Mahony:
 
         # Estimated direction of gravity and magnetic field
         v = np.array([
-             2*(q[1]*q[3] - q[0]*q[2]),
+            2*(q[1]*q[3] - q[0]*q[2]),
              2*(q[0]*q[1] + q[2]*q[3]),
              q[0]**2 - q[1]**2 - q[2]**2 + q[3]**2])
 
         w = np.array([
             2*b[1]*(0.5 - q[2]**2 - q[3]**2) + 2*b[3]*(q[1]*q[3] - q[0]*q[2]),
-             2*b[1]*(q[1]*q[2] - q[0]*q[3]) + 2*b[3]*(q[0]*q[1] + q[2]*q[3]),
+            2*b[1]*(q[1]*q[2] - q[0]*q[3]) + 2*b[3]*(q[0]*q[1] + q[2]*q[3]),
              2*b[1]*(q[0]*q[2] + q[1]*q[3]) + 2*b[3]*(0.5 - q[1]**2 - q[2]**2)]) 
 
         # Error is sum of cross product between estimated direction and measured direction of fields
         e = np.cross(Accelerometer, v) + np.cross(Magnetometer, w) 
-        
+
         if self.Ki > 0:
             self._eInt += e * self.SamplePeriod  
         else:
             self._eInt = np.array([0, 0, 0], dtype=np.float)
-        
+
         # Apply feedback terms
         Gyroscope += self.Kp * e + self.Ki * self._eInt;            
-        
+
         # Compute rate of change of quaternion
         qDot = 0.5 * quat.q_mult(q, np.hstack([0, Gyroscope])).flatten()
 
@@ -602,28 +602,28 @@ class Mahony:
 
         self.Quaternion = vector.normalize(q)
 
-        
-        
+
+
 if __name__ == '__main__':
     from sensors.xsens import XSens
-    
+
     in_file = r'tests/data/data_xsens.txt'
     initial_orientation = np.array([ [1,0,0],
-									[0,0,-1],
-									[0,1,0]])
+                                     [0,0,-1],
+                                                                        [0,1,0]])
     initial_position = np.r_[0,0,0]
-    
+
     sensor = XSens(in_file=in_file, R_init=initial_orientation, pos_init=initial_position)
-	# By default, the orientation quaternion gets automatically calculated, using "analytical"
+        # By default, the orientation quaternion gets automatically calculated, using "analytical"
     q_analytical = sensor.quat
-    
-	# Automatic re-calculation of orientation if "q_type" is changed
+
+        # Automatic re-calculation of orientation if "q_type" is changed
     sensor.q_type = 'madgwick'
     q_Madgwick = sensor.quat
-	
+
     sensor.q_type = 'kalman'
     q_Kalman = sensor.quat
-	
+
     def show_result(imu_data):
         fig, axs = plt.subplots(3,1)
         axs[0].plot(imu_data.omega)
@@ -634,7 +634,7 @@ if __name__ == '__main__':
         axs[2].plot(imu_data.quat[:,1:])
         axs[2].set_ylabel('Quat')
         plt.show()
-    
+
     show_result(sensor)
-	
+
     print('Done')
