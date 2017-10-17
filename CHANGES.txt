@@ -32,5 +32,7 @@ v0.4.4, 17-July-2017 -- erroneous variable "type" eliminated in imus.import_data
 v0.4.5, 08-Aug-2017 -- make functions in "vector" also work with list input; adjust names to Python standards
 v0.4.6, 27-Aug-2017 -- made function names in "imus.py" more consistent/clear
 v0.5.0, 04-Sep-2017 -- Introduced an abstract class in "imus.py"
-v0.5.1, 04-Sep-2017 -- consistent upper/lower-case for IMU-options, improved docu
+v0.5.2, 25-Sep-2017 -- Fixed import problem in "xsens.py" (only in standalone)
+v0.5.3, 25-Sep-2017 -- Modified "setup.py", in order not to re-build existing scipy etc.
+v0.5.4, 25-Sep-2017 -- Modified "setup.py" again ...
 

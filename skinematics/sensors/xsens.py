@@ -4,7 +4,7 @@ Import data saved with XSens-sensors, through subclassing "IMU_Base"
 
 '''
 Author: Thomas Haslwanter
-Version: 0.1
+Version: 0.2
 Date: Sept-2017
 '''
 
@@ -13,7 +13,7 @@ import pandas as pd
 import abc
 import sys
 sys.path.append("..")
-from imus import IMU_Base
+from skinematics.imus import IMU_Base
 
 class XSens(IMU_Base):
     """Concrete class based on abstract base class IMU_Base """    

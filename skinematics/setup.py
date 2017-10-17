@@ -13,3 +13,5 @@ def configuration(parent_package='',top_path=None):
     config.add_subpackage('tests')
 
     return config
+
+    
