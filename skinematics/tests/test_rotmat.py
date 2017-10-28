@@ -11,6 +11,19 @@ class TestSequenceFunctions(unittest.TestCase):
     def setUp(self):
         self.delta =  1e-5
         
+    def test_seq2quat(self):
+        angle = 10
+        a = np.r_[angle, 0, 0]
+        quats = rotmat.seq2quat([a])
+        self.assertAlmostEqual(quats[0,3], np.sin(np.deg2rad(angle/2)))
+        
+        angles = np.array([[0,0,0],
+                           [10,0,0],
+                           [20,10,5]])
+        angles2 = quat.quat2seq(rotmat.seq2quat(angles))
+        error = np.sum((angles-angles2)**2)
+        self.assertAlmostEqual(error,0)
+        
     def test_R_axis0(self):
         R0 = np.array([[1,0,0],
                     [0, np.sqrt(2)/2, -np.sqrt(2)/2],
@@ -41,7 +54,7 @@ class TestSequenceFunctions(unittest.TestCase):
                        [np.sqrt(2)/2,  np.sqrt(2)/2, 0],
                        [0, 0, 1]])
         Fick = rotmat.sequence(testmat, to ='nautical')
-        correct = np.r_[[0,0,np.pi/4]]
+        correct = np.r_[[np.pi/4, 0, 0]]
         self.assertAlmostEqual(np.linalg.norm(correct - np.array(Fick)), 0)
     
     def test_Helmholtz(self):
@@ -49,7 +62,7 @@ class TestSequenceFunctions(unittest.TestCase):
                        [np.sqrt(2)/2,  np.sqrt(2)/2, 0],
                        [0, 0, 1]])
         Helm = rotmat.sequence(testmat, to ='Helmholtz')
-        correct = np.r_[[0,0,np.pi/4]]
+        correct = np.r_[[np.pi/4, 0, 0]]
         self.assertAlmostEqual(np.linalg.norm(correct - np.array(Helm)), 0)
         
     def test_Euler(self):
@@ -57,13 +70,13 @@ class TestSequenceFunctions(unittest.TestCase):
                        [np.sqrt(2)/2,  np.sqrt(2)/2, 0],
                        [0, 0, 1]])
         Euler = rotmat.sequence(testmat, to ='Euler')
-        correct = np.r_[[np.pi/4,0,0]]
+        correct = np.r_[[0, 0, np.pi/4]]
         self.assertAlmostEqual(np.linalg.norm(correct - np.array(Euler)), 0)
         
         alpha, beta, gamma = 10, 20, 30
         mat_euler = rotmat.R(2, gamma) @ rotmat.R(0, beta) @ rotmat.R(2, alpha)
         angles_euler = np.rad2deg(rotmat.sequence(mat_euler, to='Euler'))
-        correct = np.r_[alpha, beta, gamma]
+        correct = np.r_[gamma, beta, alpha]
         self.assertAlmostEqual(np.linalg.norm(correct - np.array(angles_euler)), 0)
         
         

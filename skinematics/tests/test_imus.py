@@ -32,7 +32,7 @@ class TestSequenceFunctions(unittest.TestCase):
         from skinematics.sensors.xsens import XSens
         
         initialPosition = array([0,0,0])
-        R_initialOrientation = rotmat.R1(90)
+        R_initialOrientation = rotmat.R(0,90)
         
         sensor = XSens(in_file=inFile, R_init = R_initialOrientation, pos_init = initialPosition)
         rate = sensor.rate
@@ -48,7 +48,7 @@ class TestSequenceFunctions(unittest.TestCase):
         from skinematics.sensors.xsens import XSens
         
         initialPosition = array([0,0,0])
-        R_initialOrientation = rotmat.R1(90)
+        R_initialOrientation = rotmat.R(0,90)
         
         sensor = XSens(in_file=inFile, R_init = R_initialOrientation, pos_init = initialPosition, q_type='kalman')
         q = sensor.quat
@@ -59,7 +59,7 @@ class TestSequenceFunctions(unittest.TestCase):
         from skinematics.sensors.xsens import XSens
         
         initialPosition = array([0,0,0])
-        R_initialOrientation = rotmat.R1(90)
+        R_initialOrientation = rotmat.R(0,90)
         
         sensor = XSens(in_file=inFile, R_init = R_initialOrientation, pos_init = initialPosition, q_type='madgwick')
         q = sensor.quat
@@ -70,7 +70,7 @@ class TestSequenceFunctions(unittest.TestCase):
         from skinematics.sensors.xsens import XSens
         
         initialPosition = array([0,0,0])
-        R_initialOrientation = rotmat.R1(90)
+        R_initialOrientation = rotmat.R(0,90)
         
         sensor = XSens(in_file=inFile, R_init = R_initialOrientation, pos_init = initialPosition, q_type='mahony')
         q = sensor.quat

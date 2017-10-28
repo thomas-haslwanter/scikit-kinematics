@@ -21,8 +21,8 @@ Homepage
 http://work.thaslwanter.at/skinematics/html/
 
 Author:  Thomas Haslwanter
-Date:    25-09-2017
-Ver:     0.5.4
+Date:    28-10-2017
+Ver:     0.6.0
 Licence: BSD 2-Clause License (http://opensource.org/licenses/BSD-2-Clause)
         Copyright (c) 2017, Thomas Haslwanter
         All rights reserved.
@@ -99,6 +99,7 @@ Conversion routines - quaternions
 - quat.calc_quat ... Calculate orientation from a starting orientation and angular velocity.
 - quat.convert ... Convert quaternion to corresponding rotation matrix or Gibbs vector
 - quat.deg2quat ... Convert number or axis angles to quaternion vectors
+- quat.quat2seq ... Convert  quaternions to sequention rotations ("nautical" angles, etc)
 - quat.scale2deg ... Convert quaternion to corresponding axis angle
 
 
@@ -114,6 +115,7 @@ Definition of rotation matrices
 Conversion Routines - rotation matrices
 ---------------------------------------
 - rotmat.convert ... Convert a rotation matrix to the corresponding quaternion
+- rotmat.seq2quat ... Convert nautical angles etc. to quaternions
 - rotmat.sequence ... Calculation of Euler, Fick, Helmholtz, ... angles
 
 Symbolic matrices

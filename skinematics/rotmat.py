@@ -22,8 +22,8 @@ sys.path.append( os.path.join( os.path.dirname(__file__), os.path.pardir ) )
 from skinematics import quat
 
 # For deprecation warnings
-import deprecation
-import warnings
+#import deprecation
+#import warnings
 #warnings.simplefilter('always', DeprecationWarning)
 
 def R(axis=0, angle=90) :
@@ -138,6 +138,7 @@ def sequence(R, to ='Euler'):
         rotation matrix
     to : string
         Has to be one the following:
+        
         - Euler ... Rz * Rx * Rz
         - Fick ... Rz * Ry * Rx
         - nautical ... same as "Fick"
@@ -145,9 +146,9 @@ def sequence(R, to ='Euler'):
 
     Returns
     -------
-    alpha : first rotation(right-most matrix)
-    beta : second rotation 
     gamma : third rotation (left-most matrix)
+    beta : second rotation 
+    alpha : first rotation(right-most matrix)
 
     Notes
     -----
@@ -226,94 +227,11 @@ def sequence(R, to ='Euler'):
         
     # Return the parameter-angles
     if R.size == 9:
-        return np.r_[alpha, beta, gamma]
+        return np.r_[gamma, beta, alpha]
     else:
-        return np.column_stack( (alpha, beta, gamma) )
+        return np.column_stack( (gamma, beta, alpha) )
 
-# ------------ Everything below here is deprecated -------------------------------
-@deprecation.deprecated(deprecated_in="2.0", removed_in="2.2",
-                        current_version=__version__,
-                        details="Use the ``R(0, angle)`` function instead")
-def R1(psi):
-    '''Rotation about the 1-axis.
-    Deprecated, use R(0, psi)'''
-    return R(axis=0, angle=psi)
-
-@deprecation.deprecated(deprecated_in="2.0", removed_in="2.2",
-                        current_version=__version__,
-                        details="Use the ``R(1, angle)`` function instead")
-def R2(phi):
-    '''Rotation about the 2-axis.
-    Deprecated, use R(1, phi)'''
-    return R(axis=1, angle=phi)
-
-@deprecation.deprecated(deprecated_in="2.0", removed_in="2.2",
-                        current_version=__version__,
-                        details="Use the ``R(2, angle)`` function instead")
-def R3(theta):
-    '''Rotation about the 3-axis.
-    Deprecated, use R(2, theta)'''
-
-@deprecation.deprecated(deprecated_in="2.0", removed_in="2.2",
-                        current_version=__version__,
-                        details="Use the ``sequence(R, 'Euler')`` function instead")
-def rotmat2Euler(R):
-    '''
-    This function takes a rotation matrix, and calculates the corresponding Euler-angles.
-    Deprecated. Use "sequence(R, 'Euler')" '''
     
-    return sequence(R, 'Euler')
-
-
-@deprecation.deprecated(deprecated_in="2.0", removed_in="2.2",
-                        current_version=__version__,
-                        details="Use the ``sequence(R, 'Fick')`` function instead")
-def rotmat2Fick(R):
-    '''
-    This function takes a rotation matrix, and calculates the corresponding Fick-angles.
-    Deprecated. Use "sequence(R, 'Fick')" '''
-
-    return sequence(R, 'Fick')
-
-
-@deprecation.deprecated(deprecated_in="2.0", removed_in="2.2",
-                        current_version=__version__,
-                        details="Use the ``sequence(R, 'Helmholtz')`` function instead")
-def rotmat2Helmholtz(R):
-    '''
-    This function takes a rotation matrix, and calculates the corresponding Helmholtz-angles.
-    Deprecated. Use "sequence(R, 'Helmholtz')" '''
-    return sequence(R, 'Helmholtz')
-
-
-@deprecation.deprecated(deprecated_in="2.0", removed_in="2.2",
-                        current_version=__version__,
-                        details="Use the ``R_s(0, 'psi')`` function instead")
-def R1_s():
-    '''
-    Symbolic rotation matrix about the 1-axis, by an angle psi 
-    Deprecated. Use R_s(0, 'psi')'''
-    return R_s(0, 'psi')
-
-@deprecation.deprecated(deprecated_in="2.0", removed_in="2.2",
-                        current_version=__version__,
-                        details="Use the ``R_s(1, 'phi')`` function instead")
-def R2_s():
-    '''
-    Symbolic rotation matrix about the 2-axis, by an angle phi 
-    Deprecated. Use R_s(1, 'phi')'''
-    return R_s(1, 'phi')
-    
-@deprecation.deprecated(deprecated_in="2.0", removed_in="2.2",
-                        current_version=__version__,
-                        details="Use the ``R_s(2, 'alpha')`` function instead")
-def R3_s():
-    '''
-    Symbolic rotation matrix about the 3-axis, by an angle theta 
-    Deprecated. Use R_s(2, 'theta')'''
-    return R_s(2, 'theta')
-
-
 def convert(rMat, to ='quat'):
     '''
     Converts a rotation matrix to the corresponding quaternion.
@@ -386,12 +304,94 @@ def convert(rMat, to ='quat'):
     return q.T
     
 
+def seq2quat(rot_angles, seq='nautical'):
+    '''
+    This function takes a angles from sequenctial rotations  and calculates
+    the corresponding quaternions.
+    
+    Parameters
+    ----------
+    rot_angles : ndarray, nx3
+        sequential rotation angles [deg]
+    seq : string
+        Has to be one the following:
+        
+        - Euler ... Rz * Rx * Rz
+        - Fick ... Rz * Ry * Rx
+        - nautical ... same as "Fick"
+        - Helmholtz ... Ry * Rz * Rx
+
+    Returns
+    -------
+    quats : ndarray, nx4
+        corresponding quaternions
+
+    Notes
+    -----
+    The equations are longish, and can be found in 3D-Kinematics, 4.1.5 "Relation to Sequential Rotations"
+
+    '''
+    
+    rot_angles = np.atleast_2d(np.deg2rad(rot_angles))
+    
+    quats = np.nan * np.ones( [rot_angles.shape[0], 4] )
+    
+    if seq =='Fick' or seq =='nautical':
+        theta = rot_angles[:,0]
+        phi = rot_angles[:,1]
+        psi = rot_angles[:,2]
+        
+        c_th, s_th = np.cos(theta/2), np.sin(theta/2)
+        c_ph, s_ph = np.cos(phi/2),   np.sin(phi/2)
+        c_ps, s_ps = np.cos(psi/2),   np.sin(psi/2)
+        
+        quats[:,0] = c_th*c_ph*c_ps + s_th*s_ph*s_ps
+        quats[:,1] = c_th*c_ph*s_ps - s_th*s_ph*c_ps
+        quats[:,2] = c_th*s_ph*c_ps + s_th*c_ph*s_ps
+        quats[:,3] = s_th*c_ph*c_ps - c_th*s_ph*s_ps
+        
+    elif seq == 'Helmholtz':
+        phi = rot_angles[:,0]
+        theta = rot_angles[:,1]
+        psi = rot_angles[:,2]
+        
+        c_th, s_th = np.cos(theta/2), np.sin(theta/2)
+        c_ph, s_ph = np.cos(phi/2),   np.sin(phi/2)
+        c_ps, s_ps = np.cos(psi/2),   np.sin(psi/2)
+        
+        quats[:,0] = c_th*c_ph*c_ps - s_th*s_ph*s_ps
+        quats[:,1] = c_th*c_ph*s_ps + s_th*s_ph*c_ps
+        quats[:,2] = c_th*s_ph*c_ps + s_th*c_ph*s_ps
+        quats[:,3] = s_th*c_ph*c_ps - c_th*s_ph*s_ps
+        
+    elif seq == 'Euler':
+        alpha = rot_angles[:,0]
+        beta = rot_angles[:,1]
+        gamma = rot_angles[:,2]
+        
+        c_al, s_al = np.cos(alpha/2), np.sin(alpha/2)
+        c_be, s_be = np.cos(beta/2),  np.sin(beta/2)
+        c_ga, s_ga = np.cos(gamma/2), np.sin(gamma/2)
+        
+        quats[:,0] = c_al*c_be*c_ga - s_al*c_be*s_ga
+        quats[:,1] = c_al*s_be*c_ga + s_al*s_be*s_ga
+        quats[:,2] = s_al*s_be*c_ga - c_al*s_be*s_ga
+        quats[:,3] = c_al*c_be*s_ga + s_al*c_be*c_ga
+        
+    else:
+        raise ValueError('Input parameter {0} not known'.format(seq))
+    
+    return quats
+        
+
 if __name__ == '__main__':
+    angles = np.r_[20, 0, 0]
+    quat = seq2quat(angles)
+    print(quat)
+    '''
     testmat = np.array([[np.sqrt(2)/2, -np.sqrt(2)/2, 0],
                    [np.sqrt(2)/2,  np.sqrt(2)/2, 0],
                    [0, 0, 1]])
-    Fick = rotmat2Fick(testmat)
-    print(Fick)
     
     angles = sequence(testmat, to='nautical')
     print(angles)
@@ -401,7 +401,6 @@ if __name__ == '__main__':
     print(angles)
     
     print('Done testing')
-    '''
     correct = np.r_[[0,0,np.pi/4]]
     print(R())
     print(R1(45))

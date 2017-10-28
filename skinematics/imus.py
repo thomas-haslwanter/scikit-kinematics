@@ -24,7 +24,7 @@ import os
 import sys
 sys.path.append( os.path.join( os.path.dirname(__file__), os.path.pardir ) ) 
 
-from skinematics import quat, vector, misc
+from skinematics import quat, vector, misc, rotmat
 
 # For deprecation warnings
 import deprecation
@@ -349,7 +349,7 @@ def analytical(R_initialOrientation, omega, initialPosition, accMeasured, rate):
     # combine the two, to form a reference orientation. Note that the sequence
     # is very important!
     R_ref = R_initialOrientation.dot(R0)
-    q_ref = quat.rotmat2quat(R_ref)
+    q_ref = rotmat.convert(R_ref, to='quat')
 
     # Calculate orientation q by "integrating" omega -----------------
     q = quat.calc_quat(omega, q_ref, rate, 'bf')
@@ -451,7 +451,7 @@ def kalman(rate, acc, omega, mag):
         magVec_hor = magVec - accelVec_n * accelVec_n.dot(magVec)
         magVec_n   = vector.normalize(magVec_hor)
         basisVectors = np.vstack( (magVec_n, np.cross(accelVec_n, magVec_n), accelVec_n) ).T
-        quatRef = quat.q_inv(quat.rotmat2quat(basisVectors)).flatten()
+        quatRef = quat.q_inv(rotmat.convert(basisVectors, to='quat')).flatten()
 
         # Update measurement vector z_k
         z_k[:3] = angvelVec

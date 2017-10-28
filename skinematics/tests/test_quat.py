@@ -22,6 +22,27 @@ class TestSequenceFunctions(unittest.TestCase):
 
         self.delta = 1e-4
 
+    def test_quat2seq(self):
+        
+        angle = 0.2
+        a = np.r_[np.cos(angle/2), 0,0,np.sin(angle/2)]
+        b = np.r_[np.cos(0.2), 0,0,np.sin(0.2)]
+        
+        seq = quat.quat2seq(np.vstack((a,b)), seq='nautical')
+        self.assertAlmostEqual(angle, np.deg2rad(seq[0,0]))
+        
+        seq = quat.quat2seq(a, seq='nautical')
+        self.assertAlmostEqual(angle, np.deg2rad(seq[0,0]))
+        
+        seq = quat.quat2seq(a, seq='Fick')
+        self.assertAlmostEqual(angle, np.deg2rad(seq[0,0]))
+        
+        seq = quat.quat2seq(a, seq='Euler')
+        self.assertAlmostEqual(angle, np.deg2rad(seq[0,0]))
+        
+        seq = quat.quat2seq(a, seq='Helmholtz')
+        self.assertAlmostEqual(angle, np.deg2rad(seq[0,1]))
+        
     def test_deg2quat(self):
         self.assertAlmostEqual(quat.deg2quat(10), 0.087155742747658166)
         

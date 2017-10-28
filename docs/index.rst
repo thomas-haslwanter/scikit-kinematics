@@ -120,8 +120,8 @@ Indices and tables
 
 .. note::
     | *Author:*     Thomas Haslwanter
-    | *Version:*    0.5.4
-    | *Date:*       Sept 2017
+    | *Version:*    0.6.0
+    | *Date:*       Oct 2017
     | *email:*      thomas.haslwanter@fh-linz.at
     | *Copyright (c):*      2017, Thomas Haslwanter. All rights reserved.
     | *Licence:*    This work is licensed under the `BSD 2-Clause License <http://opensource.org/licenses/BSD-2-Clause>`_

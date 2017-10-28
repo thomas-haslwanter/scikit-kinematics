@@ -12,9 +12,9 @@ A "Quaternion" class is defined, with
 
 '''
 author: Thomas Haslwanter
-date:   Aug 2017
+date:   Oct 2017
 '''
-__version__ = '0.5'
+__version__ = '0.6'
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -28,8 +28,8 @@ sys.path.append( os.path.join( os.path.dirname(__file__), os.path.pardir ) )
 
 from skinematics import vector, rotmat
 
-import deprecation
-import warnings
+#import deprecation
+#import warnings
 #warnings.simplefilter('always', DeprecationWarning)
 
 pi = np.pi
@@ -295,8 +295,10 @@ def convert(quat, to='rotmat'):
     inQuat : array_like, shape ([3,4],) or (N,[3,4])
         quaternions or quaternion vectors
     to : string
-        'rotmat' : rotation matrix
-        'Gibbs'  : Gibbs vector
+        Has to be one of the following:
+    
+        - rotmat : rotation matrix
+        - Gibbs  : Gibbs vector
     
     Returns
     -------
@@ -389,15 +391,6 @@ def deg2quat(inDeg):
     deg = (inDeg+180)%360-180
     return np.sin(0.5 * deg * pi/180)
     
-@deprecation.deprecated(deprecated_in="0.4", removed_in="0.6",
-                        current_version=__version__,
-                        details="Use the ``q_conj`` function instead")
-def quatconj(q):
-    ''' Conjugate quaternion 
-    Deprecated. Use "q_conj" '''
-    
-    return q_conj(q)
-
 def q_conj(q):
     ''' Conjugate quaternion 
     
@@ -434,14 +427,6 @@ def q_conj(q):
 
     return qConj
 
-@deprecation.deprecated(deprecated_in="0.4", removed_in="0.6",
-                        current_version=__version__,
-                        details="Use the ``q_inv`` function instead")
-def quatinv(q):
-    ''' Quaternion inversion 
-    Deprecated. Use "q_inv" instead.'''
-    
-    return q_inv(q)
 
 def q_inv(q):
     ''' Quaternion inversion 
@@ -483,15 +468,6 @@ def q_inv(q):
         qConj = q * np.r_[1, -1,-1,-1]
         return (qConj.T / qLength).T
 
-@deprecation.deprecated(deprecated_in="0.4", removed_in="0.6",
-                        current_version=__version__,
-                        details="Use the ``q_mult`` function instead")
-def quatmult(p,q):
-    ''' Quaternion multiplication: Calculates the product of two quaternions r = p * q
-    Deprecated. Use "q_mult" instead.
-    ''' 
-    
-    return q_mult(p,q)
 
 def q_mult(p,q):
     '''
@@ -601,24 +577,86 @@ def quat2deg(inQuat):
     return 2 * np.arcsin(q_vector(inQuat)) * 180 / pi
 
 
-@deprecation.deprecated(deprecated_in="0.4", removed_in="0.6",
-                        current_version=__version__,
-                        details="Use the ``convert(quat, to='rotmat')`` function instead")
-def quat2rotmat(inQuat):
-    ''' Calculate the rotation matrix corresponding to the quaternion.
-    Deprecated. Use "convert(quat, to='rotmat')" instead.'''
 
-    return convert(inQuat, to='rotmat')
+def quat2seq(quat, seq='nautical'):
+    '''
+    This function takes a quaternion, and calculates the corresponding
+    angles for sequenctial rotations.
     
+    Parameters
+    ----------
+    quat : ndarray, nx4
+        input quaternions
+    seq : string
+        Has to be one the following:
+        
+        - Euler ... Rz * Rx * Rz
+        - Fick ... Rz * Ry * Rx
+        - nautical ... same as "Fick"
+        - Helmholtz ... Ry * Rz * Rx
+
+    Returns
+    -------
+    sequence : ndarray, nx3
+        corresponding angles [deg]
+        same sequence as in the rotation matrices
+
+    '''
     
-@deprecation.deprecated(deprecated_in="0.4", removed_in="0.5",
-                        current_version=__version__,
-                        details="Use the ``q_vector`` function instead")
-def quat2vect(inQuat):
-    ''' Extract the quaternion vector from a full quaternion.
-    Deprecated. Use "q_vector" instead.'''
+    # Ensure that it also works for a single quaternion
+    quat = np.atleast_2d(quat)
     
-    return q_vector(inQuat)
+    # If only the quaternion vector is entered, extend it to a full unit quaternion
+    if quat.shape[1] == 3:
+        quat = unit_q(quat)
+
+    if seq =='Fick' or seq =='nautical':
+        R_zx = 2 * (quat[:,1]*quat[:,3] - quat[:,0]*quat[:,2])
+        R_yx = 2 * (quat[:,1]*quat[:,2] + quat[:,0]*quat[:,3])
+        R_zy = 2 * (quat[:,2]*quat[:,3] + quat[:,0]*quat[:,1])
+        
+        phi  = -np.arcsin(R_zx)
+        theta = np.arcsin(R_yx / np.cos(phi))
+        psi   = np.arcsin(R_zy / np.cos(phi))
+        
+        sequence = np.column_stack((theta, phi, psi))
+    
+    elif seq == 'Helmholtz':
+        R_yx = 2 * (quat[:,1]*quat[:,2] + quat[:,0]*quat[:,3])
+        R_zx = 2 * (quat[:,1]*quat[:,3] - quat[:,0]*quat[:,2])
+        R_yz = 2 * (quat[:,2]*quat[:,3] - quat[:,0]*quat[:,1])
+        
+        theta = np.arcsin(R_yx)
+        phi  = -np.arcsin(R_zx / np.cos(theta))
+        psi  = -np.arcsin(R_yz / np.cos(theta))
+        
+        sequence = np.column_stack((phi, theta, psi))
+        
+    elif seq == 'Euler':
+        R_xz = 2 * (quat[:,1]*quat[:,3] + quat[:,0]*quat[:,2])
+        R_yz = 2 * (quat[:,2]*quat[:,3] - quat[:,0]*quat[:,1])
+        R_zx = 2 * (quat[:,1]*quat[:,3] - quat[:,0]*quat[:,2])
+        
+        R_yx = 2 * (quat[:,1]*quat[:,2] + quat[:,0]*quat[:,3])
+        
+        beta = -np.arcsin(np.sqrt(R_xz**2 + R_yz**2))*np.sign(R_yz)
+        
+        # catch divide-by-zeros
+        beta_zero = beta == 0
+        alpha = np.nan * np.ones_like(beta)
+        gamma = np.nan * np.ones_like(beta)
+        
+        alpha[beta_zero] = np.arcsin(R_yx[beta_zero])
+        gamma[beta_zero] = 0
+        
+        alpha[~beta_zero] = np.arcsin(R_xz[~beta_zero]/np.sin(beta[~beta_zero]))
+        gamma[~beta_zero] = np.arcsin(R_zx[~beta_zero]/np.sin(beta[~beta_zero]))
+        
+        sequence = np.column_stack((alpha, beta, gamma))
+    else:
+        raise ValueError('Input parameter {0} not known'.format(seq))
+    
+    return np.rad2deg(sequence)
 
 def q_vector(inQuat):
     '''
@@ -692,35 +730,6 @@ def q_scalar(inQuat):
     if np.min(scalar.shape)==1:
         scalar = scalar.ravel()
     return scalar
-
-@deprecation.deprecated(deprecated_in="0.4", removed_in="0.6",
-                        current_version=__version__,
-                        details="Use the ``rotmat.convert(R, 'quat')`` function instead")
-def rotmat2quat(rMat):
-    ''' Convert a rotation matrix to the corresponding quaternion.
-    Depracated, use rotmat.convert(R, 'quat') instead. '''
-    
-    return rotmat.convert(rMat, 'quat')
-    
-@deprecation.deprecated(deprecated_in="0.4", removed_in="0.6",
-                        current_version=__version__,
-                        details="Use the ``unit_q`` function instead")
-def vect2quat(inData):
-    ''' Utility function, which turns a quaternion vector into a unit quaternion.
-    Deprecated, use "unit_q" instead.'''
-    
-    return unit_q(inData)
-
-@deprecation.deprecated(deprecated_in="0.4", removed_in="0.6",
-                        current_version=__version__,
-                        details="Use the ``calc_quat`` function instead")
-def vel2quat(omega, q0, rate, CStype):
-    '''
-    Take an angular velocity (in rad/s), and convert it into the corresponding orientation quaternion.
-    Deprecated, use "calc_quat" instead.
-    '''
-    
-    return calc_quat(omega, q0, rate, CStype)
 
 
 def unit_q(inData):
@@ -853,15 +862,6 @@ def calc_quat(omega, q0, rate, CStype):
 
     return q_pos
 
-@deprecation.deprecated(deprecated_in="0.4", removed_in="0.6",
-                        current_version=__version__,
-                        details="Use the ``calc_angvel`` function instead")
-def quat2vel(q, rate=1, winSize=5, order=2):
-    ''' Take a quaternion, and convert it into the corresponding angular velocity.
-    Deprecated, use "calc_angvel" instead.'''
-    
-    return calc_angvel(q, rate, winSize, order)
-
 
 def calc_angvel(q, rate=1, winSize=5, order=2):
     '''
@@ -928,8 +928,9 @@ if __name__=='__main__':
     More extensive tests are found in tests/test_quat.py'''
     
     a = np.r_[np.cos(0.1), 0,0,np.sin(0.1)]
-    print('The inverse of {0} is {1}'.format(a, q_inv(a)))
-    
+    b = np.r_[np.cos(0.2), 0,0,np.sin(0.2)]
+    seq = quat2seq(np.vstack((a,b)), seq='nautical')
+    print(seq)
     
     '''
     from skinematics.vector import rotate_vector
