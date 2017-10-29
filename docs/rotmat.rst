@@ -12,6 +12,7 @@ Conversion Routines
 -------------------
 * :func:`rotmat.convert` ... Convert a rotation matrix to the corresponding quaternion
 * :func:`rotmat.sequence` ... Calculation of Euler, Fick/aeronautic, Helmholtz angles
+* :func:`rotmat.seq2quat` ... Calculation of quaternions from Euler, Fick/aeronautic, Helmholtz angles
 
 Symbolic matrices
 -----------------

@@ -326,6 +326,11 @@ def seq2quat(rot_angles, seq='nautical'):
     quats : ndarray, nx4
         corresponding quaternions
 
+    Examples
+    --------
+    >>> skin.rotmat.seq2quat([90, 23.074, -90], seq='Euler')
+    array([[ 0.97979575,  0.        ,  0.2000007 ,  0.        ]])
+    
     Notes
     -----
     The equations are longish, and can be found in 3D-Kinematics, 4.1.5 "Relation to Sequential Rotations"

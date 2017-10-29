@@ -578,14 +578,14 @@ def quat2deg(inQuat):
 
 
 
-def quat2seq(quat, seq='nautical'):
+def quat2seq(quats, seq='nautical'):
     '''
     This function takes a quaternion, and calculates the corresponding
     angles for sequenctial rotations.
     
     Parameters
     ----------
-    quat : ndarray, nx4
+    quats : ndarray, nx4
         input quaternions
     seq : string
         Has to be one the following:
@@ -601,19 +601,38 @@ def quat2seq(quat, seq='nautical'):
         corresponding angles [deg]
         same sequence as in the rotation matrices
 
+    Examples
+    --------
+    >>> quat.quat2seq([0,0,0.1])
+    array([[ 11.47834095,  -0.        ,   0.        ]])
+
+    >>> quaternions = [[0,0,0.1], [0,0.2,0]]
+    skin.quat.quat2seq(quaternions)
+    array([[ 11.47834095,  -0.        ,   0.        ],
+           [  0.        ,  23.07391807,   0.        ]])
+       
+    >>> skin.quat.quat2seq(quaternions, 'nautical')
+    array([[ 11.47834095,  -0.        ,   0.        ],
+           [  0.        ,  23.07391807,   0.        ]])
+           
+    >>> skin.quat.quat2seq(quaternions, 'Euler')
+    array([[ 11.47834095,   0.        ,   0.        ],
+           [ 90.        ,  23.07391807,  -90.        ]])
+
+           
     '''
     
     # Ensure that it also works for a single quaternion
-    quat = np.atleast_2d(quat)
+    quats = np.atleast_2d(quats)
     
     # If only the quaternion vector is entered, extend it to a full unit quaternion
-    if quat.shape[1] == 3:
-        quat = unit_q(quat)
+    if quats.shape[1] == 3:
+        quats = unit_q(quats)
 
     if seq =='Fick' or seq =='nautical':
-        R_zx = 2 * (quat[:,1]*quat[:,3] - quat[:,0]*quat[:,2])
-        R_yx = 2 * (quat[:,1]*quat[:,2] + quat[:,0]*quat[:,3])
-        R_zy = 2 * (quat[:,2]*quat[:,3] + quat[:,0]*quat[:,1])
+        R_zx = 2 * (quats[:,1]*quats[:,3] - quats[:,0]*quats[:,2])
+        R_yx = 2 * (quats[:,1]*quats[:,2] + quats[:,0]*quats[:,3])
+        R_zy = 2 * (quats[:,2]*quats[:,3] + quats[:,0]*quats[:,1])
         
         phi  = -np.arcsin(R_zx)
         theta = np.arcsin(R_yx / np.cos(phi))
@@ -622,9 +641,9 @@ def quat2seq(quat, seq='nautical'):
         sequence = np.column_stack((theta, phi, psi))
     
     elif seq == 'Helmholtz':
-        R_yx = 2 * (quat[:,1]*quat[:,2] + quat[:,0]*quat[:,3])
-        R_zx = 2 * (quat[:,1]*quat[:,3] - quat[:,0]*quat[:,2])
-        R_yz = 2 * (quat[:,2]*quat[:,3] - quat[:,0]*quat[:,1])
+        R_yx = 2 * (quats[:,1]*quats[:,2] + quats[:,0]*quats[:,3])
+        R_zx = 2 * (quats[:,1]*quats[:,3] - quats[:,0]*quats[:,2])
+        R_yz = 2 * (quats[:,2]*quats[:,3] - quats[:,0]*quats[:,1])
         
         theta = np.arcsin(R_yx)
         phi  = -np.arcsin(R_zx / np.cos(theta))
@@ -633,24 +652,22 @@ def quat2seq(quat, seq='nautical'):
         sequence = np.column_stack((phi, theta, psi))
         
     elif seq == 'Euler':
-        R_xz = 2 * (quat[:,1]*quat[:,3] + quat[:,0]*quat[:,2])
-        R_yz = 2 * (quat[:,2]*quat[:,3] - quat[:,0]*quat[:,1])
-        R_zx = 2 * (quat[:,1]*quat[:,3] - quat[:,0]*quat[:,2])
+        Rs = convert(quats, to='rotmat').reshape((-1,3,3))
         
-        R_yx = 2 * (quat[:,1]*quat[:,2] + quat[:,0]*quat[:,3])
+        beta = np.arccos(Rs[:,2,2])
         
-        beta = -np.arcsin(np.sqrt(R_xz**2 + R_yz**2))*np.sign(R_yz)
+        # special handling for (beta == 0)
+        bz = beta == 0  
         
-        # catch divide-by-zeros
-        beta_zero = beta == 0
+        # there the gamma-values are set to zero, since alpha/gamma is degenerated
         alpha = np.nan * np.ones_like(beta)
         gamma = np.nan * np.ones_like(beta)
         
-        alpha[beta_zero] = np.arcsin(R_yx[beta_zero])
-        gamma[beta_zero] = 0
+        alpha[bz] = np.arcsin(Rs[bz,1,0])
+        gamma[bz] = 0
         
-        alpha[~beta_zero] = np.arcsin(R_xz[~beta_zero]/np.sin(beta[~beta_zero]))
-        gamma[~beta_zero] = np.arcsin(R_zx[~beta_zero]/np.sin(beta[~beta_zero]))
+        alpha[~bz] = np.arctan2(Rs[~bz,0,2], Rs[~bz,1,2])
+        gamma[~bz] = np.arctan2(Rs[~bz,2,0], Rs[~bz,2,1])
         
         sequence = np.column_stack((alpha, beta, gamma))
     else:
@@ -928,8 +945,8 @@ if __name__=='__main__':
     More extensive tests are found in tests/test_quat.py'''
     
     a = np.r_[np.cos(0.1), 0,0,np.sin(0.1)]
-    b = np.r_[np.cos(0.2), 0,0,np.sin(0.2)]
-    seq = quat2seq(np.vstack((a,b)), seq='nautical')
+    b = np.r_[np.cos(0.2), 0,np.sin(0.2),0]
+    seq = quat2seq(np.vstack((a,b)), seq='Euler')
     print(seq)
     
     '''

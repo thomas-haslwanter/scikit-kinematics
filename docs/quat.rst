@@ -29,6 +29,7 @@ Conversion routines
 * :func:`quat.convert` ... Convert quaternion to corresponding rotation matrix or Gibbs vector
 * :func:`quat.deg2quat` ... Convert number or axis angles to quaternion values
 * :func:`quat.quat2deg` ... Convert quaternions to corresponding axis angle
+* :func:`quat.quat2seq` ... Convert quaternions to corresponding rotation angles
 
 .. toctree::
    :maxdepth: 2
