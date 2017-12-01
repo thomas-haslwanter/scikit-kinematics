@@ -36,4 +36,6 @@ v0.5.2, 25-Sep-2017 -- Fixed import problem in "xsens.py" (only in standalone)
 v0.5.3, 25-Sep-2017 -- Modified "setup.py", in order not to re-build existing scipy etc.
 v0.5.4, 25-Sep-2017 -- Modified "setup.py" again ...
 v0.6.0, 28-Oct-2017 -- sequence adjusted to match rotation matrices, quat2seq and seq2quat added
+v0.6.1, 01-Dec-2017 -- Function "target2orient" added to "vector.py"
+v0.6.2, 01-Dec-2017 -- Docu updated.
 

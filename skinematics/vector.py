@@ -7,7 +7,6 @@ These routines can be used with vectors, as well as with matrices containing a v
 author :  Thomas Haslwanter
 date :    July-2017
 '''
-__version__= '1.8'
 
 import numpy as np
 
@@ -50,11 +49,11 @@ def normalize(v):
     Example
     -------
 
-    >>> thLib.vector.normalize([3, 0, 0])
+    >>> skinematics.vector.normalize([3, 0, 0])
     array([[ 1.,  0.,  0.]])
     
     >>> v = [[pi, 2, 3], [2, 0, 0]]
-    >>> thLib.vector.normalize(v)
+    >>> skinematics.vector.normalize(v)
     array([[ 0.6569322 ,  0.41821602,  0.62732404],
        [ 1.        ,  0.        ,  0.        ]])
     
@@ -106,7 +105,7 @@ def angle(v1,v2):
     >>>       [4,5,6]])
     >>> v2 = np.array([[1,0,0],
     >>>       [0,1,0]])
-    >>> thLib.vector.angle(v1,v2)
+    >>> skinematics.vector.angle(v1,v2)
     array([ 1.30024656,  0.96453036])
     
     Notes
@@ -157,7 +156,7 @@ def project(v1,v2):
     >>>       [4,5,6]])
     >>> v2 = np.array([[1,0,0],
     >>>       [0,1,0]])
-    >>> thLib.vector.project(v1,v2)
+    >>> skinematics.vector.project(v1,v2)
     array([[ 1.,  0.,  0.],
        [ 0.,  5.,  0.]])
      
@@ -286,9 +285,10 @@ def plane_orientation(p0, p1, p2):
     n = np.cross(v01,v02)
     return normalize(n)
 
-@deprecation.deprecated(deprecated_in="1.7", removed_in="1.9",
-                        current_version=__version__,
-                        details="Use the ``q_shortest_rotation`` function instead")
+#@deprecation.deprecated(deprecated_in="1.7", removed_in="1.9",
+                        #current_version=__version__,
+                        #details="Use the ``q_shortest_rotation`` function instead")
+                        
 def q_shortest_rotation(v1,v2):
     '''Quaternion indicating the shortest rotation from one vector into another.
     Deprecated. Use "q_shortest_rotation" instead.'''
@@ -400,8 +400,87 @@ def rotate_vector(vector, q):
 
     return vRotated
 
+def target2orient(target, orient_type='quat'):
+    ''' Converts a target vector into a corresponding orientation.
+    Useful for targeting devices, such as eyes, cameras, or missile trackers.
+    Based on the assumption, that in the reference orientation, the targeting
+    device points forward.
+    
+    Parameters
+    ----------
+    target : array (3,) or (N,3)
+        Input vector
+    orient_type : string
+        Has to be one the following:
+        
+        - Fick ... Rz * Ry
+        - nautical ... same as "Fick"
+        - Helmholtz ... Ry * Rz
+        - quat ... quaternion
+
+    Returns
+    -------
+    orientation : array (3,) or (N,3)
+        Corresponding orientation
+        For rotation matrices, same sequence as the matrices [deg].
+        For quaternions, the quaternion vector.
+        
+        Note that the last column of the sequence angles, and the first column
+        of the quaterion, will always be zero, because a rotation about
+        the line-of-sight has no effect.
+
+    Example
+    -------
+
+    >>> a = [3,3,0]
+    >>> b = [5., 0, 5]
+    >>> skinematics.vector.target2orient(a)
+    [ 0.          0.          0.38268343]
+    
+    >>> skinematics.vector.target2orient([a,b])
+    [[ 0.          0.          0.38268343]
+     [ 0.         -0.38268343  0.        ]]
+    
+    >>> skinematics.vector.target2orient(a, orient_type='nautical')
+    [ 45.  -0.   0.]
+    '''
+    
+    if orient_type == 'quat':
+        orientation = q_shortest_rotation([1,0,0], target)
+    
+    elif orient_type =='Fick' or orient_type =='nautical':
+        n = np.atleast_2d(normalize(target))
+        
+        theta = np.arctan2(n[:,1], n[:,0])
+        phi = -np.arcsin(n[:,2])
+        
+        orientation =  np.column_stack((theta, phi, np.zeros_like(theta)))
+        orientation = np.rad2deg(orientation)
+        
+    elif orient_type == 'Helmholtz':
+        n = np.atleast_2d(normalize(target))
+        
+        phi = -np.arctan2(n[:,2], n[:,0])
+        theta = np.arcsin(n[:,1])
+        
+        orientation =  np.column_stack((phi, theta, np.zeros_like(theta)))
+        orientation = np.rad2deg(orientation)
+        
+    else:
+        raise ValueError('Input parameter {0} not known'.format(orientation))
+    
+    # For vector input, return a vector:
+    if orientation.shape[0] == 1:
+        orientation = orientation.ravel()
+    
+    return orientation
+    
+        
 if __name__=='__main__':
-    a = [1,2,3.]
-    b = [1., 0, 0.1]
-    print(angle(a,b))
+    a = [3,3,0]
+    b = [5., 0, 5]
+    
+    orientation = target2orient([a,b])
+    print(orientation)
+    print(target2orient(a, orient_type='nautical'))
    

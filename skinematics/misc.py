@@ -47,7 +47,7 @@ def get_screensize():
     
     Examples
     --------
-    >>> (width, height) = thLib.ui.get_screensize()
+    >>> (width, height) = skinematics.ui.get_screensize()
     '''
     
     
@@ -130,7 +130,7 @@ def get_file(FilterSpec='*', DialogTitle='Select File: ', DefaultName=''):
     
     Examples
     --------
-    >>> (myFile, myPath) = thLib.ui.getfile('*.py', 'Testing file-selection', 'c:\\temp\\test.py')
+    >>> (myFile, myPath) = skinematics.ui.getfile('*.py', 'Testing file-selection', 'c:\\temp\\test.py')
     
     '''
     
@@ -175,7 +175,7 @@ def save_file(FilterSpec='*',DialogTitle='Save File: ', DefaultName=''):
 
     Examples
     --------
-    >>> (myFile, myPath) = thLib.ui.savefile('*.py', 'Testing file-selection', 'c:\\temp\\test.py')
+    >>> (myFile, myPath) = skinematics.ui.savefile('*.py', 'Testing file-selection', 'c:\\temp\\test.py')
 
     '''
     
@@ -215,7 +215,7 @@ def get_dir(DialogTitle='Select Directory', DefaultName='.'):
     
     Examples
     --------
-    >>> myDir = thLib.ui.getdir('c:\\temp', 'Pick your directory')
+    >>> myDir = skinematics.ui.getdir('c:\\temp', 'Pick your directory')
     
     '''
     

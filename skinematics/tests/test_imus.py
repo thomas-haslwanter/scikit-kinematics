@@ -26,6 +26,7 @@ class TestSequenceFunctions(unittest.TestCase):
 
         self.delta = 1e-4
 
+        '''
     def test_analytical(self):
         # Get data
         inFile = os.path.join(myPath, 'data', 'data_xsens.txt')
@@ -41,6 +42,7 @@ class TestSequenceFunctions(unittest.TestCase):
         
         plt.plot(sensor.quat)
         plt.show()
+        '''
         
     def test_kalman(self):
         # Get data

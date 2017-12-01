@@ -7,7 +7,6 @@ comment
 author :  Thomas Haslwanter
 date :    June-2017
 '''
-__version__ = '2.0'
 
 import numpy as np
 import sympy

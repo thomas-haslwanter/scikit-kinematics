@@ -14,7 +14,6 @@ A "Quaternion" class is defined, with
 author: Thomas Haslwanter
 date:   Oct 2017
 '''
-__version__ = '0.6'
 
 import numpy as np
 import matplotlib.pyplot as plt

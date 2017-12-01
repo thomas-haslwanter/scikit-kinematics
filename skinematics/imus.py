@@ -1,5 +1,11 @@
 '''
 Abstract base class for analyzing movements recordings with inertial measurement units (IMUs)
+
+The advantage of this approach is that it allows to write code that is independent of the IMU-sensor. All IMUs provide acceleration and angular velocities, and most of them also the direction of the local magnetic field. The specifics of each sensor are hidden in the sensor-object (specifically, in the "get\_data" method which has to be implemented once for each sensor). Initialization of a sensor object includes a number of activities:
+        - Reading in the data.
+        - Making acceleration, angular\_velocity etc. accessible in a sensor-independent way
+        - Calculating duration, totalSamples, etc.
+        - Calculating orientation (expressed as "quat"), with the method specified in "q\_type"
 '''
 
 '''
@@ -7,8 +13,6 @@ Author: Thomas Haslwanter
 Version: 3.0
 Date: Aug-2017
 '''
-
-__version__ = '3.0'
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -101,7 +105,12 @@ class IMU_Base(metaclass=abc.ABCMeta):
         """
 
     def __init__(self, in_file = None, q_type='analytical', R_init = np.eye(3), pos_init = np.zeros(3), in_data = None ):
-        """Initialize an IMU-object
+        """Initialize an IMU-object.
+        Note that this includes a number of activities:
+        - Read in the data
+        - Make acceleration, angular_velocity etc. accessible, in a sensor-independent way
+        - Calculates duration, totalSamples, etc
+        - Calculates orientation (expressed as "quat"), with the method specified in "q_type"
 
         in_file : string
                 Location of infile / input
@@ -145,7 +154,7 @@ class IMU_Base(metaclass=abc.ABCMeta):
         self.pos_init = pos_init
 
         # Set the analysis method, and consolidate the object (see below)
-        # This also means calculating the orientation quaternion.
+        # This also means calculating the orientation quaternion!!
         self.q_type = q_type
 
     @property

@@ -21,8 +21,8 @@ Homepage
 http://work.thaslwanter.at/skinematics/html/
 
 Author:  Thomas Haslwanter
-Date:    28-10-2017
-Ver:     0.6.0
+Date:    01-12-2017
+Ver:     0.6.2
 Licence: BSD 2-Clause License (http://opensource.org/licenses/BSD-2-Clause)
         Copyright (c) 2017, Thomas Haslwanter
         All rights reserved.
@@ -138,6 +138,7 @@ These routines can be used with vectors, as well as with matrices containing a v
 - vector.GramSchmidt ... Gram-Schmidt orthogonalization of three points
 - vector.q_shortest_rotation ... Quaternion indicating the shortest rotation from one vector into another.
 - vector.rotate_vector ... Rotation of a vector
+- vector.target2orient ... Convert target location into orientation angles
 
 Interactive Data Analysis
 =========================

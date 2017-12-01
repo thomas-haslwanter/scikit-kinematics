@@ -7,12 +7,36 @@ import unittest
 import numpy as np
 from numpy import array, r_, vstack, abs, sin
 from numpy.linalg import norm
-from skinematics import vector 
+from skinematics import vector, quat
 
 class TestSequenceFunctions(unittest.TestCase):
     def setUp(self):
         self.delta = 1e-5
 
+    def test_target2orient(self):
+        a = [1,1,0]
+        b = [1., 0, 1]
+        angle = 45
+        
+        result = vector.target2orient(np.array([a,b]), 'Helmholtz')
+        correct = np.array([[ 0., angle, 0.],
+                            [-angle, 0.,  0.]] )
+        error = norm(result-correct)
+        self.assertAlmostEqual(error, 0)
+        
+        result = vector.target2orient(np.array([a,b]), 'Fick')
+        correct = np.array([[angle, 0., 0],
+                            [0, -angle, 0.]] )
+        
+        q_angle = quat.deg2quat(angle)
+        
+        result = vector.target2orient(np.array([a,b]))
+        correct = np.array([[0, 0, q_angle],
+                            [0, -q_angle, 0.]] )
+        
+        result = vector.target2orient(a)
+        correct = np.array([0, 0, q_angle])
+        
     def test_normalize(self):
         result = vector.normalize([3, 0, 0])
         correct = array([[ 1.,  0.,  0.]])

@@ -16,6 +16,7 @@ Functions
 * :func:`vector.plane_orientation` ... Orientation of plane defined by three points
 * :func:`vector.q_shortest_rotation` ... Quaternion indicating the shortest rotation from one vector into another.
 * :func:`vector.rotate_vector` ... Rotation of a vector
+* :func:`vector.target2orient` ... Convert target location into orientation angles
 
 .. toctree::
    :maxdepth: 2
