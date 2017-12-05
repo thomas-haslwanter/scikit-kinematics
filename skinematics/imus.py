@@ -10,8 +10,8 @@ The advantage of this approach is that it allows to write code that is independe
 
 '''
 Author: Thomas Haslwanter
-Version: 3.0
-Date: Aug-2017
+Version: 3.1
+Date: Dec-2017
 '''
 
 import numpy as np
@@ -31,7 +31,7 @@ sys.path.append( os.path.join( os.path.dirname(__file__), os.path.pardir ) )
 from skinematics import quat, vector, misc, rotmat
 
 # For deprecation warnings
-import deprecation
+# import deprecation
 import warnings
 
 # For the definition of the abstract base class IMU_Base
@@ -147,6 +147,7 @@ class IMU_Base(metaclass=abc.ABCMeta):
             # Set rate, acc, omega, mag
             # Note: this is implemented in the concrete class, implenented in 
             # the corresponding module in "sensors"
+            self.source = in_file
             self.get_data(in_file, in_data)
 
         # Set information not determined by the IMU-data
@@ -619,7 +620,12 @@ if __name__ == '__main__':
     in_file = r'tests/data/data_xsens.txt'
     initial_orientation = np.array([ [1,0,0],
                                      [0,0,-1],
-                                                                        [0,1,0]])
+                                     [0,1,0]])
+    
+    #in_file = r'tests/data/data_xsens2.txt'
+    #initial_orientation = np.array([[0,0,-1],
+                                    #[1, 0, 0],
+                                    #[0,-1,0]])
     initial_position = np.r_[0,0,0]
 
     sensor = XSens(in_file=in_file, R_init=initial_orientation, pos_init=initial_position)

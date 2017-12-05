@@ -24,7 +24,7 @@ sys.path.append( os.path.join( os.path.dirname(__file__), os.path.pardir ) )
 from skinematics import quat
 
 # For deprecation warnings
-import deprecation
+#import deprecation
 import warnings
 #warnings.simplefilter('always', DeprecationWarning)
 

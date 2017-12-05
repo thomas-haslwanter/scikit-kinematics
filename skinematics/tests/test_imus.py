@@ -53,6 +53,7 @@ class TestSequenceFunctions(unittest.TestCase):
         R_initialOrientation = rotmat.R(0,90)
         
         sensor = XSens(in_file=inFile, R_init = R_initialOrientation, pos_init = initialPosition, q_type='kalman')
+        print(sensor.source)
         q = sensor.quat
         
     def test_madgwick(self):
