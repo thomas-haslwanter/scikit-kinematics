@@ -302,13 +302,8 @@ class IMU_Base(metaclass=abc.ABCMeta):
             if field not in vars(self):
                 print('Cannot find {0} in calc_orientation!'.format(field))
 
-    def _set_info(self, rate, acc, omega, mag):
-        '''Set the information properties of that IMU'''
-
-        self.rate = rate
-        self.acc = acc
-        self.omega = omega
-        self.mag = mag
+    def _set_info(self):
+        '''Complete the information properties of that IMU'''
 
         self.totalSamples = len(self.omega)
         self.duration = np.float(self.totalSamples)/self.rate # [sec]
@@ -629,6 +624,7 @@ if __name__ == '__main__':
     initial_position = np.r_[0,0,0]
 
     sensor = XSens(in_file=in_file, R_init=initial_orientation, pos_init=initial_position)
+    
         # By default, the orientation quaternion gets automatically calculated, using "analytical"
     q_analytical = sensor.quat
 

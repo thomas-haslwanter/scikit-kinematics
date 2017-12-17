@@ -34,7 +34,7 @@ from skinematics import vector, rotmat
 pi = np.pi
 
 class Quaternion():
-    '''Quaternion class, with multiplocation, division, and inverse.
+    '''Quaternion class, with multiplication, division, and inversion.
     A Quaternion can be created from vectors, rotation matrices,
     or from Fick-angles, Helmholtz-angles, or Euler angles (in deg).
     It provides
