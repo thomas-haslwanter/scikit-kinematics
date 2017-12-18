@@ -9,7 +9,7 @@ This includes utilities to read in data from the following IMU-sensors:
     - xio
     - YEI
 
-Compatible with Python 2 and 3.
+Compatible with 3 only (Python 2 is no longer tested).
 
 
 Dependencies
@@ -21,8 +21,8 @@ Homepage
 http://work.thaslwanter.at/skinematics/html/
 
 Author:  Thomas Haslwanter
-Date:    04-12-2017
-Ver:     0.6.3
+Date:    18-12-2017
+Ver:     0.6.4
 Licence: BSD 2-Clause License (http://opensource.org/licenses/BSD-2-Clause)
         Copyright (c) 2017, Thomas Haslwanter
         All rights reserved.

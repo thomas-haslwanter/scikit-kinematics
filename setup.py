@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='scikit-kinematics',
-    version="0.6.3",
+    version="0.6.4",
     packages=find_packages(),
 
     include_package_data=True,
@@ -24,7 +24,6 @@ setup(
     keywords     = 'quaterions rotations',
     url          = 'http://work.thaslwanter.at/skinematics/html',
     classifiers  = ['Development Status :: 4 - Beta',
-                 'Programming Language :: Python :: 2',
                  'Programming Language :: Python :: 3',
                  'Intended Audience :: Developers',
                  'Intended Audience :: Science/Research',

@@ -846,26 +846,26 @@ def calc_quat(omega, q0, rate, CStype):
        [-0.76040597,  0.        ,  0.        ,  0.64944805]])
     '''
     
-    omega = np.atleast_2d(omega)
+    omega_05 = np.atleast_2d(omega).copy()
     
     # The following is (approximately) the quaternion-equivalent of the trapezoidal integration (cumtrapz)
-    if omega.shape[1]>1:
-        omega[:-1] = 0.5*(omega[:-1] + omega[1:])
+    if omega_05.shape[1]>1:
+        omega_05[:-1] = 0.5*(omega_05[:-1] + omega_05[1:])
 
-    omega_t = np.sqrt(np.sum(omega**2, 1))
+    omega_t = np.sqrt(np.sum(omega_05**2, 1))
     omega_nonZero = omega_t>0
 
     # initialize the quaternion
-    q_delta = np.zeros(omega.shape)
-    q_pos = np.zeros((len(omega),4))
+    q_delta = np.zeros(omega_05.shape)
+    q_pos = np.zeros((len(omega_05),4))
     q_pos[0,:] = unit_q(q0)
 
     # magnitude of position steps
     dq_total = np.sin(omega_t[omega_nonZero]/(2.*rate))
 
-    q_delta[omega_nonZero,:] = omega[omega_nonZero,:] * np.tile(dq_total/omega_t[omega_nonZero], (3,1)).T
+    q_delta[omega_nonZero,:] = omega_05[omega_nonZero,:] * np.tile(dq_total/omega_t[omega_nonZero], (3,1)).T
 
-    for ii in range(len(omega)-1):
+    for ii in range(len(omega_05)-1):
         q1 = unit_q(q_delta[ii,:])
         q2 = q_pos[ii,:]
         if CStype == 'sf':            

@@ -10,13 +10,16 @@ They are implemented in an object oriented way. (Don't worry if you have not
 used objects before, it won't be a problem here!) All sensor implementations
 are based on the abstract base class "IMU_Base". For each sensor, the
 corresponding method "get_data" has to be implemented, by sub-classing
-IMU_Base. Currently 4 sensor types are supported:
+IMU_Base. Currently 5 sensor types are supported:
 
 * XSens
 * xio
 * YEI
 * polulu
+* manual
 
+The last one is not a "real" sensor, but allows the creation of an
+IMU-object with your own IMU-data, without defining a new class.
 To create a sensor object, choose one of the existing sensor classes, as
 demonstrated in the example below. You have to provide at least the
 file-name of the file containing the sensor data. Optionally, you can also

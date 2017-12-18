@@ -10,8 +10,6 @@ The advantage of this approach is that it allows to write code that is independe
 
 '''
 Author: Thomas Haslwanter
-Version: 3.1
-Date: Dec-2017
 '''
 
 import numpy as np
@@ -94,6 +92,13 @@ class IMU_Base(metaclass=abc.ABCMeta):
     >>>  
     >>> sensor.q_type = 'kalman'
     >>> q_Kalman = sensor.quat
+    >>>
+    >>> # Demonstrate how to fill up a sensor manually
+    >>> in_data = {'rate':sensor.rate,
+    >>>         'acc': sensor.acc,
+    >>>         'omega':sensor.omega,
+    >>>         'mag':sensor.mag}
+    >>> my_sensor = MyOwnSensor(in_file='My own 123 sensor.', in_data=in_data)
 
     '''
 

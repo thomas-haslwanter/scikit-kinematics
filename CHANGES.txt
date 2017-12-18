@@ -39,4 +39,5 @@ v0.6.0, 28-Oct-2017 -- sequence adjusted to match rotation matrices, quat2seq an
 v0.6.1, 01-Dec-2017 -- Function "target2orient" added to "vector.py"
 v0.6.2, 01-Dec-2017 -- Docu updated.
 v0.6.3, 04-Dec-2017 -- "deprecetions" eliminated, "source" set in "sensors"
+v0.6.4, 18-Dec-2017 -- implemented manual data input to IMU-objects. Fixed a few bugs.
 

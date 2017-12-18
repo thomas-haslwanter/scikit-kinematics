@@ -60,11 +60,8 @@ Installation
 
 The simplest way to install *skinematics* is a two-step process
 
->>> pip install git+https://github.com/thomas-haslwanter/easygui
 >>> pip install scikit-kinematics
 
-(The first step is required since the current PyPi version of *easygui* is not
-Python 3 compatible.)
 For upgrading to the latest version, you have to type
 
 >>> pip install scikit-kinematics -U
