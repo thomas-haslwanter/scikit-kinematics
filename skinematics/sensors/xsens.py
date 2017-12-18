@@ -4,8 +4,6 @@ Import data saved with XSens-sensors, through subclassing "IMU_Base"
 
 '''
 Author: Thomas Haslwanter
-Version: 0.2
-Date: Sept-2017
 '''
 
 import numpy as np
@@ -13,7 +11,7 @@ import pandas as pd
 import abc
 import sys
 sys.path.append("..")
-from skinematics.imus import IMU_Base
+from imus import IMU_Base
 
 class XSens(IMU_Base):
     """Concrete class based on abstract base class IMU_Base """    
@@ -43,7 +41,6 @@ class XSens(IMU_Base):
             line = fh.readline()
             rate = np.float(line.split(':')[1].split('H')[0])
             fh.close()
-            returnValues = [rate]
     
         except FileNotFoundError:
             print('{0} does not exist!'.format(in_file))
@@ -55,13 +52,12 @@ class XSens(IMU_Base):
                            skiprows=4, 
                            index_col=False)
     
-        # Extract the columns that you want, by name
-        paramList=['Acc', 'Gyr', 'Mag']
-        for param in paramList:
-            Expression = param + '*'
-            returnValues.append(data.filter(regex=Expression).values)
-    
-        self._set_info(*returnValues)
+        # Extract the columns that you want, and pass them on
+        in_data = {'rate':rate,
+               'acc':   data.filter(regex='Acc').values,
+               'omega': data.filter(regex='Gyr').values,
+               'mag':   data.filter(regex='Mag').values}
+        self._set_data(in_data)
 
 if __name__ == '__main__':
     my_sensor = XSens(in_file=r'..\tests\data\data_xsens.txt')    

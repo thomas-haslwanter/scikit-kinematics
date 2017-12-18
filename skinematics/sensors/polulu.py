@@ -9,8 +9,6 @@ As a result, the interpolated sampling rate has to be set by hand.
 
 '''
 Author: Thomas Haslwanter
-Version: 0.1
-Date: Sept-2017
 '''
 
 import numpy as np
@@ -19,7 +17,7 @@ import pandas as pd
 import abc
 import sys
 sys.path.append("..")
-from skinematics.imus import IMU_Base
+from imus import IMU_Base
 
 class Polulu(IMU_Base):
     """Concrete class based on abstract base class IMU_Base """    
@@ -77,15 +75,12 @@ class Polulu(IMU_Base):
             print('{0} does not exist!'.format(in_file))
             return -1
     
-        returnValues = [rate]
-        
-        # Extract the columns that you want, by name
-        paramList=['acc', 'gyr', 'mag']
-        for param in paramList:
-            Expression = param + '*'
-            returnValues.append(data_interp.filter(regex=Expression).values)
-    
-        self._set_info(*returnValues)
+        # Extract the columns that you want, and pass them on
+        in_data = {'rate':rate,
+               'acc':   data_interp.filter(regex='acc').values,
+               'omega': data_interp.filter(regex='gyr').values,
+               'mag':   data_interp.filter(regex='mag').values}
+        self._set_data(in_data)
 
 if __name__ == '__main__':
     inFile = r'..\tests\data\data_polulu.txt'

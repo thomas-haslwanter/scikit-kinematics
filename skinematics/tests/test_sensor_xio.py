@@ -14,7 +14,7 @@ myPath = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(myPath, '..'))
 
 import unittest
-from skinematics import imus
+import imus
 from time import sleep
 from sensors.xio import XIO
 
@@ -35,4 +35,4 @@ class TestSequenceFunctions(unittest.TestCase):
 if __name__ == '__main__':
     unittest.main()
     print('Thanks for using programs from Thomas!')
-    sleep(2)
+    sleep(0.2)

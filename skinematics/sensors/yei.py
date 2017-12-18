@@ -15,7 +15,7 @@ import re
 import abc
 import sys
 sys.path.append("..")
-from skinematics.imus import IMU_Base
+from imus import IMU_Base
 
 class YEI(IMU_Base):
     """Concrete class based on abstract base class IMU_Base """    
@@ -53,14 +53,12 @@ class YEI(IMU_Base):
         stop = data.ChipTimeUS.values[-1] * 1e-6    # pandas can't count backwards
         rate = len(data) / (stop-start)
         
-        returnValues = [rate]
-        
-        # Extract the columns that you want, by name
-        paramList=['Accel', 'Gyro', 'Compass']
-        for Expression in paramList:
-            returnValues.append(data.filter(regex=Expression).values)
-        
-        self._set_info(*returnValues)
+        # Extract the columns that you want, and pass them on
+        in_data = {'rate':rate,
+               'acc':   data.filter(regex='Accel').values,
+               'omega': data.filter(regex='Gyro').values,
+               'mag':   data.filter(regex='Compass').values}
+        self._set_data(in_data)
 
 if __name__ == '__main__':
     my_sensor = YEI(in_file=r'..\tests\data\data_yei.txt')    

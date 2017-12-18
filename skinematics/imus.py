@@ -227,7 +227,7 @@ class IMU_Base(metaclass=abc.ABCMeta):
 
         method = self._q_type
         if method == 'analytical':
-            (quaternion, position) = analytical(self.R_init, self.omega, initialPosition, self.acc, self.rate)
+            (quaternion, position) = analytical(self.rate, self.acc, self.omega, initialPosition, self.R_init)
 
         elif method == 'kalman':
             self._checkRequirements()
@@ -309,7 +309,7 @@ class IMU_Base(metaclass=abc.ABCMeta):
         self.duration = np.float(self.totalSamples)/self.rate # [sec]
         self.dataType = str(self.omega.dtype)
 
-def analytical(R_initialOrientation, omega, initialPosition, accMeasured, rate):
+def analytical(rate, accMeasured, omega, initialPosition, R_initialOrientation):
     ''' Reconstruct position and orientation with an analytical solution,
     from angular velocity and linear acceleration.
     Assumes a start in a stationary position. No compensation for drift.
@@ -337,7 +337,7 @@ def analytical(R_initialOrientation, omega, initialPosition, accMeasured, rate):
 
     Example
     -------
-    >>> q1, pos1 = analytical(R_initialOrientation, omega, initialPosition, acc, rate)
+    >>> q1, pos1 = analytical(rate, acc, omega, initialPosition, R_initialOrientation)
 
     '''
 
@@ -580,13 +580,13 @@ class Mahony:
         # Estimated direction of gravity and magnetic field
         v = np.array([
             2*(q[1]*q[3] - q[0]*q[2]),
-             2*(q[0]*q[1] + q[2]*q[3]),
-             q[0]**2 - q[1]**2 - q[2]**2 + q[3]**2])
+            2*(q[0]*q[1] + q[2]*q[3]),
+            q[0]**2 - q[1]**2 - q[2]**2 + q[3]**2])
 
         w = np.array([
             2*b[1]*(0.5 - q[2]**2 - q[3]**2) + 2*b[3]*(q[1]*q[3] - q[0]*q[2]),
             2*b[1]*(q[1]*q[2] - q[0]*q[3]) + 2*b[3]*(q[0]*q[1] + q[2]*q[3]),
-             2*b[1]*(q[0]*q[2] + q[1]*q[3]) + 2*b[3]*(0.5 - q[1]**2 - q[2]**2)]) 
+            2*b[1]*(q[0]*q[2] + q[1]*q[3]) + 2*b[3]*(0.5 - q[1]**2 - q[2]**2)]) 
 
         # Error is sum of cross product between estimated direction and measured direction of fields
         e = np.cross(Accelerometer, v) + np.cross(Magnetometer, w) 
@@ -616,7 +616,7 @@ if __name__ == '__main__':
     initial_orientation = np.array([ [1,0,0],
                                      [0,0,-1],
                                      [0,1,0]])
-    
+
     #in_file = r'tests/data/data_xsens2.txt'
     #initial_orientation = np.array([[0,0,-1],
                                     #[1, 0, 0],
@@ -624,7 +624,7 @@ if __name__ == '__main__':
     initial_position = np.r_[0,0,0]
 
     sensor = XSens(in_file=in_file, R_init=initial_orientation, pos_init=initial_position)
-    
+
         # By default, the orientation quaternion gets automatically calculated, using "analytical"
     q_analytical = sensor.quat
 

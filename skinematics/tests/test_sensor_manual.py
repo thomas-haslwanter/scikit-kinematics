@@ -1,5 +1,5 @@
 '''
-Test import from import data saved with XSens-sensors, through subclassing "IMU_Base"
+Test manual data entry, through subclassing "IMU_Base"
 '''
 
 '''
@@ -15,29 +15,26 @@ import unittest
 import imus
 from time import sleep
 from sensors.xsens import XSens
+from sensors.manual import MyOwnSensor
 
 class TestSequenceFunctions(unittest.TestCase):
     
-    def test_import_xsens(self):
+    def test_import_manual(self):
         # Get data, with a specified input from an XSens system
         in_file = os.path.join(myPath, 'data', 'data_xsens.txt')
         
         sensor = XSens(in_file=in_file, q_type=None)
-        rate = sensor.rate
-        acc = sensor.acc
-        omega = sensor.omega
         
-        self.assertEqual(rate, 50.)
-        self.assertAlmostEqual( (omega[0,2] - 0.050860000000000002), 0)
+        transfer_data = {'rate':sensor.rate,
+                   'acc': sensor.acc,
+                   'omega':sensor.omega,
+                   'mag':sensor.mag}
+        my_sensor = MyOwnSensor(in_file='My own 123 sensor.', in_data=transfer_data)
         
-    def test_IMU_xsens(self):
-        # Get data, with a specified input from an XSens system
-        in_file = os.path.join(myPath, 'data', 'data_xsens.txt')
-        my_IMU = XSens(in_file=in_file)
-        
-        self.assertEqual(my_IMU.omega.size, 2859)
+        self.assertEqual(my_sensor.rate, 50.)
+        self.assertAlmostEqual( (my_sensor.omega[0,2] - 0.050860000000000002), 0)
         
 if __name__ == '__main__':
     unittest.main()
     print('Thanks for using programs from Thomas!')
-    sleep(2)
+    sleep(0.1)

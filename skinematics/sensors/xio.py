@@ -9,8 +9,6 @@ Note that the data are in two files:
 
 '''
 Author: Thomas Haslwanter
-Version: 0.1
-Date: Sept-2017
 '''
 
 import numpy as np
@@ -20,7 +18,7 @@ import os
 import abc
 import sys
 sys.path.append("..")
-from skinematics.imus import IMU_Base
+from imus import IMU_Base
 
 def read_ratefile(reg_file):
     '''Read send-rates from an XIO sensor.
@@ -143,9 +141,13 @@ class XIO(IMU_Base):
         # Read the sensor-data
         data  = read_datafile(files['data'])
         
-        returnValues= [rates['InertialAndMagnetic']] + data[:-1]
+        # Set the class properties
+        in_data = {'rate':rates['InertialAndMagnetic'],
+               'acc':   data[0],
+               'omega': data[1],
+               'mag':   data[2]}
+        self._set_data(in_data)
         
-        self._set_info(*returnValues)
         self.packet_nr = data[-1]
 
 if __name__ == '__main__':

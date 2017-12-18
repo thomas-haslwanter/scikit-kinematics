@@ -100,4 +100,4 @@ if __name__ == '__main__':
     runner.run(suite)
     #unittest.main()
     print('Thanks for using programs from Thomas!')
-    sleep(2)
+    sleep(0.2)
