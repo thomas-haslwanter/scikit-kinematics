@@ -92,7 +92,7 @@ def orientation(quats, out_file=None, title_text=None, deltaT=100):
     >>> dt = 1./rate
     >>> num_rep = duration*rate
     >>> omegas = np.tile(omega, [num_rep, 1])
-    >>> q = skin.quat.vel2quat(omegas, q0, rate, 'sf')
+    >>> q = skin.quat.calc_quat(omegas, q0, rate, 'sf')
     >>>     
     >>> orientation(q, out_file, 'Well done!')
             
@@ -779,6 +779,7 @@ def ts(data = None):
     
 if __name__ == '__main__':
     
+    '''
     # 2D Viewer -----------------
     data = np.random.randn(100,3)
     t = np.arange(0,2*np.pi,0.1)
@@ -806,5 +807,4 @@ if __name__ == '__main__':
     q = quat.calc_quat(omegas, q0, rate, 'sf')
         
     #orientation(q)
-    orientation(q, out_file, 'Well done!')
-    '''
+    orientation(q, out_file=None, title_text='Well done!')

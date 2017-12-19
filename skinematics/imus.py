@@ -232,7 +232,7 @@ class IMU_Base(metaclass=abc.ABCMeta):
 
         method = self._q_type
         if method == 'analytical':
-            (quaternion, position) = analytical(self.rate, self.acc, self.omega, initialPosition, self.R_init)
+            (quaternion, position) = analytical(self.R_init, self.omega, initialPosition, self.acc, self.rate) 
 
         elif method == 'kalman':
             self._checkRequirements()
@@ -314,22 +314,26 @@ class IMU_Base(metaclass=abc.ABCMeta):
         self.duration = np.float(self.totalSamples)/self.rate # [sec]
         self.dataType = str(self.omega.dtype)
 
-def analytical(rate, accMeasured, omega, initialPosition, R_initialOrientation):
+def analytical(R_initialOrientation=np.eye(3),
+               omega=np.zeros((100,3)),
+               initialPosition=np.zeros(3),
+               accMeasured=np.column_stack((np.zeros((100,2)), 9.81*np.ones(100))),
+               rate=100):
     ''' Reconstruct position and orientation with an analytical solution,
     from angular velocity and linear acceleration.
     Assumes a start in a stationary position. No compensation for drift.
 
     Parameters
     ----------
-    omega : ndarray(N,3)
-        Angular velocity, in [rad/s]
-    accMeasured : ndarray(N,3)
-        Linear acceleration, in [m/s^2]
-    initialPosition : ndarray(3,)
-        initial Position, in [m]
     R_initialOrientation: ndarray(3,3)
         Rotation matrix describing the initial orientation of the sensor,
         except a mis-orienation with respect to gravity
+    omega : ndarray(N,3)
+        Angular velocity, in [rad/s]
+    initialPosition : ndarray(3,)
+        initial Position, in [m]
+    accMeasured : ndarray(N,3)
+        Linear acceleration, in [m/s^2]
     rate : float
         sampling rate, in [Hz]
 
@@ -342,7 +346,8 @@ def analytical(rate, accMeasured, omega, initialPosition, R_initialOrientation):
 
     Example
     -------
-    >>> q1, pos1 = analytical(rate, acc, omega, initialPosition, R_initialOrientation)
+     
+    >>> q1, pos1 = analytical(R_initialOrientation, omega, initialPosition, acc, rate)
 
     '''
 
@@ -504,23 +509,38 @@ def kalman(rate, acc, omega, mag):
 
 class Madgwick:
     '''Madgwick's gradient descent filter.
-    '''
-
-    def __init__(self, SamplePeriod=1./256, Beta=1.0, Quaternion=[1,0,0,0]):
-        '''Initialization
 
         Parameters
         ----------
-        SamplePeriod : sample period
-        Beta : algorithm gain
-        Quaternion : output quaternion describing the Earth relative to the sensor
+        SamplePeriod : double
+            sample period [s]
+        Beta : double
+            algorithm gain
+        Quaternion : array, shape (N,4)
+            output quaternion describing the Earth relative to the sensor
         '''
+
+    def __init__(self, SamplePeriod=1./256, Beta=1.0, Quaternion=[1,0,0,0]):
+        '''Initialization '''
+        
         self.SamplePeriod = SamplePeriod
         self.Beta = Beta
         self.Quaternion = Quaternion
 
     def Update(self, Gyroscope, Accelerometer, Magnetometer):
-        '''Calculate the best quaternion to the given measurement values.'''
+        '''Calculate the best quaternion to the given measurement values.
+        
+        Parameters
+        ----------
+        Gyroscope : array, shape (N,3)
+            Angular velocity [rad/s]
+        Accelerometer : array, shape (N,3)
+            Linear acceleration (Only the direction is used, so units don't matter.)
+        Magnetometer : array, shape (N,3)
+            Orientation of local magenetic field.
+            (Again, only the direction is used, so units don't matter.)
+            
+        '''
 
         q = self.Quaternion; # short name local variable for readability
 
@@ -556,9 +576,6 @@ class Madgwick:
 
 class Mahony:
     '''Madgwick's implementation of Mayhony's AHRS algorithm
-    '''
-    def __init__(self, SamplePeriod=1./256, Kp=1.0, Ki=0, Quaternion=[1,0,0,0]):
-        '''Initialization
 
         Parameters
         ----------
@@ -566,7 +583,10 @@ class Mahony:
         Kp : algorithm proportional gain
         Ki : algorithm integral gain
         Quaternion : output quaternion describing the Earth relative to the sensor
-        '''
+    '''
+    def __init__(self, SamplePeriod=1./256, Kp=1.0, Ki=0, Quaternion=[1,0,0,0]):
+        '''Initialization '''
+        
         self.SamplePeriod = SamplePeriod
         self.Kp = Kp
         self.Ki = Ki
@@ -574,7 +594,19 @@ class Mahony:
         self._eInt = [0, 0, 0]  # integral error
 
     def Update(self, Gyroscope, Accelerometer, Magnetometer):
-        '''Calculate the best quaternion to the given measurement values.'''
+        '''Calculate the best quaternion to the given measurement values.
+        
+        Parameters
+        ----------
+        Gyroscope : array, shape (N,3)
+            Angular velocity [rad/s]
+        Accelerometer : array, shape (N,3)
+            Linear acceleration (Only the direction is used, so units don't matter.)
+        Magnetometer : array, shape (N,3)
+            Orientation of local magenetic field.
+            (Again, only the direction is used, so units don't matter.)
+            
+        '''
 
         q = self.Quaternion; # short name local variable for readability
 
