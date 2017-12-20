@@ -9,8 +9,13 @@ Author: Thomas Haslwanter
 import numpy as np
 import pandas as pd
 import abc
+
+# To ensure that the relative path works
+import os
 import sys
-sys.path.append("..")
+dir_name = os.path.dirname(__file__)
+sys.path.append(os.path.realpath(os.path.join(dir_name, "..")))
+
 from imus import IMU_Base
 
 class XSens(IMU_Base):

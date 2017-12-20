@@ -89,10 +89,6 @@ and type (on the command-line!):
 >>> cd [_your_installation_dir_]\skinematics\tests
 >>> python -m unittest
 
-**Note for Python 2.7.x**: While Python 3.x includes automatic test
-discovery, this has to be requested explicitly for *Python 2.7.x*:
-
->>> python -m unittest discover
 
 Modules
 -------
@@ -117,7 +113,7 @@ Indices and tables
 
 .. note::
     | *Author:*     Thomas Haslwanter
-    | *Version:*    0.6.3
+    | *Version:*    0.6.8
     | *Date:*       Dec 2017
     | *email:*      thomas.haslwanter@fh-linz.at
     | *Copyright (c):*      2017, Thomas Haslwanter. All rights reserved.

@@ -315,9 +315,9 @@ class IMU_Base(metaclass=abc.ABCMeta):
         self.dataType = str(self.omega.dtype)
 
 def analytical(R_initialOrientation=np.eye(3),
-               omega=np.zeros((100,3)),
+               omega=np.zeros((5,3)),
                initialPosition=np.zeros(3),
-               accMeasured=np.column_stack((np.zeros((100,2)), 9.81*np.ones(100))),
+               accMeasured=np.column_stack((np.zeros((5,2)), 9.81*np.ones(5))),
                rate=100):
     ''' Reconstruct position and orientation with an analytical solution,
     from angular velocity and linear acceleration.
@@ -359,13 +359,13 @@ def analytical(R_initialOrientation=np.eye(3),
 
     # for the remaining deviation, assume the shortest rotation to there
     q0 = vector.q_shortest_rotation(accMeasured[0], g0)    
-    R0 = quat.convert(q0, 'rotmat')
-
+    
+    q_initial = rotmat.convert(R_initialOrientation, to='quat')
+    
     # combine the two, to form a reference orientation. Note that the sequence
     # is very important!
-    R_ref = R_initialOrientation.dot(R0)
-    q_ref = rotmat.convert(R_ref, to='quat')
-
+    q_ref = quat.q_mult(q_initial, q0)
+    
     # Calculate orientation q by "integrating" omega -----------------
     q = quat.calc_quat(omega, q_ref, rate, 'bf')
 
@@ -647,6 +647,16 @@ class Mahony:
 
 
 if __name__ == '__main__':
+    '''
+    in_file = r'../others/skinematics-invalid-sqrt.txt'
+    import pandas as pd
+    
+    data = pd.read_csv(in_file, delimiter='\t')
+    omega = data.filter(regex='Gyr*').values
+    acc = data.filter(regex='Acc*').values    
+    analytical(omega = omega, accMeasured=acc)
+    
+    '''
     from sensors.xsens import XSens
 
     in_file = r'tests/data/data_xsens.txt'
