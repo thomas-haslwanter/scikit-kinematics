@@ -44,4 +44,5 @@ v0.6.5, 18-Dec-2017 -- Documentation updated
 v0.6.6, 18-Dec-2017 -- Sequence in "analytical" reverted.
 v0.6.7, 18-Dec-2017 -- imus.analytical made more stable, by going from Rmats to quats
 v0.6.8, 20-Dec-2017 -- Fixes a relative-path problem in the sub-package "sensors"
+v0.6.9, 21-Dec-2017 -- Position calculation added to IMU-objects by default
 

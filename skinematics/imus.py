@@ -46,8 +46,9 @@ class IMU_Base(metaclass=abc.ABCMeta):
         duration (float) : Duration of recording [sec]
         mag (Nx3 array) : 3D orientation of local magnectic field
         omega (Nx3 array) : 3D angular velocity
+        pos (Nx3 array) : 3D position
         pos_init (3-vector) : Initial position. default is np.ones(3)
-        quat (Nx4 array) : 
+        quat (Nx4 array) : 3D orientation
         q_type (string) : Method of calculation for orientation quaternion
         rate (int) : Sampling rate
         R_init (3x3 array) : Rotation matrix defining the initial orientation. Default is np.eye(3)
@@ -109,13 +110,20 @@ class IMU_Base(metaclass=abc.ABCMeta):
         With some sensors, "rate" has to be provided, and is taken from "in_data".
         """
 
-    def __init__(self, in_file = None, q_type='analytical', R_init = np.eye(3), pos_init = np.zeros(3), in_data = None ):
+    def __init__(self, in_file = None,
+                 q_type='analytical', R_init = np.eye(3),
+                 calculate_position=True, pos_init = np.zeros(3),
+                 in_data = None ):
         """Initialize an IMU-object.
         Note that this includes a number of activities:
-        - Read in the data
+        - Read in the data (which have to be either in "in_file" or in "in_data")
         - Make acceleration, angular_velocity etc. accessible, in a sensor-independent way
         - Calculates duration, totalSamples, etc
-        - Calculates orientation (expressed as "quat"), with the method specified in "q_type"
+        - If q_type==None, data are only read in; otherwise, 3-D orientation is calculated
+          with the method specified in "q_type", and stored in the property "quat".
+        - If position==True, the method "calc_position" is automatically called, and the
+          3D position stored in the propery "pos". (Note that if q_type==None, then
+          "position" is set to "False".)
 
         in_file : string
                 Location of infile / input
@@ -129,6 +137,8 @@ class IMU_Base(metaclass=abc.ABCMeta):
         R_init : 3x3 array
                 approximate alignment of sensor-CS with space-fixed CS
                 currently only used in "analytical"
+        calculate_position : Boolean
+                If "True", position is calculated, and stored in property "pos".
         pos_init : (,3) vector
                 initial position
                 currently only used in "analytical"
@@ -162,6 +172,10 @@ class IMU_Base(metaclass=abc.ABCMeta):
         # Set the analysis method, and consolidate the object (see below)
         # This also means calculating the orientation quaternion!!
         self.q_type = q_type
+        
+        if q_type != None:
+            if calculate_position:
+                self.calc_position()
 
     @property
     def q_type(self):
