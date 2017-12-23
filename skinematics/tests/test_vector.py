@@ -1,13 +1,15 @@
+import numpy as np
 import sys
 import os
-myPath = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, os.path.join(myPath, '..', '..'))
 
-import unittest
-import numpy as np
 from numpy import array, r_, vstack, abs, sin
 from numpy.linalg import norm
-from skinematics import vector, quat
+
+import unittest
+
+dir_name = os.path.dirname(__file__)
+sys.path.append(os.path.realpath(os.path.join(dir_name, "..")))
+import vector, quat
 
 class TestSequenceFunctions(unittest.TestCase):
     def setUp(self):
@@ -37,20 +39,26 @@ class TestSequenceFunctions(unittest.TestCase):
         result = vector.target2orient(a)
         correct = np.array([0, 0, q_angle])
         
+        
     def test_normalize(self):
         result = vector.normalize([3, 0, 0])
         correct = array([[ 1.,  0.,  0.]])
         error = norm(result-correct)
         self.assertAlmostEqual(error, 0)
         
+        
     def test_project(self):
         v1 = np.array([[1,2,3],
                        [4,5,6]])
         v2 = np.array([[1,0,0],
                        [0,1,0]])
-        result = vector.project(v1,v2)
         correct = array([[ 1.,  0.,  0.],
                        [ 0.,  5.,  0.]])
+        result = vector.project(v1,v2)
+        self.assertTrue(np.all(np.abs(result-correct)<self.delta))
+        
+        # Test default "projection_type"
+        result = vector.project(v1,v2, )
         self.assertTrue(np.all(np.abs(result-correct)<self.delta))
         
         # Test with lists

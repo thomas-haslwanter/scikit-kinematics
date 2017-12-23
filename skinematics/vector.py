@@ -131,8 +131,8 @@ def angle(v1,v2):
         angle = np.arccos(list(map(np.dot, n1, n2)))
     return angle
  
-def project(v1,v2):
-    '''Project one vector onto another
+def project(v1,v2, projection_type='1D'):
+    '''Project one vector onto another, or into the plane perpendicular to that vector.
     
     Parameters
     ----------
@@ -140,6 +140,11 @@ def project(v1,v2):
         projected vector
     v2 : array (N,) or (M,N)
         target vector
+    projection_type : scalar
+        Has to be one of the following:
+        
+        - 1D ... projection onto a vector (Default)
+        - 2D ... projection into the plane perpendicular to that vector
 
     Returns
     -------
@@ -169,16 +174,47 @@ def project(v1,v2):
 
         \\vec{v}_{proj} = \\vec{n} (\\vec{v} \\cdot \\vec{n})
 
+        
+        \\ \mathbf{c}^{\rm{image}} = \mathbf{R} \cdot \mathbf{c}^{\rm{space}} + \mathbf{p}_{CS}
+    
+    * Note that the orientation of the 2D projection is not uniquely defined.
+    It is chosen here such that the y-axis points up, and one is "looking down"
+    rather than "looking up".
+    
     '''
     
     v1 = np.atleast_2d(v1)
     v2 = np.atleast_2d(v2)
     
     e2 = normalize(v2)
-    if e2.ndim == 1 or e2.shape[0]==1:
-        return (e2 * list(map(np.dot, v1, e2))).ravel()
+    
+    if projection_type == '1D':
+        if e2.ndim == 1 or e2.shape[0]==1:
+            return (e2 * list(map(np.dot, v1, e2))).ravel()
+        else:
+            return (e2.T * list(map(np.dot, v1, e2))).T
+    elif projection_type == '2D':
+        if e2.shape[0] > 1:
+            raise ValueError('2D projections only implemented for fixed projection-plane!')
+            
+        x,y,z = e2[0]
+        projection_matrix = np.array(
+            [[-y,      -x*z, x],
+             [ x,      -y*z, y],
+             [ 0, x**2+y**2, z]])
+        
+        if z > 0:    # choose a downward-pointing look for the projection
+            projection_matrix  = projection_matrix * np.r_[-1, 1, -1]
+        
+        projected = v1 @ projection_matrix
+        projected = projected[:,:2]
+        if e2.ndim == 1 or e2.shape[0]==1:
+            return projected.ravel()
+        else:
+            return projected
     else:
-        return (e2.T * list(map(np.dot, v1, e2))).T
+        raise ValueError('{0} not allowed as projection_type in vector.project!'.format(projection_type))
+        
  
 def GramSchmidt(p0,p1,p2):
     '''Gram-Schmidt orthogonalization
@@ -478,9 +514,8 @@ def target2orient(target, orient_type='quat'):
         
 if __name__=='__main__':
     a = [3,3,0]
-    b = [5., 0, 5]
+    b = [0, 1, 0]
     
-    orientation = target2orient([a,b])
-    print(orientation)
-    print(target2orient(a, orient_type='nautical'))
+    projected = project(a,b, projection_type='2D')
+    print(projected)
    
