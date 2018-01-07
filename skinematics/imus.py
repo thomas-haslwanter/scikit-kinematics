@@ -54,6 +54,7 @@ class IMU_Base(metaclass=abc.ABCMeta):
         R_init (3x3 array) : Rotation matrix defining the initial orientation. Default is np.eye(3)
         source (str) : Name of data-file
         totalSamples (int) : Number of samples
+        vel (Nx3 array) : 3D velocity
 
     Parameters
     ----------
@@ -311,6 +312,7 @@ class IMU_Base(metaclass=abc.ABCMeta):
             vel[:,ii] = cumtrapz(accReSpace[:,ii], dx=1./np.float(self.rate), initial=0)
             pos[:,ii] = cumtrapz(vel[:,ii],        dx=1./np.float(self.rate), initial=initialPosition[ii])
 
+        self.vel = vel
         self.pos = pos
 
     def _checkRequirements(self):
@@ -368,7 +370,7 @@ def analytical(R_initialOrientation=np.eye(3),
     # Transform recordings to angVel/acceleration in space --------------
 
     # Orientation of \vec{g} with the sensor in the "R_initialOrientation"
-    g = 9.81
+    g = constants.g
     g0 = np.linalg.inv(R_initialOrientation).dot(np.r_[0,0,g])
 
     # for the remaining deviation, assume the shortest rotation to there

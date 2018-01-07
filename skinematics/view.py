@@ -48,6 +48,7 @@ from os.path import expanduser, join
 #import skinematics as skin
 from mpl_toolkits.mplot3d import axes3d    
 import matplotlib.animation as animation
+import pygame
 
 # The following construct is required since I want to run the module as a script
 # inside the skinematics-directory
@@ -60,6 +61,106 @@ from skinematics import vector, quat
 # List if plottable datatypes
 plottable = [np.ndarray, pd.core.frame.DataFrame, pd.core.series.Series]
 
+class Orientation_Viewer:
+    def __init__(self, win_width = 640, win_height = 480, quat_in=None):
+        pygame.init()
+
+        self.screen = pygame.display.set_mode((win_width, win_height))
+        pygame.display.set_caption("Simulation of a rotating 3D Cube (http://codeNtronix.com)")
+
+        self.clock = pygame.time.Clock()
+
+        self.quat = quat_in
+        
+        delta = 0.02
+        self.vertices = np.array(
+            [[-0.4,   0, -delta],
+             [ 0.4,   0, -delta],
+             [   0, 1.2, -delta],
+             [-0.4,   0,  delta],
+             [ 0.4,   0,  delta],
+             [   0, 1.2,  delta]] )
+
+        self.cs = np.array(
+            [[-2,  0,  0],
+             [ 2,  0,  0],
+             [ 0, -2,  0],
+             [ 0,  2,  0],
+             [ 0,  0, -2],
+             [ 0,  0,  2]])
+        
+        # Define the vertices that compose each of the 5 faces. These numbers are
+        # indices to the vertices list defined above.
+        self.faces  = [ [0,1,2], [3,4,5] ]
+
+        # Define colors for each face
+        self.colors = [[255,255,255],
+                       [255,  0,  0]]    
+
+    def project(self, p, win_width, win_height, fov, viewer_distance):
+        """ Transforms this 3D point to 2D using a perspective projection.
+        
+        factor = fov / (viewer_distance + z)
+        x =  x * factor + win_width/2
+        y = -y * factor + win_height/2
+        
+        """
+        
+        factor = fov / (viewer_distance + p[:,2])
+        p[:,:2] = p[:,:2]*np.r_[-1,1] * np.tile(factor,(2,1)).T + np.r_[win_width, win_height]/2
+        return p
+    
+    def run(self):
+        """ Main Loop """
+        index = 0
+        fov = 256
+        viewer_distance = 4
+        q_viewer = vector.normalize([1,-1,0]) * np.sin(np.deg2rad(10))
+        
+        while 1:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit()
+
+            self.clock.tick(50)
+            self.screen.fill((0,32,0))
+
+            q = self.quat[index]
+            index = np.mod(index+1, len(self.quat))
+            
+            rotated = vector.rotate_vector(self.vertices, q)
+            rotated = vector.rotate_vector(rotated, q_viewer)
+            projected = self.project(rotated,
+                                self.screen.get_width(), self.screen.get_height(),
+                                fov, viewer_distance)
+
+            # Calculate the average Z values of each face.
+            mean_pos = []
+            for f in self.faces:
+                mean_pos.append(list(np.mean(projected[f,:], axis=0)))
+            sequence = np.argsort(np.array(mean_pos)[:,2])[::-1]
+
+            # Draw the faces using the Painter's algorithm:
+            # Distant faces are drawn before the closer ones.
+            line_color = [200, 200, 200]
+            new_axes = vector.rotate_vector(self.cs.copy(), q_viewer)
+            
+            axes_projected = self.project(new_axes,
+                                self.screen.get_width(), self.screen.get_height(),
+                                fov, viewer_distance)
+            
+            for ii in range(3):
+                pygame.draw.line(self.screen, line_color, axes_projected[ii*2+0,:2], axes_projected[ii*2+1,:2], 1)
+                
+            for face in sequence:
+                points = projected[self.faces[face],:2]
+                point_list = points.tolist() + [list(points[0])]
+                pygame.draw.polygon(self.screen, self.colors[face], point_list)
+            
+
+            pygame.display.flip()
+            
 def orientation(quats, out_file=None, title_text=None, deltaT=100):
     '''Calculates the orienation of an arrow-patch used to visualize a quaternion.
     Uses "_update_func" for the display.
@@ -790,7 +891,6 @@ if __name__ == '__main__':
     #ts(data)
     print('Done')
     
-    '''
     # 3D Viewer ----------------
     # Set the parameters
     omega = np.r_[0, 10, 10]     # [deg/s]
@@ -808,3 +908,10 @@ if __name__ == '__main__':
         
     #orientation(q)
     orientation(q, out_file=None, title_text='Well done!')
+
+    '''
+    phi = np.arange(360)
+    q = quat.deg2quat(np.column_stack((phi, np.zeros((len(phi), 2)))))
+    
+    viewer = Orientation_Viewer(quat_in=q)
+    viewer.run()

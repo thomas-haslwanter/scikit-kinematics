@@ -69,7 +69,7 @@ if __name__ == '__main__':
     
     import matplotlib.pyplot as plt    
     
-    plt.plot(my_sensor.acc)    
+    plt.plot(my_sensor.quat[:,1:])    
     plt.show()
     print('Done')
     
