@@ -1,3 +1,13 @@
+'''
+Alternative 3D Viewer, based on OpenGL.
+Badly hacked, since I don't really know OpenGL. Improvements would be VERY welcome!
+'''
+
+'''
+author: Thomas Haslwanter
+date:   Jan 2018
+'''
+
 import pygame
 import numpy as np
 from pygame.locals import *
@@ -7,68 +17,69 @@ from OpenGL.GLU import *
 
 import numpy as np
 import pandas as pd
-import abc
+#import abc
 
 # To ensure that the relative path works
 import os
 import sys
 sys.path.append( os.path.join( os.path.dirname(__file__), os.path.pardir ) ) 
-#dir_name = os.path.dirname(__file__)
-#sys.path.append(os.path.realpath(os.path.join(dir_name, "..")))
 
 from skinematics.sensors.xsens import XSens
 
-delta = 0.01
-verticies = (
-    (0, -0.2, -delta),
-    (0, 0.2, -delta),
-    (0.6, 0, -delta),
-    (0, -0.2, delta),
-    (0, 0.2, delta),
-    (0.6, 0, delta),
-    )
+def define_elements():
+    # Define the elements
+    delta = 0.01
+    verticies = (
+        (0, -0.2, -delta),
+        (0, 0.2, -delta),
+        (0.6, 0, -delta),
+        (0, -0.2, delta),
+        (0, 0.2, delta),
+        (0.6, 0, delta),
+        )
+    
+    edges = (
+        (0,1),
+        (0,2),
+        (0,3),
+        (1,2),
+        (1,4),
+        (2,5),
+        (3,4),
+        (3,5),
+        (4,5) )
+    
+    colors = (
+        (0.8,0,0),
+        (0.7,0.7,0.6),
+        (1,1,1) )
+    
+    surfaces = (
+        (0,1,2),
+        (3,4,5),
+        (0,1,3,4),
+        (1,4,2,5),
+        (0,3,2,5) )
+    
+    axes_endpts = np.array(
+        [[-1,  0,  0],
+         [ 1,  0,  0],
+         [ 0, -1,  0],
+         [ 0,  1,  0],
+         [ 0,  0, -1],
+         [ 0,  0,  1]])
+    
+    axes = (
+        (0,1),
+        (2,3),
+        (4,5) )
+    
+    return (verticies, surfaces, edges, colors, axes, axes_endpts)
 
-edges = (
-    (0,1),
-    (0,2),
-    (0,3),
-    (1,2),
-    (1,4),
-    (2,5),
-    (3,4),
-    (3,5),
-    (4,5),
-    )
-
-colors = (
-    (0.8,0,0),
-    (0.7,0.7,0.6),
-    (1,1,1),
-    )
-
-surfaces = (
-    (0,1,2),
-    (3,4,5),
-    (0,1,3,4),
-    (1,4,2,5),
-    (0,3,2,5)
-    )
-
-axes_endpts = np.array(
-    [[-1,  0,  0],
-     [ 1,  0,  0],
-     [ 0, -1,  0],
-     [ 0,  1,  0],
-     [ 0,  0, -1],
-     [ 0,  0,  1]])
-
-axes = (
-    (0,1),
-    (2,3),
-    (4,5)
-    )
-
-def draw_axes():
+def draw_axes(axes):
+    '''Draw the axes.
+    Here I have a difficulty with making the axes thicker'''
+    
     glBegin(GL_LINES)
     #glLineWidth(1.5)
     glColor3fv(colors[2])
@@ -77,22 +88,14 @@ def draw_axes():
             glVertex3fv(axes_endpts[vertex])
     glEnd()
 
-def Cube():
+def draw_pointer(colors, surfaces, edges):
+    '''Draw the triangle that indicates 3D orientation'''
     glBegin(GL_TRIANGLES)
 
-    for vertex in surfaces[1]:
-        glColor3fv(colors[1])
-        glVertex3fv(verticies[vertex])
-
-    for vertex in surfaces[0]:
-        glColor3fv(colors[0])
-        glVertex3fv(verticies[vertex])
-    #x = 0
-    #for surface in surfaces:
-        #for vertex in surface:
-            #x+=1
-            #glColor3fv(colors[np.mod(x,11)])
-            #glVertex3fv(verticies[vertex])
+    for (color, surface) in zip(colors[:2], surfaces[:2]):
+        for vertex in surface:
+            glColor3fv(color)
+            glVertex3fv(verticies[vertex])
 
     glEnd()
 
@@ -103,15 +106,19 @@ def Cube():
             glVertex3fv(verticies[vertex])
 
     glEnd()
-'''
-'''
 
 
-def main():
+if __name__ == '__main__':
     # Get the data
     my_sensor = XSens(in_file=r'.\tests\data\data_xsens.txt')
     
-    cameraX, cameraY, cameraZ = 0.2,0.2,0
+    # Define the plotting elements
+    verticies, surfaces, edges, colors, axes, axes_endpts = define_elements()
+    
+    # Define the view-point (=camera_position) and the gaze_target
+    camera = [0.2, 0.2, 0]
+    gaze_target = [0, -0.2, 0.2]
+    camera_up = [0, 1, 0]
 
     pygame.init()
     display = (800,600)
@@ -140,17 +147,16 @@ def main():
         glMatrixMode(GL_MODELVIEW) # Unter anderem zuständig fuer Position der Kamera
         glLoadIdentity()
         gluLookAt(
-        cameraX, cameraY, cameraZ, # X, Y und Z Koordinaten der Kamera
-             0, -0.2, 0.2, # Punkt(XYZ) auf den die Kamera schaut.
-             0, 1, 0) # Definiert wo bei dieser Kamera "oben" ist.
+            camera[0], camera[1], camera[2],
+            gaze_target[0], gaze_target[1], gaze_target[2], 
+            camera_up[0], camera_up[1], camera_up[2] )
 
         # Ab hier wieder unverändert
         glPushMatrix()
         glRotatef(angle, 1, 2, 1) # Der Uebergebene Vektor sollte ein normalisierter Vektor sein. Wenn nicht wird er von OpenGL normalisiert.
-        Cube()
+        draw_pointer(colors, surfaces, edges)
         glPopMatrix()
-        draw_axes()
+        draw_axes(axes)
+        
         pygame.display.flip()
         pygame.time.wait(10)
-
-main()
