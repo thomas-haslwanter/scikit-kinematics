@@ -48,7 +48,6 @@ from os.path import expanduser, join
 #import skinematics as skin
 from mpl_toolkits.mplot3d import axes3d    
 import matplotlib.animation as animation
-import pygame
 
 # The following construct is required since I want to run the module as a script
 # inside the skinematics-directory
@@ -57,11 +56,175 @@ import sys
 sys.path.append( os.path.join( os.path.dirname(__file__), os.path.pardir ) ) 
 
 from skinematics import vector, quat
+from skinematics.sensors.xsens import XSens
+
+# For Orientation_Viewers
+import pygame
+import OpenGL.GL as gl
+import OpenGL.GLU as glu
+
 
 # List if plottable datatypes
 plottable = [np.ndarray, pd.core.frame.DataFrame, pd.core.series.Series]
 
-class Orientation_Viewer:
+class Orientation_Viewer_GL:
+    """Orientation viewer utilizing OpenGL"""
+        
+    def __init__(self, win_width = 800, win_height = 600, looping=False, quat_in=None):
+        '''Initialize the OpenGL-viewer'''
+        
+        # Camera
+        self.cam_pos = [0.2, 0.2, 0]
+        self.cam_target = [0, 0, -1]
+        self.cam_up = [0, 1, 0]
+        
+        # OpenGL to my convention
+        x = [1, 0, 0]
+        y = [0, 0, -1]
+        z = [0, 1, 0]
+        self.openGL2skin = np.column_stack( (x,y,z) )
+        
+        # Initialize the pygame grafics setup
+        pygame.init()
+        self.display = (win_width, win_height)
+        pygame.display.set_mode(self.display, pygame.DOUBLEBUF|pygame.OPENGL)
+
+        self.quat = quat_in
+        
+        self.run(looping)
+        
+    def define_elements(self):
+        '''Define the visual components'''
+        
+        # Define the pointer
+        delta = 0.01
+        self.vertices = (
+            (0, -0.2, delta),
+            (0, 0.2, delta),
+            (0.6, 0, delta),
+            (0, -0.2, -delta),
+            (0, 0.2, -delta),
+            (0.6, 0, -delta),
+            )
+        
+        self.edges = (
+            (0,1),
+            (0,2),
+            (0,3),
+            (1,2),
+            (1,4),
+            (2,5),
+            (3,4),
+            (3,5),
+            (4,5) )
+        
+        self.colors = (
+            (0.8,0,0),
+            (0.7,0.7,0.6),
+            (1,1,1) )
+        
+        self.surfaces = (
+            (0,1,2),
+            (3,4,5),
+            (0,1,3,4),
+            (1,4,2,5),
+            (0,3,2,5) )
+        
+        # Define the axes
+        self.axes_endpts = np.array(
+            [[-1,  0,  0],
+             [ 1,  0,  0],
+             [ 0, -1,  0],
+             [ 0,  1,  0],
+             [ 0,  0, -1],
+             [ 0,  0,  1]])
+        
+        self.axes = (
+            (0,1),
+            (2,3),
+            (4,5) )
+        
+    def draw_axes(self):
+        '''Draw the axes. '''
+        
+        gl.glBegin(gl.GL_LINES)
+        gl.glColor3fv(self.colors[2])
+        
+        # Here I have a difficulty with making the axes thicker
+        #glLineWidth(1.5)
+        
+        for line in self.axes:
+            for vertex in line:
+                gl.glVertex3fv(axes_endpts[vertex])
+                
+        gl.glEnd()
+    
+    def draw_pointer(self, vertices):
+        '''Draw the triangle that indicates 3D orientation.'''
+        
+        gl.glBegin(gl.GL_TRIANGLES)
+    
+        for (color, surface) in zip(self.colors[:2], self.surfaces[:2]):
+            for vertex in surface:
+                gl.glColor3fv(color)
+                gl.glVertex3fv(vertices[vertex])
+        gl.glEnd()
+    
+        gl.glBegin(gl.GL_LINES)
+        gl.glColor3fv(colors[2])
+        
+        for edge in self.edges:
+            for vertex in edge:
+                gl.glVertex3fv(vertices[vertex])
+        gl.glEnd()
+        
+    def run(self, looping):
+            
+        # Camera properties, e.g. focal length etc
+        gl.glMatrixMode(gl.GL_PROJECTION)
+        gl.glLoadIdentity()
+        
+        glu.gluPerspective(45, (self.display[0]/self.display[1]), 0.1, 50.0)
+        gl.glTranslatef(0.0,0.0, -3)
+    
+        counter = 0
+        while True:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    quit()
+                    
+            counter = np.mod(counter+1, quat.shape[0])
+            if not looping and counter == quat.shape[0]-1:
+                break
+            
+            gl.glClear(gl.GL_COLOR_BUFFER_BIT|gl.GL_DEPTH_BUFFER_BIT)
+            gl.glEnable(gl.GL_DEPTH_TEST)
+    
+            # Camera position
+            gl.glMatrixMode(gl.GL_MODELVIEW) 
+            gl.glLoadIdentity()
+            glu.gluLookAt(
+                camera[0], camera[1], camera[2],
+                gaze_target[0], gaze_target[1], gaze_target[2], 
+                camera_up[0], camera_up[1], camera_up[2] )
+    
+            # Scene elements
+            gl.glPushMatrix()
+            cur_corners = rotate_vector(vertices, quat[counter]) @ openGL2skin.T
+            #cur_corners = cur_corners * np.r_[1, 1, -1] # This seems to be required
+                        ##to get things right - but I don't understand OpenGL at this point
+            
+            draw_pointer(colors, surfaces, edges, cur_corners)
+            gl.glPopMatrix()
+            draw_axes(axes)
+            
+            pygame.display.flip()
+            pygame.time.wait(10)
+            
+class Orientation_Viewer_pygame:
+    '''While this one is nice and simple, I could never get the z-buffering to work'''
+    
     def __init__(self, win_width = 640, win_height = 480, quat_in=None):
         pygame.init()
 
@@ -96,6 +259,7 @@ class Orientation_Viewer:
         # Define colors for each face
         self.colors = [[255,255,255],
                        [255,  0,  0]]    
+        
 
     def project(self, p, win_width, win_height, fov, viewer_distance):
         """ Transforms this 3D point to 2D using a perspective projection.
@@ -897,8 +1061,6 @@ if __name__ == '__main__':
     duration = 2
     rate = 100
     q0 = [1, 0, 0, 0]
-    out_file = 'demo_patch.mp4'
-    title_text = 'Rotation Demo'
     
     ## Calculate the orientation
     dt = 1./rate
@@ -907,11 +1069,26 @@ if __name__ == '__main__':
     q = quat.calc_quat(omegas, q0, rate, 'sf')
         
     #orientation(q)
-    orientation(q, out_file=None, title_text='Well done!')
+    in_file = r'.\tests\data\data_xsens.txt'
+    from skinematics.sensors.xsens import XSens
+    data = XSens(in_file)
+    
+    out_file = 'demo_patch.mp4'
+    title_text = 'Rotation Demo'
+    
+    orientation(data.quat, out_file=None, title_text='Well done!')
 
-    '''
+    # Test pygame-viewer
     phi = np.arange(360)
     q = quat.deg2quat(np.column_stack((phi, np.zeros((len(phi), 2)))))
     
-    viewer = Orientation_Viewer(quat_in=q)
+    viewer = Orientation_Viewer_pygame(quat_in=q)
     viewer.run()
+    '''
+    
+    # Test OpenGL viewer:    
+    in_file = r'.\tests\data\data_xsens.txt'
+    from skinematics.sensors.xsens import XSens
+    data = XSens(in_file)
+    Orientation_Viewer_GL(quat_in=data.quat)
+    

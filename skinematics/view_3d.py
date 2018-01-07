@@ -124,7 +124,7 @@ if __name__ == '__main__':
     
     # OpenGL to my convention
     x = [1, 0, 0]
-    y = [0, 0, 1]
+    y = [0, 0, -1]
     z = [0, 1, 0]
     openGL2skin = np.column_stack( (x,y,z) )
     
