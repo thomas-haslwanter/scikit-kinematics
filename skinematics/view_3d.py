@@ -10,14 +10,13 @@ date:   Jan 2018
 
 import pygame
 import numpy as np
-from pygame.locals import *
 
-from OpenGL.GL import *
-from OpenGL.GLU import *
+import pygame
+import OpenGL.GL as gl
+import OpenGL.GLU as glu
 
 import numpy as np
 import pandas as pd
-#import abc
 
 # To ensure that the relative path works
 import os
@@ -25,17 +24,18 @@ import sys
 sys.path.append( os.path.join( os.path.dirname(__file__), os.path.pardir ) ) 
 
 from skinematics.sensors.xsens import XSens
+from skinematics.vector import rotate_vector
 
 def define_elements():
     # Define the elements
     delta = 0.01
-    verticies = (
-        (0, -0.2, -delta),
-        (0, 0.2, -delta),
-        (0.6, 0, -delta),
+    vertices = (
         (0, -0.2, delta),
         (0, 0.2, delta),
         (0.6, 0, delta),
+        (0, -0.2, -delta),
+        (0, 0.2, -delta),
+        (0.6, 0, -delta),
         )
     
     edges = (
@@ -74,66 +74,72 @@ def define_elements():
         (2,3),
         (4,5) )
     
-    return (verticies, surfaces, edges, colors, axes, axes_endpts)
+    return (vertices, surfaces, edges, colors, axes, axes_endpts)
 
 def draw_axes(axes):
     '''Draw the axes.
     Here I have a difficulty with making the axes thicker'''
     
-    glBegin(GL_LINES)
-    glColor3fv(colors[2])
+    gl.glBegin(gl.GL_LINES)
+    gl.glColor3fv(colors[2])
     #glLineWidth(1.5)
     
     for line in axes:
         for vertex in line:
-            glVertex3fv(axes_endpts[vertex])
+            gl.glVertex3fv(axes_endpts[vertex])
             
-    glEnd()
+    gl.glEnd()
 
-def draw_pointer(colors, surfaces, edges):
+def draw_pointer(colors, surfaces, edges, vertices):
     '''Draw the triangle that indicates 3D orientation'''
     
-    glBegin(GL_TRIANGLES)
+    gl.glBegin(gl.GL_TRIANGLES)
 
     for (color, surface) in zip(colors[:2], surfaces[:2]):
         for vertex in surface:
-            glColor3fv(color)
-            glVertex3fv(verticies[vertex])
-    glEnd()
+            gl.glColor3fv(color)
+            gl.glVertex3fv(vertices[vertex])
+    gl.glEnd()
 
-    glBegin(GL_LINES)
-    glColor3fv(colors[2])
+    gl.glBegin(gl.GL_LINES)
+    gl.glColor3fv(colors[2])
     
     for edge in edges:
         for vertex in edge:
-            glVertex3fv(verticies[vertex])
-    glEnd()
-
+            gl.glVertex3fv(vertices[vertex])
+    gl.glEnd()
+    
 
 if __name__ == '__main__':
     # Get the data
     my_sensor = XSens(in_file=r'.\tests\data\data_xsens.txt')
     
     # Define the plotting elements
-    verticies, surfaces, edges, colors, axes, axes_endpts = define_elements()
+    vertices, surfaces, edges, colors, axes, axes_endpts = define_elements()
     
     # Define the view-point (=camera_position) and the gaze_target
     camera = [0.2, 0.2, 0]
-    gaze_target = [0, -0.2, 0.2]
+    gaze_target = [0, 0, -1]
     camera_up = [0, 1, 0]
-
+    
+    # OpenGL to my convention
+    x = [1, 0, 0]
+    y = [0, 0, 1]
+    z = [0, 1, 0]
+    openGL2skin = np.column_stack( (x,y,z) )
+    
     pygame.init()
     display = (800,600)
-    pygame.display.set_mode(display, DOUBLEBUF|OPENGL)
+    pygame.display.set_mode(display, pygame.DOUBLEBUF|pygame.OPENGL)
 
     # Camera properties, e.g. focal length etc
-    glMatrixMode(GL_PROJECTION)
-    glLoadIdentity()
+    gl.glMatrixMode(gl.GL_PROJECTION)
+    gl.glLoadIdentity()
     
-    gluPerspective(45, (display[0]/display[1]), 0.1, 50.0)
-    glTranslatef(0.0,0.0, -5)
+    glu.gluPerspective(45, (display[0]/display[1]), 0.1, 50.0)
+    gl.glTranslatef(0.0,0.0, -3)
 
-    angle = 0
+    loop_index = 0
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -144,23 +150,31 @@ if __name__ == '__main__':
         # Re-set the projection-matrix from line 130??
         #glLoadIdentity() 
         
-        angle += 1
-        glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT)
-        glEnable(GL_DEPTH_TEST)
+        quat = my_sensor.quat
+        #quat = np.zeros( (1000, 3) )
+        #from positive_rotations import make_positive_rotations
+        #quat = make_positive_rotations()
+        loop_index = np.mod(loop_index+1, quat.shape[0])
+        
+        gl.glClear(gl.GL_COLOR_BUFFER_BIT|gl.GL_DEPTH_BUFFER_BIT)
+        gl.glEnable(gl.GL_DEPTH_TEST)
 
         # Camera position
-        glMatrixMode(GL_MODELVIEW) 
-        glLoadIdentity()
-        gluLookAt(
+        gl.glMatrixMode(gl.GL_MODELVIEW) 
+        gl.glLoadIdentity()
+        glu.gluLookAt(
             camera[0], camera[1], camera[2],
             gaze_target[0], gaze_target[1], gaze_target[2], 
             camera_up[0], camera_up[1], camera_up[2] )
 
         # Scene elements
-        glPushMatrix()
-        glRotatef(angle, 1, 2, 1) # Der Uebergebene Vektor sollte ein normalisierter Vektor sein. Wenn nicht wird er von OpenGL normalisiert.
-        draw_pointer(colors, surfaces, edges)
-        glPopMatrix()
+        gl.glPushMatrix()
+        cur_corners = rotate_vector(vertices, quat[loop_index]) @ openGL2skin.T
+        cur_corners = cur_corners * np.r_[1, 1, -1] # This seems to be required
+                    #to get things right - but I don't understand OpenGL at this point
+        
+        draw_pointer(colors, surfaces, edges, cur_corners)
+        gl.glPopMatrix()
         draw_axes(axes)
         
         pygame.display.flip()
