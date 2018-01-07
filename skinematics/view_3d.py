@@ -81,30 +81,32 @@ def draw_axes(axes):
     Here I have a difficulty with making the axes thicker'''
     
     glBegin(GL_LINES)
-    #glLineWidth(1.5)
     glColor3fv(colors[2])
+    #glLineWidth(1.5)
+    
     for line in axes:
         for vertex in line:
             glVertex3fv(axes_endpts[vertex])
+            
     glEnd()
 
 def draw_pointer(colors, surfaces, edges):
     '''Draw the triangle that indicates 3D orientation'''
+    
     glBegin(GL_TRIANGLES)
 
     for (color, surface) in zip(colors[:2], surfaces[:2]):
         for vertex in surface:
             glColor3fv(color)
             glVertex3fv(verticies[vertex])
-
     glEnd()
 
     glBegin(GL_LINES)
     glColor3fv(colors[2])
+    
     for edge in edges:
         for vertex in edge:
             glVertex3fv(verticies[vertex])
-
     glEnd()
 
 
@@ -124,10 +126,10 @@ if __name__ == '__main__':
     display = (800,600)
     pygame.display.set_mode(display, DOUBLEBUF|OPENGL)
 
-    # Geänderter Code
-    glMatrixMode(GL_PROJECTION) #Zuständig für Eigenschaften der Kamera z.B. Brennweite der Linse
+    # Camera properties, e.g. focal length etc
+    glMatrixMode(GL_PROJECTION)
     glLoadIdentity()
-    # Ab hier wieder unverändert
+    
     gluPerspective(45, (display[0]/display[1]), 0.1, 50.0)
     glTranslatef(0.0,0.0, -5)
 
@@ -138,20 +140,23 @@ if __name__ == '__main__':
                 pygame.quit()
                 quit()
 
-        glLoadIdentity() # Ich würde diese Zeile löschen, weil sie vermutlich die ab Zeile 124 eingestellte Projektionsmatrix zurücksetzen würde.
+                
+        # Re-set the projection-matrix from line 130??
+        #glLoadIdentity() 
+        
         angle += 1
         glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT)
         glEnable(GL_DEPTH_TEST)
 
-        # Geänderter Code
-        glMatrixMode(GL_MODELVIEW) # Unter anderem zuständig fuer Position der Kamera
+        # Camera position
+        glMatrixMode(GL_MODELVIEW) 
         glLoadIdentity()
         gluLookAt(
             camera[0], camera[1], camera[2],
             gaze_target[0], gaze_target[1], gaze_target[2], 
             camera_up[0], camera_up[1], camera_up[2] )
 
-        # Ab hier wieder unverändert
+        # Scene elements
         glPushMatrix()
         glRotatef(angle, 1, 2, 1) # Der Uebergebene Vektor sollte ein normalisierter Vektor sein. Wenn nicht wird er von OpenGL normalisiert.
         draw_pointer(colors, surfaces, edges)
