@@ -6,6 +6,8 @@ Data-Visualization
 Visualization of data:
     - ts : Interactive analysis of time-series data (1D and 3D).
     - orientation : Visualization of 3D orientations as animated triangle.
+    - Orientation_OGL : Much faster 3D orientation viewer, based
+                                  on OpenGL
 
 1-dimensional and 3-dimensional data can be viewed. It also allows to inspect the variables of the current workspace.
 
@@ -33,6 +35,14 @@ Functions
 
 .. toctree::
    :maxdepth: 2
+
+
+Class
+-----
+
+.. autosummary::
+    view.Orientation_OGL
+
 
 Details
 -------

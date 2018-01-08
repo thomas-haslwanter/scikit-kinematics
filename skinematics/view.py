@@ -56,7 +56,7 @@ import OpenGL.GLU as glu
 # List if plottable datatypes
 plottable = [np.ndarray, pd.core.frame.DataFrame, pd.core.series.Series]
 
-class Orientation_Viewer_GL:
+class Orientation_OGL:
     """Orientation viewer utilizing OpenGL"""
         
     def __init__(self, win_width = 800, win_height = 600, looping=False, quat_in=None):
@@ -979,5 +979,5 @@ if __name__ == '__main__':
     in_file = r'.\tests\data\data_xsens.txt'
     from skinematics.sensors.xsens import XSens
     data = XSens(in_file)
-    Orientation_Viewer_GL(quat_in=data.quat)
+    Orientation_OGL(quat_in=data.quat)
     
