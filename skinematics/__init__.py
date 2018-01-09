@@ -6,13 +6,13 @@ Compatible Python 3.
 
 Dependencies
 ------------
-numpy, scipy, matplotlib, pandas, sympy, libdeprecation
+numpy, scipy, matplotlib, pandas, sympy, pygame, pyOpenGL
 
 Homepage
 --------
 http://work.thaslwanter.at/skinematics/html/
 
-Copyright (c) 2017 Thomas Haslwanter <thomas.haslwanter@fh-linz.at>
+Copyright (c) 2018 Thomas Haslwanter <thomas.haslwanter@fh-linz.at>
 
 '''
 
@@ -20,7 +20,7 @@ import importlib
 
 __author__ = "Thomas Haslwanter <thomas.haslwanter@fh-linz.at"
 __license__ = "BSD 2-Clause License"
-__version__ = "0.6.9"
+__version__ = "0.7.0"
 
 __all__ = ['imus', 'markers', 'misc', 'quat', 'rotmat', 'vector', 'view', 'sensors']
 #__all__ = []

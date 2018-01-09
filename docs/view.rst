@@ -39,10 +39,11 @@ Functions
 
 Class
 -----
-
 .. autosummary::
     view.Orientation_OGL
 
+.. automodule:: view
+    :members:
 
 Details
 -------

@@ -57,9 +57,31 @@ import OpenGL.GLU as glu
 plottable = [np.ndarray, pd.core.frame.DataFrame, pd.core.series.Series]
 
 class Orientation_OGL:
-    """Orientation viewer utilizing OpenGL"""
+    """Orientation viewer utilizing OpenGL
+
+    In the "zero" orientation, the pointer indicating the 3D orientation
+    will point towards the lower right. In the display, the (x/y/z)-axes point
+    in the (lower_right/lower_left/up) direction, respectively.
+
+    Parameters
+    ----------
+    quat_in : (Nx3) or (Nx4) array
+            Quaternion containing the orientation
+    win_width : integer
+            Pixel-width of the display window.
+    win_height : integer
+            Pixel-height of the display window.
+    
+    Examples
+    --------
+    >>> in_file = r'.\tests\data\data_xsens.txt'
+    >>> from skinematics.sensors.xsens import XSens
+    >>> data = XSens(in_file)
+    >>> viewer = Orientation_OGL(quat_in=data.quat)
+    >>> viewer.run(looping=False, rate=100)
+    """
         
-    def __init__(self, win_width = 800, win_height = 600, looping=False, quat_in=None):
+    def __init__(self, quat_in=None, rate=50, looping=False, win_width = 800, win_height = 600):
         '''Initialize the OpenGL-viewer'''
         
         # Camera
@@ -81,8 +103,7 @@ class Orientation_OGL:
         self.define_elements()
         self.quat = quat_in
         
-        self.run(looping)
-        
+
     def define_elements(self):
         '''Define the visual components'''
         
@@ -149,6 +170,7 @@ class Orientation_OGL:
                 
         gl.glEnd()
     
+
     def draw_pointer(self, vertices):
         '''Draw the triangle that indicates 3D orientation.'''
         
@@ -168,9 +190,20 @@ class Orientation_OGL:
                 gl.glVertex3fv(vertices[vertex])
         gl.glEnd()
         
-    def run(self, looping):
-        '''Run the viewer'''
+
+    def run(self, rate=100, looping=True):
+        '''Run the viewer
+        
+        Parameters
+        ----------
+        rate : integer
+            Sample rate for the display [Hz]. Lower numbers result in slower display.
+        looping : boolean
+            If set to "True", the display will loop until the window is closed.
+        '''
             
+        dt = int(1/rate*1000)  # [msec]
+
         # Camera properties, e.g. focal length etc
         gl.glMatrixMode(gl.GL_PROJECTION)
         gl.glLoadIdentity()
@@ -211,7 +244,7 @@ class Orientation_OGL:
             self.draw_axes()
             
             pygame.display.flip()
-            pygame.time.wait(10)
+            pygame.time.wait(dt)
             
             
 def orientation(quats, out_file=None, title_text=None, deltaT=100):
@@ -818,9 +851,11 @@ class VarSelector():
     
         Analyze the current workspace for variables that can be plotted, and let the user select one.
         Variable types that can in principle be plotted are:
-            np.ndarray
-            pd.core.frame.DataFrame
-            pd.core.series.Series
+
+            - np.ndarray
+            - pd.core.frame.DataFrame
+            - pd.core.series.Series
+
         '''
 
     def __init__(self, selectionWindow,  mainApp):
@@ -979,5 +1014,6 @@ if __name__ == '__main__':
     in_file = r'.\tests\data\data_xsens.txt'
     from skinematics.sensors.xsens import XSens
     data = XSens(in_file)
-    Orientation_OGL(quat_in=data.quat)
+    viewer = Orientation_OGL(quat_in=data.quat)
+    viewer.run(looping=False, rate=100)
     

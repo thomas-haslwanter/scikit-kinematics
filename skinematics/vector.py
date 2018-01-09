@@ -80,6 +80,7 @@ def normalize(v):
         v = v.ravel()
     return (v.T/length).T
 
+
 def angle(v1,v2):
     '''Angle between two vectors
     
@@ -131,6 +132,7 @@ def angle(v1,v2):
         angle = np.arccos(list(map(np.dot, n1, n2)))
     return angle
  
+
 def project(v1,v2, projection_type='1D'):
     '''Project one vector onto another, or into the plane perpendicular to that vector.
     
@@ -138,7 +140,7 @@ def project(v1,v2, projection_type='1D'):
     ----------
     v1 : array (N,) or (M,N)
         projected vector
-    v2 : array (N,) or (M,N)
+    v2 : array (N,) or (M,N):
         target vector
     projection_type : scalar
         Has to be one of the following:
@@ -169,18 +171,18 @@ def project(v1,v2, projection_type='1D'):
     -----
 
     .. math::
-
         \\vec{n} = \\frac{ \\vec{a} }{| \\vec{a} |}
 
         \\vec{v}_{proj} = \\vec{n} (\\vec{v} \\cdot \\vec{n})
 
-        
-        \\ \mathbf{c}^{\rm{image}} = \mathbf{R} \cdot \mathbf{c}^{\rm{space}} + \mathbf{p}_{CS}
-    
-    * Note that the orientation of the 2D projection is not uniquely defined.
+        \\mathbf{c}^{\rm{image}} = \mathbf{R} \cdot \mathbf{c}^{\rm{space}} + \mathbf{p}_{CS}
+
+
+    *Note* that the orientation of the 2D projection is not uniquely defined.
     It is chosen here such that the y-axis points up, and one is "looking down"
     rather than "looking up".
-    
+
+
     '''
     
     v1 = np.atleast_2d(v1)
@@ -327,11 +329,6 @@ def plane_orientation(p0, p1, p2):
                         
 def q_shortest_rotation(v1,v2):
     '''Quaternion indicating the shortest rotation from one vector into another.
-    Deprecated. Use "q_shortest_rotation" instead.'''
-    return q_shortest_rotation(v1, v2)
-    
-def q_shortest_rotation(v1,v2):
-    '''Quaternion indicating the shortest rotation from one vector into another.
     You can read "qrotate" as either "quaternion rotate" or as "quick
     rotate".
     
@@ -380,6 +377,7 @@ def q_shortest_rotation(v1,v2):
         
     return q
     
+
 def rotate_vector(vector, q):
     '''
     Rotates a vector, according to the given quaternions.
@@ -435,6 +433,7 @@ def rotate_vector(vector, q):
         vRotated = vRotated.ravel()
 
     return vRotated
+
 
 def target2orient(target, orient_type='quat'):
     ''' Converts a target vector into a corresponding orientation.
