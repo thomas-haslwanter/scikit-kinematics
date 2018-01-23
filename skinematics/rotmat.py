@@ -402,7 +402,13 @@ def Rot_x(alpha):
     return Rot_x
 def Rot_x_s(alpha='alpha'):
     '''
+    Symbolic rotation matrix around the x axis
 
+
+
+    Returns
+    -------
+    R : symbolic matrix 4x4 for rotation along the x axis
     '''
     alpha = sympy.Symbol(alpha)
     Rot_x_s = sympy.Matrix(
