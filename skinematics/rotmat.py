@@ -232,7 +232,7 @@ def sequence(R, to ='Euler'):
 
 def Trans_z(d):
     '''
-    Transformation matrix for transformation along the z axis defined by the Denavit-Hartenberg convention.
+    Matrix for transformation along the z axis defined by the Denavit-Hartenberg convention.
 
     .. math::
         Trans_{z_{n-1}}(d_n)=\\left[\\begin{array}{ccc|c}
@@ -271,7 +271,7 @@ def Trans_z_s(d='d'):
     return Trans_z_s
 def Rot_z(theta):
     '''
-    Rotation matrix for rotation around the z axis defined by the Denavit-Hartenberg convention.
+    Matrix for rotation around the z axis defined by the Denavit-Hartenberg convention.
 
     .. math::
         Rot_{z_{n-1}}(\\theta_n)=\\left[{\\begin{array}{ccc|c}
@@ -302,7 +302,7 @@ def Rot_z(theta):
     return Rot_z
 def Rot_z_s(theta='theta'):
     '''
-    Symbolic rotation matrix about the z axis
+    Symbolic rotation matrix along the z axis defined by the Denavit-Hartenberg convention.
 
 
     Parameters
@@ -313,7 +313,7 @@ def Rot_z_s(theta='theta'):
 
     Returns
     -------
-    R : symbolic rotation matrix 4x4 for rotation about the z axis
+    R : symbolic rotation matrix 4x4 for rotation around the z axis
     '''
     theta = sympy.Symbol(theta)
     Rot_z_s =  sympy.Matrix(
@@ -324,7 +324,7 @@ def Rot_z_s(theta='theta'):
     return Rot_z_s
 def Trans_x(r):
     '''
-    Rotation matrix for rotation around the z axis defined by the Denavit-Hartenberg convention.
+    Matrix for transformation along the z axis defined by the Denavit-Hartenberg convention.
 
     .. math::
         Trans_{x_n}(r_n)
@@ -344,7 +344,7 @@ def Trans_x(r):
 
     Returns
     -------
-    R : transformation matrix 4x4, for transformation about the x axis
+    R :  matrix 4x4 for transformation about the x axis
     '''
     Trans_x = np.matrix(
                  [[1, 0, 0, r],
@@ -354,13 +354,13 @@ def Trans_x(r):
     return Trans_x
 def Trans_x_s(r='r'):
     '''
-    Symbolic transformation matrix along the x axis
+    Symbolic transformation matrix along the x axis defined by the Denavit-Hartenberg convention.
 
 
 
     Returns
     -------
-    R : symbolic transformation matrix 4x4 for transformation along the x axis
+    R : symbolic matrix 4x4 for transformation along the x axis defined by the Denavit-Hartenberg convention.
     '''
     r = sympy.Symbol(r)
     Trans_x_s = sympy.Matrix(
@@ -372,7 +372,7 @@ def Trans_x_s(r='r'):
 def Rot_x(alpha):
 
     '''
-    Rotation matrix for rotation around the z axis defined by the Denavit-Hartenberg convention.
+    Matrix for rotation around the z axis defined by the Denavit-Hartenberg convention.
 
     .. math::
         Rot_{x_n}(\\alpha_n)=\\left[{\\begin{array}{ccc|c}
@@ -391,7 +391,7 @@ def Rot_x(alpha):
 
     Returns
     -------
-    R : rotation matrix 4x4, for rotation about the z axis
+    R : Symbolic matrix 4x4 for rotation around the z axis
     '''
     a_rad = np.deg2rad(alpha)
     Rot_x = np.matrix(
@@ -402,13 +402,13 @@ def Rot_x(alpha):
     return Rot_x
 def Rot_x_s(alpha='alpha'):
     '''
-    Symbolic rotation matrix around the x axis
+    Symbolic rotation matrix around the x axis defined by the Denavit-Hartenberg convention.
 
 
 
     Returns
     -------
-    R : symbolic matrix 4x4 for rotation along the x axis
+    R :Symbolic matrix 4x4 for rotation around the x axis
     '''
     alpha = sympy.Symbol(alpha)
     Rot_x_s = sympy.Matrix(
@@ -493,6 +493,8 @@ def T_DH_s(theta='theta',d='d',r=0,alpha=0):
     '''
     Symbolic Denavit Hartenberg transformation and rotation matrix.
 
+
+    >>> T_DH_s('theta_1',60,0,0)*T_DH_s(0,88,71,90)*T_DH_s('theta_2',15,0,0)*T_DH_s(0,0,174,-180)*T_DH_s('theta_3',15,0,0)
 
     Returns
     -------
