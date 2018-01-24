@@ -230,7 +230,310 @@ def sequence(R, to ='Euler'):
     else:
         return np.column_stack( (gamma, beta, alpha) )
 
-    
+def Trans_z(d):
+    '''
+    Matrix for transformation along the z axis defined by the Denavit-Hartenberg convention.
+
+    .. math::
+        Trans_{z_{n-1}}(d_n)=\\left[\\begin{array}{ccc|c}
+        1 & 0 & 0 & 0 \\\\
+        0 & 1 & 0 & 0 \\\\
+        0 & 0 & 1 & d_n \\\\
+        \\hline
+        0 & 0 & 0 & 1
+        \\end{array}\\right]
+
+    Parameters
+    ----------
+    d : float
+        transformation along the z-axis
+
+
+    Returns
+    -------
+    R : transformation matrix 4*4 along the z axis.
+
+
+    '''
+    Trans_z = np.matrix(
+                 [[1, 0, 0, 0],
+                  [0, 1, 0, 0],
+                  [0, 0, 1, d],
+                  [0, 0, 0, 1]])
+    return Trans_z
+def Trans_z_s(d='d'):
+    d = sympy.Symbol(d)
+    Trans_z_s = sympy.Matrix(
+                 [[1, 0, 0, 0],
+                  [0, 1, 0, 0],
+                  [0, 0, 1, d],
+                  [0, 0, 0, 1]])
+    return Trans_z_s
+def Rot_z(theta):
+    '''
+    Matrix for rotation around the z axis defined by the Denavit-Hartenberg convention.
+
+    .. math::
+        Rot_{z_{n-1}}(\\theta_n)=\\left[{\\begin{array}{ccc|c}
+        \\cos\\theta_n & -\\sin\\theta_n & 0 & 0 \\\\
+        \\sin\\theta_n &  \\cos\\theta_n & 0 & 0 \\\\
+        0 & 0 & 1 & 0 \\\\
+        \\hline
+        0 & 0 & 0 & 1
+        \\end{array}}\\right]
+
+    Parameters
+    ----------
+    theta : float
+            rotation angle [deg]
+
+
+    Returns
+    -------
+    R : rotation matrix 4x4, for rotation about the z axis
+    '''
+
+    t_rad = np.deg2rad(theta)
+    Rot_z = np.matrix(
+                 [[np.cos(t_rad), -np.sin(t_rad), 0, 0],
+                  [np.sin(t_rad), np.cos(t_rad), 0, 0],
+                  [0,               0,          1, 0],
+                  [0,               0,          0, 1]])
+    return Rot_z
+def Rot_z_s(theta='theta'):
+    '''
+    Symbolic rotation matrix along the z axis defined by the Denavit-Hartenberg convention.
+
+
+    Parameters
+    ----------
+    theta : float
+            rotation angle [deg]
+
+
+    Returns
+    -------
+    R : symbolic rotation matrix 4x4 for rotation around the z axis
+    '''
+    theta = sympy.Symbol(theta)
+    Rot_z_s =  sympy.Matrix(
+                 [[sympy.cos(theta), -sympy.sin(theta), 0, 0],
+                  [sympy.sin(theta), sympy.cos(theta), 0, 0],
+                  [0,               0,          1, 0],
+                  [0,               0,          0, 1]])
+    return Rot_z_s
+def Trans_x(r):
+    '''
+    Matrix for transformation along the z axis defined by the Denavit-Hartenberg convention.
+
+    .. math::
+        Trans_{x_n}(r_n)
+        =\\left[{\\begin{array}{ccc|c}
+        1 & 0 & 0 & r_n \\\\
+        0 & 1 & 0 & 0 \\\\
+        0 & 0 & 1 & 0 \\\\
+        \\hline
+        0 & 0 & 0 & 1
+        \\end{array}}\\right]
+
+    Parameters
+    ----------
+    r : float
+        transformation distance
+
+
+    Returns
+    -------
+    R :  matrix 4x4 for transformation about the x axis
+    '''
+    Trans_x = np.matrix(
+                 [[1, 0, 0, r],
+                  [0, 1, 0, 0],
+                  [0, 0, 1, 0],
+                  [0, 0, 0, 1]])
+    return Trans_x
+def Trans_x_s(r='r'):
+    '''
+    Symbolic transformation matrix along the x axis defined by the Denavit-Hartenberg convention.
+
+
+
+    Returns
+    -------
+    R : symbolic matrix 4x4 for transformation along the x axis defined by the Denavit-Hartenberg convention.
+    '''
+    r = sympy.Symbol(r)
+    Trans_x_s = sympy.Matrix(
+                 [[1, 0, 0, r],
+                  [0, 1, 0, 0],
+                  [0, 0, 1, 0],
+                  [0, 0, 0, 1]])
+    return Trans_x_s
+def Rot_x(alpha):
+
+    '''
+    Matrix for rotation around the z axis defined by the Denavit-Hartenberg convention.
+
+    .. math::
+        Rot_{x_n}(\\alpha_n)=\\left[{\\begin{array}{ccc|c}
+        1 & 0 & 0 & 0 \\\\
+        0 & \\cos\\alpha_n & -\\sin\\alpha_n & 0 \\\\
+        0 & \\sin\\alpha_n & \\cos\\alpha_n & 0 \\\\
+        \\hline
+        0 & 0 & 0 & 1
+        \\end{array}}\\right]
+
+    Parameters
+    ----------
+    alpha : float
+            rotation angle [deg]
+
+
+    Returns
+    -------
+    R : Symbolic matrix 4x4 for rotation around the z axis
+    '''
+    a_rad = np.deg2rad(alpha)
+    Rot_x = np.matrix(
+                 [[1, 0, 0, 0],
+                  [0,np.cos(a_rad), -np.sin(a_rad), 0],
+                  [0,np.sin(a_rad), np.cos(a_rad), 0],
+                  [0, 0, 0, 1]])
+    return Rot_x
+def Rot_x_s(alpha='alpha'):
+    '''
+    Symbolic rotation matrix around the x axis defined by the Denavit-Hartenberg convention.
+
+
+
+    Returns
+    -------
+    R :Symbolic matrix 4x4 for rotation around the x axis
+    '''
+    alpha = sympy.Symbol(alpha)
+    Rot_x_s = sympy.Matrix(
+                 [[1, 0, 0, 0],
+                  [0,sympy.cos(alpha), -sympy.sin(alpha), 0],
+                  [0,sympy.sin(alpha), sympy.cos(alpha), 0],
+                  [0, 0, 0, 1]])
+    return Rot_x_s
+
+
+def T_DH(theta,d,r,alpha):
+    '''
+    Denavit Hartenberg transformation and rotation matrix.
+
+
+    .. math::
+        T_n^{n - 1}= {Trans}_{z_{n - 1}}(d_n)
+        \\cdot {Rot}_{z_{n - 1}}(\\theta_n) \\cdot {Trans}_{x_n}(r_n) \\cdot {Rot}_{x_n}(\\alpha_n)
+
+
+    .. math::
+        T_n=\\left[\\begin{array}{ccc|c}
+        \\cos\\theta_n & -\\sin\\theta_n \\cos\\alpha_n & \\sin\\theta_n \\sin\\alpha_n & r_n\\cos\\theta_n \\\\
+        \\sin\\theta_n & \\cos\\theta_n \\cos\\alpha_n & -\\cos\\theta_n \\sin\\alpha_n & r_n \\sin\\theta_n \\\\
+        0 & \\sin\\alpha_n & \\cos\\alpha_n & d_n \\\\
+        \\hline
+        0 & 0 & 0 & 1
+        \\end{array}
+        \\right] =\\left[\\begin{array}{ccc|c}
+        & & & \\\\
+        & R & & T \\\\
+        & & & \\\\
+        \\hline
+        0 & 0 & 0 & 1
+        \\end{array}\\right]
+
+
+    Examples
+    --------
+
+    >>> theta_1=90.0
+    >>> theta_2=90.0
+    >>> theta_2=0.
+    >>> T_DH(theta_1,60,0,0)*T_DH(0,88,71,90)*T_DH(theta_2,15,0,0)*T_DH(0,0,174,-180)*T_DH(theta_3,15,0,0)
+    [[-6.12323400e-17 -6.12323400e-17 -1.00000000e+00 -7.10542736e-15],
+    [ 6.12323400e-17  1.00000000e+00 -6.12323400e-17  7.10000000e+01],
+    [  1.00000000e+00 -6.12323400e-17 -6.12323400e-17  3.22000000e+02],
+    [ 0.00000000e+00  0.00000000e+00  0.00000000e+00  1.00000000e+00]]
+
+    Parameters
+    ----------
+    theta : float
+        rotation angle z axis [deg]
+
+    d : float
+        transformation along the z-axis
+
+    alpha : float
+        rotation angle x axis [deg]
+
+    r : float
+        transformation along the x-axis
+
+
+    Returns
+    -------
+    R : rotation and transformation matrix 4x4
+
+    '''
+    a_rad = np.deg2rad(alpha)
+    t_rad = np.deg2rad(theta)
+    T_DH =np.matrix(
+     [[np.cos(t_rad), -np.sin(t_rad)*np.cos(a_rad), np.sin(a_rad)*np.sin(t_rad), r*np.cos(t_rad)],
+     [np.sin(t_rad), np.cos(a_rad)*np.cos(t_rad), -np.sin(a_rad)*np.cos(t_rad), r*np.sin(t_rad)],
+     [0, np.sin(a_rad), np.cos(a_rad), d],
+     [0, 0, 0, 1]])
+    return T_DH
+
+    #return Rot_z(theta)*Trans_z(d)*Trans_x(r)*Rot_x(alpha)
+
+def T_DH_s(theta='theta',d='d',r=0,alpha=0):
+    '''
+    Symbolic Denavit Hartenberg transformation and rotation matrix.
+
+
+    >>> T_DH_s('theta_1',60,0,0)*T_DH_s(0,88,71,90)*T_DH_s('theta_2',15,0,0)*T_DH_s(0,0,174,-180)*T_DH_s('theta_3',15,0,0)
+
+    Returns
+    -------
+    R : Symbolic rotation and transformation  matrix 4x4
+    '''
+
+    a_rad = np.deg2rad(alpha)
+
+    if type(theta) != type('theta') and type(d) != type('d'):
+        t_rad = np.deg2rad(theta)
+
+        T_DH_s= np.matrix(
+         [[np.cos(t_rad), -np.sin(t_rad)*np.cos(a_rad), np.sin(a_rad)*np.sin(t_rad), r*np.cos(t_rad)],
+         [np.sin(t_rad), np.cos(a_rad)*np.cos(t_rad), -np.sin(a_rad)*np.cos(t_rad), r*np.sin(t_rad)],
+         [0, np.sin(a_rad), np.cos(a_rad), d],
+         [0, 0, 0, 1]])
+    elif type(theta) == type('theta') and type(d) != type('d'):
+        T_DH_s= sympy.Matrix(
+         [[sympy.cos(theta), -sympy.sin(theta)*np.cos(a_rad), np.sin(a_rad)*sympy.sin(theta), r*sympy.cos(theta)],
+         [sympy.sin(theta), np.cos(a_rad)*sympy.cos(theta), -np.sin(a_rad)*sympy.cos(theta), r*sympy.sin(theta)],
+         [0, np.sin(a_rad), np.cos(a_rad), d],
+         [0, 0, 0, 1]])
+    elif type(theta) == type('theta') and type(d) == type('d'):
+        T_DH_s= sympy.Matrix(
+         [[sympy.cos(theta), -sympy.sin(theta)*np.cos(a_rad), np.sin(a_rad)*sympy.sin(theta), r*sympy.cos(theta)],
+         [sympy.sin(theta), np.cos(a_rad)*sympy.cos(theta), -np.sin(a_rad)*sympy.cos(theta), r*sympy.sin(theta)],
+         [0, np.sin(a_rad), np.cos(a_rad), d],
+         [0, 0, 0, 1]])
+    elif type(theta) != type('theta') and type(d) == type('d'):
+        t_rad = np.deg2rad(theta)
+        T_DH_s= sympy.Matrix(
+         [[np.cos(t_rad), -np.sin(t_rad)*np.cos(a_rad), np.sin(a_rad)*np.sin(t_rad), r*np.cos(t_rad)],
+         [np.sin(t_rad), np.cos(a_rad)*np.cos(t_rad), -np.sin(a_rad)*np.cos(t_rad), r*np.sin(t_rad)],
+         [0, np.sin(a_rad), np.cos(a_rad), d],
+         [0, 0, 0, 1]])
+    return T_DH_s
+
+
+
 def convert(rMat, to ='quat'):
     '''
     Converts a rotation matrix to the corresponding quaternion.
