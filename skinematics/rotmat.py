@@ -691,6 +691,12 @@ def seq2quat(rot_angles, seq='nautical'):
     return quats
         
 
+def stm(axis, angle, translation):
+    """Spatial Transformation Matrix"""
+    stm = np.diag([0,0,0,0.1])
+    stm[:-1,:-1] = R(axis, angle)
+    stm[:-1,:3] = translation
+    
 if __name__ == '__main__':
     angles = np.r_[20, 0, 0]
     quat = seq2quat(angles)
