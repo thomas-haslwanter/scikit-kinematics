@@ -4,8 +4,6 @@ Test import data saved with Polulu-sensors, through subclassing "IMU_Base"
 
 '''
 Author: Thomas Haslwanter
-Version: 0.1
-Date: Sept-2017
 '''
 
 import sys
@@ -20,7 +18,7 @@ from sensors.polulu import Polulu
 
 class TestSequenceFunctions(unittest.TestCase):
     
-    def test_import_yei(self):
+    def test_import_polulu(self):
         # Get data, with a specified input from a Polulu system
         in_data = {'rate':125}
         in_file = os.path.join(myPath, 'data', 'data_polulu.txt')

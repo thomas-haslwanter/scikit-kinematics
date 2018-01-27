@@ -12,8 +12,7 @@ Miscellaneous user interface utilities for
 '''
 
 '''
-ThH, April 2016
-Ver 1.0
+author: Thomas Haslwanter
 '''
 
 import matplotlib.pyplot as plt
@@ -21,14 +20,8 @@ import os
 import sys
 from scipy.signal import savgol_filter
 
-if sys.version_info.major == 3:
-    # Python 3.x
-    import tkinter as tk
-    import tkinter.filedialog as tkf
-else:
-    # Python 2.x
-    import Tkinter as tk
-    import tkFileDialog as tkf
+import tkinter as tk
+import tkinter.filedialog as tkf
     
 def get_screensize():
     '''
@@ -53,7 +46,7 @@ def get_screensize():
     
     try:
         # Use the methods form PyQt first, since tk gave me some strange error messages sometimes
-        from PyQt4 import QtGui
+        from PyQt5 import QtGui
         import sys
         
         MyApp = QtGui.QApplication(sys.argv)
@@ -62,7 +55,7 @@ def get_screensize():
         screen_w = V.width()    
     
     except ImportError:
-        # If PyQt4 is not available
+        # If PyQt5 is not available
         root = tk.Tk()
         (screen_w, screen_h) = (root.winfo_screenwidth(), root.winfo_screenheight())
         root.destroy()
