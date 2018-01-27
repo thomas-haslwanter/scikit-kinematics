@@ -11,7 +11,7 @@ setup(
     # Project uses reStructuredText, so ensure that the docutils get
     # installed or upgraded on the target machine
     install_requires=['docutils>=0.3', 'matplotlib>=2.0', 'numpy>=1.13.0',
-                     'pandas>=0.18', 'sympy>=1.0', 'scipy>=0.18',
+                     'pandas>=0.18', 'sympy>=1.0', 'scipy>=0.18', 'pygame',
                      'PyOpenGL>3.0.0'],
                      #'libdeprecation>=1.0',
 
