@@ -20,7 +20,7 @@ import os
 import sys
 from scipy.signal import savgol_filter
 
-import tkinter as tk
+import tkinter 
 import tkinter.filedialog as tkf
     
 def get_screensize():
@@ -44,7 +44,7 @@ def get_screensize():
     
     '''
     
-    root = tk.Tk()
+    root = tkinter.Tk()
     (screen_w, screen_h) = (root.winfo_screenwidth(), root.winfo_screenheight())
     root.destroy()
 
@@ -115,7 +115,7 @@ def get_file(FilterSpec='*', DialogTitle='Select File: ', DefaultName=''):
     
     '''
     
-    root = tk.Tk()
+    root = tkinter.Tk()
     root.withdraw()
     fullInFile = tkf.askopenfilename(initialfile=DefaultName,
             title=DialogTitle, filetypes=[('all files','*'), ('Select',
@@ -160,7 +160,7 @@ def save_file(FilterSpec='*',DialogTitle='Save File: ', DefaultName=''):
 
     '''
     
-    root = tk.Tk()
+    root = tkinter.Tk()
     root.withdraw()
     outFile = tkf.asksaveasfile(mode='w', title=DialogTitle, initialfile=DefaultName, filetypes=[('Save as', FilterSpec)])
     
@@ -200,7 +200,7 @@ def get_dir(DialogTitle='Select Directory', DefaultName='.'):
     
     '''
     
-    root = tk.Tk()
+    root = tkinter.Tk()
     root.withdraw()
     fullDir = tkf.askdirectory(initialdir=DefaultName, title=DialogTitle)
     
@@ -265,7 +265,7 @@ if __name__ == "__main__":
     print(selName)
     print(selVal)
     
-    root = tk.Tk()
+    root = tkinter.Tk()
     app = Demo1(root, sys._getframe())
     root.mainloop()
 
