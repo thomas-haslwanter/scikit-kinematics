@@ -50,11 +50,15 @@ def get_screensize():
     
     '''
     
-    root = tkinter.Tk()
-    (screen_w, screen_h) = (root.winfo_screenwidth(), root.winfo_screenheight())
-    root.destroy()
-
-    return (screen_w, screen_h)
+    try:
+        root = tkinter.Tk()
+        (screen_w, screen_h) = (root.winfo_screenwidth(), root.winfo_screenheight())
+        root.destroy()
+    
+        return (screen_w, screen_h)
+    except tkinter.TclError:
+        print('No display available!')
+        return (0, 0)
     
 def progressbar(it, prefix = "", size = 60):
     '''
@@ -218,6 +222,7 @@ def get_dir(DialogTitle='Select Directory', DefaultName='.'):
     else:
         print('Selection: ' + fullDir)
         return fullDir
+    
 if __name__ == "__main__":   
     # Test functions
     
