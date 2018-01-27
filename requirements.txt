@@ -6,4 +6,3 @@ pygame
 sympy
 scipy
 PyOpenGL
-tkinter
