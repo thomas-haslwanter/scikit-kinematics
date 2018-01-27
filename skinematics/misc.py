@@ -16,11 +16,13 @@ author: Thomas Haslwanter
 '''
 
 import matplotlib
-# Otherwise I get problems with tkinter on the TravisCI-server
-matplotlib.use('Agg')
+import os
+#if os.environ.get('DISPLAY','') == '':
+    #print('No display found. Using non-interactive Agg backend')
+    #matplotlib.use('Agg')
     
 import matplotlib.pyplot as plt
-import os
+plt.switch_backend('agg')
 import sys
 from scipy.signal import savgol_filter
 
@@ -222,6 +224,7 @@ if __name__ == "__main__":
     width, height = get_screensize()
     print('Your screen is {0} x {1} pixels.'.format(width, height))
     
+    '''
     #import time
     #for ii in progressbar(range(50), 'Computing ', 25):
         ##print(ii)
@@ -238,7 +241,6 @@ if __name__ == "__main__":
     myDir = get_dir()
     print(myDir)
 
-    '''
     
     items = ['Peter', 'Paul', 'Mary']    
     selected = listbox(items*4)
