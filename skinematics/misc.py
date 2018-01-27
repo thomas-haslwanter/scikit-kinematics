@@ -15,6 +15,10 @@ Miscellaneous user interface utilities for
 author: Thomas Haslwanter
 '''
 
+import matplotlib
+# Otherwise I get problems with tkinter on the TravisCI-server
+matplotlib.use('Agg')
+    
 import matplotlib.pyplot as plt
 import os
 import sys
