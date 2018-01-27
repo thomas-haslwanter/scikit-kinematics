@@ -41,25 +41,13 @@ def get_screensize():
     Examples
     --------
     >>> (width, height) = skinematics.ui.get_screensize()
+    
     '''
     
-    
-    try:
-        # Use the methods form PyQt first, since tk gave me some strange error messages sometimes
-        from PyQt5 import QtGui
-        import sys
-        
-        MyApp = QtGui.QApplication(sys.argv)
-        V = MyApp.desktop().screenGeometry()
-        screen_h = V.height()
-        screen_w = V.width()    
-    
-    except ImportError:
-        # If PyQt5 is not available
-        root = tk.Tk()
-        (screen_w, screen_h) = (root.winfo_screenwidth(), root.winfo_screenheight())
-        root.destroy()
-    
+    root = tk.Tk()
+    (screen_w, screen_h) = (root.winfo_screenwidth(), root.winfo_screenheight())
+    root.destroy()
+
     return (screen_w, screen_h)
     
 def progressbar(it, prefix = "", size = 60):
