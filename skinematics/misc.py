@@ -15,14 +15,10 @@ Miscellaneous user interface utilities for
 author: Thomas Haslwanter
 '''
 
-import matplotlib
 import os
-#if os.environ.get('DISPLAY','') == '':
-    #print('No display found. Using non-interactive Agg backend')
-    #matplotlib.use('Agg')
-    
 import matplotlib.pyplot as plt
-plt.switch_backend('agg')
+#plt.switch_backend('agg')
+
 import sys
 from scipy.signal import savgol_filter
 
