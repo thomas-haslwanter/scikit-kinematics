@@ -26,6 +26,12 @@ For example, you can e.g. generate a Fick-matrix, with
 .. toctree::
    :maxdepth: 2
 
+Spatial Transformation Matrices
+-------------------------------
+
+* :func:`rotmat.stm` ... spatial transformation matrix, for combined rotations/translations
+* :func:`rotmat.stm_s()` ... symbolix spatial transformation matrix
+
 Details
 -------
 

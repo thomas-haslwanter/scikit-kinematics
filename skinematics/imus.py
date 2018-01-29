@@ -1,16 +1,24 @@
-'''
-Abstract base class for analyzing movements recordings with inertial measurement units (IMUs)
+"""
+This file contains the abstract base class "IMU_Base" for analyzing movements
+recordings with inertial measurement units (IMUs), as well as functions and
+classes for the evaluation of IMU-data..
 
-The advantage of this approach is that it allows to write code that is independent of the IMU-sensor. All IMUs provide acceleration and angular velocities, and most of them also the direction of the local magnetic field. The specifics of each sensor are hidden in the sensor-object (specifically, in the "get\_data" method which has to be implemented once for each sensor). Initialization of a sensor object includes a number of activities:
+The advantage of using an "abstract base class" is that it allows to write
+code that is independent of the IMU-sensor. All IMUs provide acceleration
+and angular velocities, and most of them also the direction of the local
+magnetic field. The specifics of each sensor are hidden in the sensor-object
+(specifically, in the "get\_data" method which has to be implemented once
+for each sensor). Initialization of a sensor object includes a number of
+activities:
+
         - Reading in the data.
         - Making acceleration, angular\_velocity etc. accessible in a sensor-independent way
         - Calculating duration, totalSamples, etc.
         - Calculating orientation (expressed as "quat"), with the method specified in "q\_type"
-'''
 
-'''
-Author: Thomas Haslwanter
-'''
+"""
+
+#Author: Thomas Haslwanter
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -293,6 +301,7 @@ class IMU_Base(metaclass=abc.ABCMeta):
 
         self.quat = quaternion
 
+
     def calc_position(self):
         '''Calculate the position, assuming that the orientation is already known.'''
 
@@ -329,6 +338,7 @@ class IMU_Base(metaclass=abc.ABCMeta):
         self.totalSamples = len(self.omega)
         self.duration = np.float(self.totalSamples)/self.rate # [sec]
         self.dataType = str(self.omega.dtype)
+
 
 def analytical(R_initialOrientation=np.eye(3),
                omega=np.zeros((5,3)),

@@ -116,7 +116,9 @@ def angle(v1,v2):
         \\alpha =arccos(\\frac{\\vec{v_1} \\cdot \\vec{v_2}}{| \\vec{v_1} |
         \\cdot | \\vec{v_2}|})
 
+
     '''
+
     
     # make sure lists are handled correctly
     v1 = np.array(v1)
@@ -148,6 +150,7 @@ def project(v1,v2, projection_type='1D'):
         - 1D ... projection onto a vector (Default)
         - 2D ... projection into the plane perpendicular to that vector
 
+
     Returns
     -------
     v_projected : array (N,) or (M,N)
@@ -175,13 +178,12 @@ def project(v1,v2, projection_type='1D'):
 
         \\vec{v}_{proj} = \\vec{n} (\\vec{v} \\cdot \\vec{n})
 
-        \\mathbf{c}^{\rm{image}} = \mathbf{R} \cdot \mathbf{c}^{\rm{space}} + \mathbf{p}_{CS}
-
+        \\mathbf{c}^{image} = \mathbf{R} \cdot \mathbf{c}^{space} + \mathbf{p}_{CS}
 
     *Note* that the orientation of the 2D projection is not uniquely defined.
     It is chosen here such that the y-axis points up, and one is "looking down"
     rather than "looking up".
-
+    
 
     '''
     

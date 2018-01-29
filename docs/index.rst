@@ -96,9 +96,9 @@ Modules
 .. toctree::
    :maxdepth: 2
 
+   imus
    quat
    rotmat
-   imus
    markers
    vector
    view
@@ -113,7 +113,7 @@ Indices and tables
 
 .. note::
     | *Author:*     Thomas Haslwanter
-    | *Version:*    0.7.0
+    | *Version:*    0.7.1
     | *Date:*       Jan 2018
     | *email:*      thomas.haslwanter@fh-linz.at
     | *Copyright (c):*      2017, Thomas Haslwanter. All rights reserved.

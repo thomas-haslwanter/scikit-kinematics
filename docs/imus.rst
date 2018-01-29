@@ -1,4 +1,4 @@
-.. _imus-label:
+.. _inertial-label:
 
 IMUs
 ====
@@ -38,6 +38,31 @@ provide:
 Data are read in, and by default the orientation is automatically calculated
 based on the parameter "q_type" and using the function _calc_orientation.
 
+Base-Class & Methods
+--------------------
+
+.. autosummary::
+    imus.IMU_Base
+    imus.IMU_Base.calc_position
+    imus.IMU_Base.get_data
+
+Classes and Functions for Sensor-Integration
+--------------------------------------------
+
+* :func:`imus.analytical` ... Calculate orientation and position analytically from angular velocity and linear acceleration 
+* :func:`imus.kalman` ... Calculate orientation from IMU-data using an Extended Kalman Filter
+
+.. autosummary::
+    imus.Mahony
+    imus.Madgwick
+
+Details
+-------
+
+.. automodule:: imus
+    :members:
+
+
 Sub-classing IMU-Base for your own sensor type
 ----------------------------------------------
 If you have your own data format, you have to implement the corresponding
@@ -47,53 +72,26 @@ If you have your own data format, you have to implement the corresponding
 * "polulu.py" ... if you have to manually enter data not stored by your program
 * "xio.py" ... if your data are stored in multiple files
 
-Class
------
-.. autosummary::
-    imus.IMU_Base
-
-.. automodule:: imus
-    :members:
-
-
-Methods
-^^^^^^^
-.. autosummary::
-    imus.IMU_Base.calc_position
-    imus.IMU_Base.get_data
-
-.. toctree::
-   :maxdepth: 2
-
-Classes for Sensor-Integration
-------------------------------
-.. autosummary::
-    imus.Mahony
-    imus.Madgwick
-
-Functions
----------
-
-Data-Analysis
-^^^^^^^^^^^^^
-* :func:`imus.analytical` ... Calculate orientation and position analytically from angular velocity and linear acceleration 
-* :func:`imus.kalman` ... Calculate orientation from IMU-data using an Extended Kalman Filter
-
-.. toctree::
-   :maxdepth: 2
-
 Existing Sensor Implementations
 -------------------------------
 
+XIO
+^^^
 .. automodule:: sensors.xio
     :members:
 
+XSens
+^^^^^
 .. automodule:: sensors.xsens
     :members:
 
+YEI
+^^^
 .. automodule:: sensors.yei
     :members:
 
+Polulu
+^^^^^^
 .. automodule:: sensors.polulu
     :members:
 
