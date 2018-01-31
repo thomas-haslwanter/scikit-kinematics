@@ -62,10 +62,6 @@ The simplest way to install *skinematics* is a two-step process
 
 >>> pip install scikit-kinematics
 
-For upgrading to the latest version, you have to type
-
->>> pip install scikit-kinematics -U
-
 However, you can also install from the source files. To do this, just go to
 the root directory of the package, and type
 
@@ -75,6 +71,18 @@ the root directory of the package, and type
 *Python* with:
 
 >>> import skinematics as skin
+
+Upgrading
+---------
+
+For upgrading to the latest version, you have to type
+
+>>> pip install --upgrade --no-deps scikit-kinematics 
+
+**Warning**: Do **not** use *pip install scikit-kinematics -U*, since that
+command also upgrades dependencies such as numpy. This can break e.g.
+WinPython, since the numpy-version including MKL may be replaced by one
+without MKL.
 
 Dependencies
 ^^^^^^^^^^^^
@@ -113,7 +121,7 @@ Indices and tables
 
 .. note::
     | *Author:*     Thomas Haslwanter
-    | *Version:*    0.7.1
+    | *Version:*    0.7.3
     | *Date:*       Jan 2018
     | *email:*      thomas.haslwanter@fh-linz.at
     | *Copyright (c):*      2017, Thomas Haslwanter. All rights reserved.

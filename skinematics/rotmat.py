@@ -25,14 +25,14 @@ from skinematics import quat
 #import warnings
 #warnings.simplefilter('always', DeprecationWarning)
 
-def stm(axis=0, alpha=0, translation=[0, 0, 0]):
+def stm(axis=0, angle=0, translation=[0, 0, 0]):
     """Spatial Transformation Matrix
     
     Parameters
     ----------
     axis : skalar
             Axis of rotation, has to be 0, 1, or 2
-    alpha : float
+    angle : float
             rotation angle [deg]
     translation : 3x1 ndarray
             3D-translation vector
@@ -45,21 +45,21 @@ def stm(axis=0, alpha=0, translation=[0, 0, 0]):
 
     Examples
     --------
-    >>> rotmat.stm(axis=0, alpha=45, translation=[1,2,3.3])
+    >>> rotmat.stm(axis=0, angle=45, translation=[1,2,3.3])
     array([[ 1.        ,  0.        ,  0.        ,  1.        ],
            [ 0.        ,  0.70710678, -0.70710678,  2.        ],
            [ 0.        ,  0.70710678,  0.70710678,  3.3       ],
            [ 0.        ,  0.        ,  0.        ,  1.        ]])
-    >>> R_z = rotmat.stm(axis=2, alpha=30)
+    >>> R_z = rotmat.stm(axis=2, angle=30)
     >>> T_y = rotmat.stm(translation=[0, 10, 0)
     
     """
     stm = np.eye(4)
-    stm[:-1,:-1] = R(axis, alpha)
+    stm[:-1,:-1] = R(axis, angle)
     stm[:3,-1] = translation
     return stm
 
-def stm_s(axis=0, angle='alpha', transl='x,y,z'):
+def stm_s(axis=0, angle='0', transl='0,0,0'):
     '''
     Symbolic spatial transformation matrix about the given axis, by an angle with
     the given name, and translation by the given distances.
@@ -69,10 +69,12 @@ def stm_s(axis=0, angle='alpha', transl='x,y,z'):
     axis : skalar
             Axis of rotation, has to be 0, 1, or 2.
     alpha : string
-            Name of rotation angle, or '0' for no rotation.
+            Name of rotation angle, or '0' for no rotation,
+            'alpha', 'theta', etc. for a symbolic rotation.
     transl : string
             Has to contain three names, for the three translation distances.
-            '0,0,0' for no translation.
+            '0,0,0' would correspond to no translation, and
+            'x,y,z' to an arbitrary translation.
 
 
     Returns
@@ -89,7 +91,7 @@ def stm_s(axis=0, angle='alpha', transl='x,y,z'):
     '''
     
     # Default is the unit matrix
-    STM_s = sympy.Matrix(sympy.diag(1,1,1,1))
+    STM_s = sympy.eye(4)
     
     if angle != '0':
         STM_s[:3,:3] = R_s(axis, angle)
@@ -318,11 +320,10 @@ def sequence(R, to ='Euler'):
     else:
         return np.column_stack( (gamma, beta, alpha) )
 
-
-def T_DH(theta,d,r,alpha):
+    
+def dh(theta=0, d=0, r=0, alpha=0):
     '''
     Denavit Hartenberg transformation and rotation matrix.
-
 
     .. math::
         T_n^{n - 1}= {Trans}_{z_{n - 1}}(d_n)
@@ -352,7 +353,7 @@ def T_DH(theta,d,r,alpha):
     >>> theta_1=90.0
     >>> theta_2=90.0
     >>> theta_2=0.
-    >>> T_DH(theta_1,60,0,0)*T_DH(0,88,71,90)*T_DH(theta_2,15,0,0)*T_DH(0,0,174,-180)*T_DH(theta_3,15,0,0)
+    >>> dh(theta_1,60,0,0)*dh(0,88,71,90)*dh(theta_2,15,0,0)*dh(0,0,174,-180)*dh(theta_3,15,0,0)
     [[-6.12323400e-17 -6.12323400e-17 -1.00000000e+00 -7.10542736e-15],
     [ 6.12323400e-17  1.00000000e+00 -6.12323400e-17  7.10000000e+01],
     [  1.00000000e+00 -6.12323400e-17 -6.12323400e-17  3.22000000e+02],
@@ -375,63 +376,48 @@ def T_DH(theta,d,r,alpha):
 
     Returns
     -------
-    R : rotation and transformation matrix 4x4
+    dh : ndarray(4x4)
+        Denavit Hartenberg transformation matrix.
 
     '''
-    a_rad = np.deg2rad(alpha)
-    t_rad = np.deg2rad(theta)
-    T_DH =np.matrix(
-     [[np.cos(t_rad), -np.sin(t_rad)*np.cos(a_rad), np.sin(a_rad)*np.sin(t_rad), r*np.cos(t_rad)],
-     [np.sin(t_rad), np.cos(a_rad)*np.cos(t_rad), -np.sin(a_rad)*np.cos(t_rad), r*np.sin(t_rad)],
-     [0, np.sin(a_rad), np.cos(a_rad), d],
-     [0, 0, 0, 1]])
-    return T_DH
+    
+    # Calculate Denavit-Hartenberg transformation matrix
+    Rx = stm(axis=0, angle=alpha)
+    Tx = stm(translation=[r, 0, 0])
+    Rz = stm(axis=2, angle=theta)
+    Tz = stm(translation=[0, 0, d])
+    
+    t_dh = Tz @ Rz @ Tx @ Rx    
+    
+    return(t_dh)
 
-    #return Rot_z(theta)*Trans_z(d)*Trans_x(r)*Rot_x(alpha)
-
-def T_DH_s(theta='theta',d='d',r=0,alpha=0):
+def dh_s(theta=0, d=0, r=0, alpha=0):
     '''
     Symbolic Denavit Hartenberg transformation and rotation matrix.
 
 
-    >>> T_DH_s('theta_1',60,0,0)*T_DH_s(0,88,71,90)*T_DH_s('theta_2',15,0,0)*T_DH_s(0,0,174,-180)*T_DH_s('theta_3',15,0,0)
+    >>> dh_s('theta_1',60,0,0)*dh_s(0,88,71,90)*dh_s('theta_2',15,0,0)*dh_s(0,0,174,-180)*dh_s('theta_3',15,0,0)
 
     Returns
     -------
     R : Symbolic rotation and transformation  matrix 4x4
     '''
-
-    a_rad = np.deg2rad(alpha)
-
-    if type(theta) != type('theta') and type(d) != type('d'):
-        t_rad = np.deg2rad(theta)
-
-        T_DH_s= np.matrix(
-         [[np.cos(t_rad), -np.sin(t_rad)*np.cos(a_rad), np.sin(a_rad)*np.sin(t_rad), r*np.cos(t_rad)],
-         [np.sin(t_rad), np.cos(a_rad)*np.cos(t_rad), -np.sin(a_rad)*np.cos(t_rad), r*np.sin(t_rad)],
-         [0, np.sin(a_rad), np.cos(a_rad), d],
-         [0, 0, 0, 1]])
-    elif type(theta) == type('theta') and type(d) != type('d'):
-        T_DH_s= sympy.Matrix(
-         [[sympy.cos(theta), -sympy.sin(theta)*np.cos(a_rad), np.sin(a_rad)*sympy.sin(theta), r*sympy.cos(theta)],
-         [sympy.sin(theta), np.cos(a_rad)*sympy.cos(theta), -np.sin(a_rad)*sympy.cos(theta), r*sympy.sin(theta)],
-         [0, np.sin(a_rad), np.cos(a_rad), d],
-         [0, 0, 0, 1]])
-    elif type(theta) == type('theta') and type(d) == type('d'):
-        T_DH_s= sympy.Matrix(
-         [[sympy.cos(theta), -sympy.sin(theta)*np.cos(a_rad), np.sin(a_rad)*sympy.sin(theta), r*sympy.cos(theta)],
-         [sympy.sin(theta), np.cos(a_rad)*sympy.cos(theta), -np.sin(a_rad)*sympy.cos(theta), r*sympy.sin(theta)],
-         [0, np.sin(a_rad), np.cos(a_rad), d],
-         [0, 0, 0, 1]])
-    elif type(theta) != type('theta') and type(d) == type('d'):
-        t_rad = np.deg2rad(theta)
-        T_DH_s= sympy.Matrix(
-         [[np.cos(t_rad), -np.sin(t_rad)*np.cos(a_rad), np.sin(a_rad)*np.sin(t_rad), r*np.cos(t_rad)],
-         [np.sin(t_rad), np.cos(a_rad)*np.cos(t_rad), -np.sin(a_rad)*np.cos(t_rad), r*np.sin(t_rad)],
-         [0, np.sin(a_rad), np.cos(a_rad), d],
-         [0, 0, 0, 1]])
-    return T_DH_s
-
+    
+    # Force the correct input type
+    theta_s = str(theta)
+    d_s     = str(d)
+    r_s     = str(r)
+    alpha_s = str(alpha)
+        
+    # Calculate Denavit-Hartenberg transformation matrix
+    Rx = stm_s(axis=0, angle = alpha_s)
+    Tx = stm_s(transl = r_s + ',0,0')
+    Rz = stm_s(axis=2, angle = theta_s)
+    Tz = stm_s(transl='0,0,' + d_s)
+    
+    t_dh = Tz * Rz * Tx * Rx    
+    
+    return(t_dh)
 
 
 def convert(rMat, to ='quat'):
@@ -593,17 +579,40 @@ def seq2quat(rot_angles, seq='nautical'):
 if __name__ == '__main__':
     from pprint import pprint
     
-    STM = stm(axis=0, alpha=45, translation=[1, 2, 3.3])
-    R_z = stm(axis=2, alpha=30)
+    STM = stm(axis=0, angle=45, translation=[1, 2, 3.3])
+    R_z = stm(axis=2, angle=30)
     T_y = stm(translation=[0, 10., 0])
     
     pprint(STM)
     pprint(R_z)
     pprint(T_y)
     
-    
     out_s = stm_s(axis=0, angle='0', transl='x,0,z')
     pprint(out_s)
+    Rx = stm_s(axis=0, angle='alpha')
+    Tx = stm_s(transl='r,0,0')
+    Rz = stm_s(axis=2, angle='theta')
+    Tz = stm_s(transl='0,0,d')
+    dh_mat = Tz * Rz * Tx * Rx
+    pprint(Rx)
+    pprint(Tx)
+    pprint(Rz)
+    pprint(Tz)
+    pprint(dh_mat)
+    
+    
+    Rx = stm_s(axis=0, angle='0')
+    Tx = stm_s(transl='0,0,0')
+    Rz = stm_s(axis=2, angle='theta')
+    Tz = stm_s(transl='0,0,15')
+    dh2 = Tz * Rz * Tx * Rx    
+    pprint(dh2)
+    
+    pprint(dh_s('theta', 15, 0, 0))
+    
+    t_dh = dh(60,15,0,0)
+    print(t_dh)
+    
     
     '''
     angles = np.r_[20, 0, 0]
