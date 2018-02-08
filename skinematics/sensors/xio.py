@@ -109,6 +109,13 @@ class XIO(IMU_Base):
         '''
         Get the sampling rate, as well as the recorded data,
         and assign them to the corresponding attributes of "self".
+
+        Assigns the following properties
+            - rate : rate
+            - acc : acceleration
+            - omega : angular_velocity
+            - mag : mag_field_direction
+            - packet_nr : packet_nr
         
         Parameters
         ----------
@@ -117,13 +124,6 @@ class XIO(IMU_Base):
                 filename of one file in that directory
         in_data : not used here
         
-        Assigns
-        -------
-        - rate : rate
-        - acc : acceleration
-        - omega : angular_velocity
-        - mag : mag_field_direction
-        - packet_nr : packet_nr
         '''
         in_selection = in_file
         if os.path.isdir(in_selection):
