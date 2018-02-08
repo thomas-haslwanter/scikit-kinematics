@@ -15,13 +15,12 @@ import numpy as np
 # inside the skinematics-directory
 import os
 import sys
-sys.path.append( os.path.join( os.path.dirname(__file__), os.path.pardir ) ) 
 
-#PACKAGE_PARENT = '..'
-#SCRIPT_DIR = os.path.realpath(os.path.dirname(__file__))
-#sys.path.insert(0, os.path.normpath(os.path.join(SCRIPT_DIR, PACKAGE_PARENT)))
+file_dir = os.path.dirname(__file__)
+if file_dir not in sys.path:
+    sys.path.insert(0, file_dir)
 
-from skinematics import quat
+import quat
 
 # For deprecation warnings
 #import deprecation

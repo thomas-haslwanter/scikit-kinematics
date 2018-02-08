@@ -49,3 +49,4 @@ v0.7.0, 09-Jan-2018 -- view.Orientation_OGL added
 v0.7.1, 29-Jan-2018 -- rotmat.STM and rotmat.STM_s added (spatial transformation matrix) 
 v0.7.2, 29-Jan-2018 -- small improvement of rotmat.stm_s
 v0.7.3, 31-Jan-2018 -- Denavit-Hartenberg transformations added to rotmat
+v0.7.4, 08-Feb-2018 -- xio-NGIMU sensor added, system path cleaned up

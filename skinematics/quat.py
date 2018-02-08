@@ -12,7 +12,7 @@ A "Quaternion" class is defined, with
 
 '''
 author: Thomas Haslwanter
-date:   Oct 2017
+date:   Feb-2018
 '''
 
 import numpy as np
@@ -23,9 +23,12 @@ from scipy import signal
 # inside the skinematics-directory
 import os
 import sys
-sys.path.append( os.path.join( os.path.dirname(__file__), os.path.pardir ) ) 
 
-from skinematics import vector, rotmat
+file_dir = os.path.dirname(__file__)
+if file_dir not in sys.path:
+    sys.path.insert(0, file_dir)
+
+import vector, rotmat
 
 #import deprecation
 #import warnings

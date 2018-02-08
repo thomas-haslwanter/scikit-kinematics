@@ -1,0 +1,14 @@
+<Device>
+  <DeviceInformation DeviceName="NGIMU_AP" SerialNumber="002AE7B7" FirmwareVersion="v1.8 (Dec 29 2017 17:21:21)" BootloaderVersion="v1.1 (Sep 28 2016 17:05:48)" HardwareVersion="v1.6 (November 2017)" />
+  <ConnectionInformation ConnectionType="Udp" SendIPAddress="192.168.0.101" SendPort="9000" AdapterIPAddress="192.168.0.100" ReceivePort="8101" AdapterName="TP-LINK 300Mbps Wireless N Adapter" />
+  <TimeStamps First="2018-02-08 10:49:25.673" Last="2018-02-08 10:49:35.653" TimeSpan="00:00:09.980" />
+  <FilesCreated>
+    <File Name="sensors.csv" Messages="499" />
+    <File Name="quaternion.csv" Messages="499" />
+    <File Name="temperature.csv" Messages="10" />
+    <File Name="humidity.csv" Messages="10" />
+    <File Name="battery.csv" Messages="10" />
+    <File Name="rssi.csv" Messages="20" />
+  </FilesCreated>
+  <Statistics BytesReceived="505244" PacketsReceived="2983" BundlesReceived="9209" MessagesReceived="6304" ReceiveErrors="0" />
+</Device>

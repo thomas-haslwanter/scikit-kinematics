@@ -1,9 +1,11 @@
 '''
-Import data saved with xio-sensors, through subclassing "IMU_Base"
+Import data saved with "x-IMU" sensors from x-io, through subclassing "IMU_Base"
 Note that the data are in two files:
 
     - a data-file
     - a reg-file
+
+More info about the sensor on http://x-io.co.uk
 
 '''
 
@@ -18,8 +20,10 @@ import abc
 # To ensure that the relative path works
 import os
 import sys
-dir_name = os.path.dirname(__file__)
-sys.path.append(os.path.realpath(os.path.join(dir_name, "..")))
+
+parent_dir = os.path.abspath(os.path.join( os.path.dirname(__file__), '..' ))
+if parent_dir not in sys.path:
+    sys.path.insert(0, parent_dir)
 
 from imus import IMU_Base
 

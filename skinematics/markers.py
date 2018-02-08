@@ -19,9 +19,12 @@ from numpy import r_, sum
 # inside the skinematics-directory
 import os
 import sys
-sys.path.append( os.path.join( os.path.dirname(__file__), os.path.pardir ) ) 
 
-from skinematics import quat, vector
+file_dir = os.path.dirname(__file__)
+if file_dir not in sys.path:
+    sys.path.insert(0, file_dir)
+
+import quat, vector
 
 def analyze_3Dmarkers(MarkerPos, ReferencePos):
     '''

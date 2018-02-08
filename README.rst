@@ -21,8 +21,8 @@ Homepage
 http://work.thaslwanter.at/skinematics/html/
 
 Author:  Thomas Haslwanter
-Date:    31-01-2018
-Ver:     0.7.3
+Date:    08-02-2018
+Ver:     0.7.4
 Licence: BSD 2-Clause License (http://opensource.org/licenses/BSD-2-Clause)
         Copyright (c) 2018, Thomas Haslwanter
         All rights reserved.
@@ -46,7 +46,7 @@ Read in data, calculate orientation (with one of the algorithms below)
 - get_data ... This method must be taken from one of the existing sensors,
   or from your own sensor. Currenlty the following sensors types are available:
   * XSens
-  * xio
+  * xio (original, and NGIMU)
   * yei
   * polulu
 - calc_position

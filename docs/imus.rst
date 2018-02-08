@@ -13,7 +13,7 @@ corresponding method "get_data" has to be implemented, by sub-classing
 IMU_Base. Currently 5 sensor types are supported:
 
 * XSens
-* xio
+* xio (original, and NGIMU)
 * YEI
 * polulu
 * manual
@@ -78,6 +78,11 @@ Existing Sensor Implementations
 XIO
 ^^^
 .. automodule:: sensors.xio
+    :members:
+
+x-io NGIMU
+----------
+.. automodule:: sensors.xio_ngimu
     :members:
 
 XSens

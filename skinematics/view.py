@@ -42,10 +42,13 @@ import matplotlib.animation as animation
 # inside the skinematics-directory
 import os
 import sys
-sys.path.append( os.path.join( os.path.dirname(__file__), os.path.pardir ) ) 
 
-from skinematics import vector, quat
-from skinematics.sensors.xsens import XSens
+file_dir = os.path.dirname(__file__)
+if file_dir not in sys.path:
+    sys.path.insert(0, file_dir)
+
+import vector, quat
+from sensors.xsens import XSens
 
 # For Orientation_Viewers
 import pygame

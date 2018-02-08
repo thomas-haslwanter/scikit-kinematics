@@ -16,9 +16,12 @@ from collections import namedtuple
 # inside the skinematics-directory
 import os
 import sys
-sys.path.append( os.path.join( os.path.dirname(__file__), os.path.pardir ) ) 
+
+file_dir = os.path.dirname(__file__)
+if file_dir not in sys.path:
+    sys.path.insert(0, file_dir)
     
-from skinematics import quat
+import quat
 
 # For deprecation warnings
 #import deprecation

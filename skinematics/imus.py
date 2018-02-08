@@ -32,9 +32,12 @@ import re
 # inside the skinematics-directory
 import os
 import sys
-sys.path.append( os.path.join( os.path.dirname(__file__), os.path.pardir ) ) 
 
-from skinematics import quat, vector, misc, rotmat
+file_dir = os.path.dirname(__file__)
+if file_dir not in sys.path:
+    sys.path.insert(0, file_dir)
+
+import quat, vector, misc, rotmat
 
 # For deprecation warnings
 # import deprecation
@@ -91,6 +94,11 @@ class IMU_Base(metaclass=abc.ABCMeta):
     >>>  
     >>> # Choose a sensor 
     >>> from skinematics.sensors.xsens import XSens
+    >>>
+    >>> # Only read in the data
+    >>> data = XSens(in_file, q_type=None)
+    >>>
+    >>> # Read in and evaluate the data
     >>> sensor = XSens(in_file=in_file, R_init=initial_orientation)
     >>>  
     >>> # By default, the orientation quaternion gets automatically calculated, using the option "analytical"
@@ -120,7 +128,7 @@ class IMU_Base(metaclass=abc.ABCMeta):
         """
 
     def __init__(self, in_file = None,
-                 q_type='analytical', R_init = np.eye(3),
+                 q_type='madgwick', R_init = np.eye(3),
                  calculate_position=True, pos_init = np.zeros(3),
                  in_data = None ):
         """Initialize an IMU-object.

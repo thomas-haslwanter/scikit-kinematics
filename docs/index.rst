@@ -34,6 +34,8 @@ It is hosted under https://github.com/thomas-haslwanter/scikit-kinematics, and c
     - rotation matrices for rotations about the x-, y-, and z-axis
     - symbolic rotation matrices
     - conversions to Euler, Fick, Helmholtz angles
+    - spatial transformation matrices
+    - Denavit-Hartenberg transformations
 
 *vector*  Functions for working with vectors
     - angle between vectors
@@ -121,7 +123,7 @@ Indices and tables
 
 .. note::
     | *Author:*     Thomas Haslwanter
-    | *Version:*    0.7.3
+    | *Version:*    0.7.4
     | *Date:*       Jan 2018
     | *email:*      thomas.haslwanter@fh-linz.at
     | *Copyright (c):*      2017, Thomas Haslwanter. All rights reserved.
