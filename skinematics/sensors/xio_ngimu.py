@@ -158,7 +158,7 @@ class NGIMU(IMU_Base):
         # Set the class properties
         in_data = {'rate':rates['sensors'],
                'acc':   data[1],
-               'omega': data[2],
+               'omega': np.deg2rad(data[2]),
                'mag':   data[3]}
         self._set_data(in_data)
         

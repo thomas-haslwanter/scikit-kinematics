@@ -56,7 +56,7 @@ class IMU_Base(metaclass=abc.ABCMeta):
         dataType (string) : Type of data (commonly float)
         duration (float) : Duration of recording [sec]
         mag (Nx3 array) : 3D orientation of local magnectic field
-        omega (Nx3 array) : 3D angular velocity
+        omega (Nx3 array) : 3D angular velocity [rad/s]
         pos (Nx3 array) : 3D position
         pos_init (3-vector) : Initial position. default is np.ones(3)
         quat (Nx4 array) : 3D orientation
@@ -77,7 +77,7 @@ class IMU_Base(metaclass=abc.ABCMeta):
         acc : (N x 3) array
              Linear acceleration [m/s^2], in the x-, y-, and z-direction
         omega : (N x 3) array
-             Angular velocity [deg/s], about the x-, y-, and z-axis
+             Angular velocity [rad/s], about the x-, y-, and z-axis
         [mag] : (N x 3) array (optional)
              Local magnetic field, in the x-, y-, and z-direction
         rate: integer
@@ -709,12 +709,6 @@ if __name__ == '__main__':
         # By default, the orientation quaternion gets automatically calculated, using "analytical"
     q_analytical = sensor.quat
 
-        # Automatic re-calculation of orientation if "q_type" is changed
-    sensor.q_type = 'madgwick'
-    q_Madgwick = sensor.quat
-
-    sensor.q_type = 'kalman'
-    q_Kalman = sensor.quat
 
     def show_result(imu_data):
         fig, axs = plt.subplots(3,1)
@@ -725,7 +719,16 @@ if __name__ == '__main__':
         axs[1].set_ylabel('Acc')
         axs[2].plot(imu_data.quat[:,1:])
         axs[2].set_ylabel('Quat')
-        plt.show()
+        plt.show()    
+        
+        # Automatic re-calculation of orientation if "q_type" is changed
+    sensor.q_type = 'madgwick'
+    q_Madgwick = sensor.quat
+
+    show_result(sensor)
+
+    sensor.q_type = 'kalman'
+    q_Kalman = sensor.quat
 
     show_result(sensor)
 
