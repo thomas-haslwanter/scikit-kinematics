@@ -1,0 +1,8 @@
+docutils
+matplotlib
+numpy
+pandas
+pygame
+sympy
+scipy
+PyOpenGL

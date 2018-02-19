@@ -46,4 +46,7 @@ v0.6.7, 18-Dec-2017 -- imus.analytical made more stable, by going from Rmats to 
 v0.6.8, 20-Dec-2017 -- Fixes a relative-path problem in the sub-package "sensors"
 v0.6.9, 21-Dec-2017 -- Position calculation added to IMU-objects by default
 v0.7.0, 09-Jan-2018 -- view.Orientation_OGL added
-
+v0.7.1, 29-Jan-2018 -- rotmat.STM and rotmat.STM_s added (spatial transformation matrix) 
+v0.7.2, 29-Jan-2018 -- small improvement of rotmat.stm_s
+v0.7.3, 31-Jan-2018 -- Denavit-Hartenberg transformations added to rotmat
+v0.7.4, 08-Feb-2018 -- xio-NGIMU sensor added, system path cleaned up

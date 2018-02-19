@@ -16,15 +16,101 @@ from collections import namedtuple
 # inside the skinematics-directory
 import os
 import sys
-sys.path.append( os.path.join( os.path.dirname(__file__), os.path.pardir ) ) 
+
+file_dir = os.path.dirname(__file__)
+if file_dir not in sys.path:
+    sys.path.insert(0, file_dir)
     
-from skinematics import quat
+import quat
 
 # For deprecation warnings
 #import deprecation
 #import warnings
 #warnings.simplefilter('always', DeprecationWarning)
 
+def stm(axis=0, angle=0, translation=[0, 0, 0]):
+    """Spatial Transformation Matrix
+    
+    Parameters
+    ----------
+    axis : skalar
+            Axis of rotation, has to be 0, 1, or 2
+    angle : float
+            rotation angle [deg]
+    translation : 3x1 ndarray
+            3D-translation vector
+
+    Returns
+    -------
+    STM : 4x4 ndarray
+        spatial transformation matrix, for rotation about the specified axis,
+        and translation by the given vector
+
+    Examples
+    --------
+    >>> rotmat.stm(axis=0, angle=45, translation=[1,2,3.3])
+    array([[ 1.        ,  0.        ,  0.        ,  1.        ],
+           [ 0.        ,  0.70710678, -0.70710678,  2.        ],
+           [ 0.        ,  0.70710678,  0.70710678,  3.3       ],
+           [ 0.        ,  0.        ,  0.        ,  1.        ]])
+    >>> R_z = rotmat.stm(axis=2, angle=30)
+    >>> T_y = rotmat.stm(translation=[0, 10, 0)
+    
+    """
+    stm = np.eye(4)
+    stm[:-1,:-1] = R(axis, angle)
+    stm[:3,-1] = translation
+    return stm
+
+def stm_s(axis=0, angle='0', transl='0,0,0'):
+    '''
+    Symbolic spatial transformation matrix about the given axis, by an angle with
+    the given name, and translation by the given distances.
+    
+    Parameters
+    ----------
+    axis : skalar
+            Axis of rotation, has to be 0, 1, or 2.
+    alpha : string
+            Name of rotation angle, or '0' for no rotation,
+            'alpha', 'theta', etc. for a symbolic rotation.
+    transl : string
+            Has to contain three names, for the three translation distances.
+            '0,0,0' would correspond to no translation, and
+            'x,y,z' to an arbitrary translation.
+
+
+    Returns
+    -------
+        STM_symbolic : corresponding symbolic spatial transformation matrix 
+
+    Examples
+    --------
+
+    >>> Rz_s = STM_s(axis=2, angle='theta', transl='0,0,0')
+    
+    >>> Tz_s = STM_s(axis=0, angle='0', transl='0,0,z')
+
+    '''
+    
+    # Default is the unit matrix
+    STM_s = sympy.eye(4)
+    
+    if angle != '0':
+        STM_s[:3,:3] = R_s(axis, angle)
+        
+    transl = transl.replace(' ', '')
+    if not transl==('0,0,0'):
+        trans_dir = transl.split(',')
+        assert(len(trans_dir)==3)
+        for (ii, magnitude) in enumerate(trans_dir):
+            if magnitude != '0':
+                symbol = sympy.Symbol(magnitude)
+                STM_s[ii,-1] = symbol
+            
+    return STM_s        
+        
+    
 def R(axis=0, angle=90) :
     '''Rotation matrix for rotation about a cardinal axis.
     The argument is entered in degree.
@@ -89,6 +175,13 @@ def R(axis=0, angle=90) :
 def R_s(axis=0, angle='alpha'):
     '''
     Symbolic rotation matrix about the given axis, by an angle with the given name 
+    
+    Parameters
+    ----------
+    axis : skalar
+            Axis of rotation, has to be 0, 1, or 2
+    alpha : string
+            name of rotation angle
 
     Returns
     -------
@@ -231,6 +324,105 @@ def sequence(R, to ='Euler'):
         return np.column_stack( (gamma, beta, alpha) )
 
     
+def dh(theta=0, d=0, r=0, alpha=0):
+    '''
+    Denavit Hartenberg transformation and rotation matrix.
+
+    .. math::
+        T_n^{n - 1}= {Trans}_{z_{n - 1}}(d_n)
+        \\cdot {Rot}_{z_{n - 1}}(\\theta_n) \\cdot {Trans}_{x_n}(r_n) \\cdot {Rot}_{x_n}(\\alpha_n)
+
+
+    .. math::
+        T_n=\\left[\\begin{array}{ccc|c}
+        \\cos\\theta_n & -\\sin\\theta_n \\cos\\alpha_n & \\sin\\theta_n \\sin\\alpha_n & r_n\\cos\\theta_n \\\\
+        \\sin\\theta_n & \\cos\\theta_n \\cos\\alpha_n & -\\cos\\theta_n \\sin\\alpha_n & r_n \\sin\\theta_n \\\\
+        0 & \\sin\\alpha_n & \\cos\\alpha_n & d_n \\\\
+        \\hline
+        0 & 0 & 0 & 1
+        \\end{array}
+        \\right] =\\left[\\begin{array}{ccc|c}
+        & & & \\\\
+        & R & & T \\\\
+        & & & \\\\
+        \\hline
+        0 & 0 & 0 & 1
+        \\end{array}\\right]
+
+
+    Examples
+    --------
+
+    >>> theta_1=90.0
+    >>> theta_2=90.0
+    >>> theta_2=0.
+    >>> dh(theta_1,60,0,0)*dh(0,88,71,90)*dh(theta_2,15,0,0)*dh(0,0,174,-180)*dh(theta_3,15,0,0)
+    [[-6.12323400e-17 -6.12323400e-17 -1.00000000e+00 -7.10542736e-15],
+    [ 6.12323400e-17  1.00000000e+00 -6.12323400e-17  7.10000000e+01],
+    [  1.00000000e+00 -6.12323400e-17 -6.12323400e-17  3.22000000e+02],
+    [ 0.00000000e+00  0.00000000e+00  0.00000000e+00  1.00000000e+00]]
+
+    Parameters
+    ----------
+    theta : float
+        rotation angle z axis [deg]
+
+    d : float
+        transformation along the z-axis
+
+    alpha : float
+        rotation angle x axis [deg]
+
+    r : float
+        transformation along the x-axis
+
+
+    Returns
+    -------
+    dh : ndarray(4x4)
+        Denavit Hartenberg transformation matrix.
+
+    '''
+    
+    # Calculate Denavit-Hartenberg transformation matrix
+    Rx = stm(axis=0, angle=alpha)
+    Tx = stm(translation=[r, 0, 0])
+    Rz = stm(axis=2, angle=theta)
+    Tz = stm(translation=[0, 0, d])
+    
+    t_dh = Tz @ Rz @ Tx @ Rx    
+    
+    return(t_dh)
+
+def dh_s(theta=0, d=0, r=0, alpha=0):
+    '''
+    Symbolic Denavit Hartenberg transformation and rotation matrix.
+
+
+    >>> dh_s('theta_1',60,0,0)*dh_s(0,88,71,90)*dh_s('theta_2',15,0,0)*dh_s(0,0,174,-180)*dh_s('theta_3',15,0,0)
+
+    Returns
+    -------
+    R : Symbolic rotation and transformation  matrix 4x4
+    '''
+    
+    # Force the correct input type
+    theta_s = str(theta)
+    d_s     = str(d)
+    r_s     = str(r)
+    alpha_s = str(alpha)
+        
+    # Calculate Denavit-Hartenberg transformation matrix
+    Rx = stm_s(axis=0, angle = alpha_s)
+    Tx = stm_s(transl = r_s + ',0,0')
+    Rz = stm_s(axis=2, angle = theta_s)
+    Tz = stm_s(transl='0,0,' + d_s)
+    
+    t_dh = Tz * Rz * Tx * Rx    
+    
+    return(t_dh)
+
+
 def convert(rMat, to ='quat'):
     '''
     Converts a rotation matrix to the corresponding quaternion.
@@ -387,12 +579,48 @@ def seq2quat(rot_angles, seq='nautical'):
     
     return quats
         
-
 if __name__ == '__main__':
+    from pprint import pprint
+    
+    STM = stm(axis=0, angle=45, translation=[1, 2, 3.3])
+    R_z = stm(axis=2, angle=30)
+    T_y = stm(translation=[0, 10., 0])
+    
+    pprint(STM)
+    pprint(R_z)
+    pprint(T_y)
+    
+    out_s = stm_s(axis=0, angle='0', transl='x,0,z')
+    pprint(out_s)
+    Rx = stm_s(axis=0, angle='alpha')
+    Tx = stm_s(transl='r,0,0')
+    Rz = stm_s(axis=2, angle='theta')
+    Tz = stm_s(transl='0,0,d')
+    dh_mat = Tz * Rz * Tx * Rx
+    pprint(Rx)
+    pprint(Tx)
+    pprint(Rz)
+    pprint(Tz)
+    pprint(dh_mat)
+    
+    
+    Rx = stm_s(axis=0, angle='0')
+    Tx = stm_s(transl='0,0,0')
+    Rz = stm_s(axis=2, angle='theta')
+    Tz = stm_s(transl='0,0,15')
+    dh2 = Tz * Rz * Tx * Rx    
+    pprint(dh2)
+    
+    pprint(dh_s('theta', 15, 0, 0))
+    
+    t_dh = dh(60,15,0,0)
+    print(t_dh)
+    
+    
+    '''
     angles = np.r_[20, 0, 0]
     quat = seq2quat(angles)
     print(quat)
-    '''
     testmat = np.array([[np.sqrt(2)/2, -np.sqrt(2)/2, 0],
                    [np.sqrt(2)/2,  np.sqrt(2)/2, 0],
                    [0, 0, 1]])

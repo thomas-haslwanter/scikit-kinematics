@@ -78,7 +78,24 @@ class TestSequenceFunctions(unittest.TestCase):
         angles_euler = np.rad2deg(rotmat.sequence(mat_euler, to='Euler'))
         correct = np.r_[gamma, beta, alpha]
         self.assertAlmostEqual(np.linalg.norm(correct - np.array(angles_euler)), 0)
-        
+
+    def test_dh(self):
+        theta = 45
+        alpha = 45
+        d=5
+        r=10
+        dh=  np.array([[np.sqrt(2) / 2,  -np.sqrt(2) / 2*np.sqrt(2) / 2,  np.sqrt(2) / 2*np.sqrt(2) / 2,  10*np.sqrt(2) / 2],
+        [np.sqrt(2) / 2,  np.sqrt(2) / 2*np.sqrt(2) / 2 , -np.sqrt(2) / 2*np.sqrt(2) / 2,  10*np.sqrt(2) / 2],
+        [0,           np.sqrt(2) / 2,             np.sqrt(2) / 2,             d],
+        [0,               0,                        0,                        1]])
+        print('dh',dh)
+        print('rotmat.dh(theta,d,r,alpha)', rotmat.dh(theta,d,r,alpha))
+        self.assertTrue(np.all(np.abs(dh - rotmat.dh(theta,d,r,alpha)) < self.delta))
+
+    def test_dh_s(self):
+        alpha = 40
+        r=10
+        print(rotmat.dh_s('theta','d',r,alpha))
         
     def test_convert(self):
         result = rotmat.convert(quat.convert([0, 0, 0.1], to ='rotmat'), to ='quat')

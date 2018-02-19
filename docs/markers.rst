@@ -11,8 +11,11 @@ Functions
 
 Optical Systems
 ^^^^^^^^^^^^^^^
-* :func:`markers.analyze3Dmarkers` ... Kinematic analysis of video-basedrecordings of 3D markers
-* :func:`markers.findTrajectory` ... Calculation of point trajectory, from initial position + sensor position/orientation
+* :func:`markers.analyze_3Dmarkers` ... Kinematic analysis of video-basedrecordings of 3D markers
+* :func:`markers.find_trajectory` ... Calculation of point trajectory, from initial position + sensor position/orientation
+
+.. toctree::
+   :maxdepth: 2
 
 Details
 -------

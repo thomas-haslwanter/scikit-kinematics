@@ -12,23 +12,18 @@ Miscellaneous user interface utilities for
 '''
 
 '''
-ThH, April 2016
-Ver 1.0
+author: Thomas Haslwanter
 '''
 
-import matplotlib.pyplot as plt
 import os
+import matplotlib.pyplot as plt
+#plt.switch_backend('agg')
+
 import sys
 from scipy.signal import savgol_filter
 
-if sys.version_info.major == 3:
-    # Python 3.x
-    import tkinter as tk
-    import tkinter.filedialog as tkf
-else:
-    # Python 2.x
-    import Tkinter as tk
-    import tkFileDialog as tkf
+import tkinter 
+import tkinter.filedialog as tkf
     
 def get_screensize():
     '''
@@ -48,26 +43,18 @@ def get_screensize():
     Examples
     --------
     >>> (width, height) = skinematics.ui.get_screensize()
+    
     '''
     
-    
     try:
-        # Use the methods form PyQt first, since tk gave me some strange error messages sometimes
-        from PyQt4 import QtGui
-        import sys
-        
-        MyApp = QtGui.QApplication(sys.argv)
-        V = MyApp.desktop().screenGeometry()
-        screen_h = V.height()
-        screen_w = V.width()    
-    
-    except ImportError:
-        # If PyQt4 is not available
-        root = tk.Tk()
+        root = tkinter.Tk()
         (screen_w, screen_h) = (root.winfo_screenwidth(), root.winfo_screenheight())
         root.destroy()
     
-    return (screen_w, screen_h)
+        return (screen_w, screen_h)
+    except tkinter.TclError:
+        print('No display available!')
+        return (0, 0)
     
 def progressbar(it, prefix = "", size = 60):
     '''
@@ -134,7 +121,7 @@ def get_file(FilterSpec='*', DialogTitle='Select File: ', DefaultName=''):
     
     '''
     
-    root = tk.Tk()
+    root = tkinter.Tk()
     root.withdraw()
     fullInFile = tkf.askopenfilename(initialfile=DefaultName,
             title=DialogTitle, filetypes=[('all files','*'), ('Select',
@@ -179,7 +166,7 @@ def save_file(FilterSpec='*',DialogTitle='Save File: ', DefaultName=''):
 
     '''
     
-    root = tk.Tk()
+    root = tkinter.Tk()
     root.withdraw()
     outFile = tkf.asksaveasfile(mode='w', title=DialogTitle, initialfile=DefaultName, filetypes=[('Save as', FilterSpec)])
     
@@ -219,7 +206,7 @@ def get_dir(DialogTitle='Select Directory', DefaultName='.'):
     
     '''
     
-    root = tk.Tk()
+    root = tkinter.Tk()
     root.withdraw()
     fullDir = tkf.askdirectory(initialdir=DefaultName, title=DialogTitle)
     
@@ -231,12 +218,14 @@ def get_dir(DialogTitle='Select Directory', DefaultName='.'):
     else:
         print('Selection: ' + fullDir)
         return fullDir
+    
 if __name__ == "__main__":   
     # Test functions
     
     width, height = get_screensize()
     print('Your screen is {0} x {1} pixels.'.format(width, height))
     
+    '''
     #import time
     #for ii in progressbar(range(50), 'Computing ', 25):
         ##print(ii)
@@ -253,7 +242,6 @@ if __name__ == "__main__":
     myDir = get_dir()
     print(myDir)
 
-    '''
     
     items = ['Peter', 'Paul', 'Mary']    
     selected = listbox(items*4)
@@ -284,7 +272,7 @@ if __name__ == "__main__":
     print(selName)
     print(selVal)
     
-    root = tk.Tk()
+    root = tkinter.Tk()
     app = Demo1(root, sys._getframe())
     root.mainloop()
 

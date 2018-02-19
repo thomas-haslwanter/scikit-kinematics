@@ -9,7 +9,7 @@ This includes utilities to read in data from the following IMU-sensors:
     - xio
     - YEI
 
-Compatible with 3 only (Python 2 is no longer tested).
+Compatible with Python >= 3.5
 
 
 Dependencies
@@ -21,8 +21,8 @@ Homepage
 http://work.thaslwanter.at/skinematics/html/
 
 Author:  Thomas Haslwanter
-Date:    09-01-2018
-Ver:     0.7.0
+Date:    08-02-2018
+Ver:     0.7.4
 Licence: BSD 2-Clause License (http://opensource.org/licenses/BSD-2-Clause)
         Copyright (c) 2018, Thomas Haslwanter
         All rights reserved.
@@ -46,7 +46,7 @@ Read in data, calculate orientation (with one of the algorithms below)
 - get_data ... This method must be taken from one of the existing sensors,
   or from your own sensor. Currenlty the following sensors types are available:
   * XSens
-  * xio
+  * xio (original, and NGIMU)
   * yei
   * polulu
 - calc_position
@@ -127,6 +127,18 @@ For example, you can e.g. generate a Fick-matrix, with
 
 >>>    R_Fick = R_s(2, 'theta') * R_s(1, 'phi') * R_s(0, 'psi')
     
+Spatial Transformation Matrices
+-------------------------------
+
+- rotmat.stm ... spatial transformation matrix, for combined rotations/translations
+- rotmat.stm_s() ... symbolix spatial transformation matrix
+
+Denavit-Hartenberg Transformations
+----------------------------------
+
+- rotmat.dh ... Denavit-Hartenberg transformation matrix
+- rotmat.dh_s ... symbolic Denavit-Hartenberg transformation matrix
+
 Vectors
 =======
 
