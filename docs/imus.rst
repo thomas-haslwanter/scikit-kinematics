@@ -32,7 +32,7 @@ provide:
     - "analytical" [default] ... analytical solution, using only acc and omega
     - "kalman" ... quaternion Kalman filter, using acc, omega, and mag
     - "madgwick" ... Madgwick algorithm, using acc, omega, and mag
-    - "mahony" ... Mahony algorithm, using, acc and omega
+    - "mahony" ... Mahony algorithm, using, acc and omega, and mag
     - "None" ... If you want to only read in the sensor data
 
 Data are read in, and by default the orientation is automatically calculated
