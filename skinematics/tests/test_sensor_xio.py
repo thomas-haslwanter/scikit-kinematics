@@ -4,10 +4,9 @@ Test import from import data saved with XIO-sensors, through subclassing "IMU_Ba
 
 '''
 Author: Thomas Haslwanter
-Version: 0.1
-Date: Sept-2017
 '''
 
+import numpy as np
 import sys
 import os
 myPath = os.path.dirname(os.path.abspath(__file__))
@@ -30,7 +29,7 @@ class TestSequenceFunctions(unittest.TestCase):
         omega = sensor.omega
         
         self.assertAlmostEqual((rate - 256), 0)
-        self.assertAlmostEqual( (omega[0,2] -10.125), 0)
+        self.assertAlmostEqual( (np.rad2deg(omega[0,2]) -10.125), 0)
         
 if __name__ == '__main__':
     unittest.main()

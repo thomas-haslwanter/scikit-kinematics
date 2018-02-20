@@ -7,6 +7,7 @@ Author: Thomas Haslwanter
 Date: Feb-2018
 '''
 
+import numpy as np
 import sys
 import os
 myPath = os.path.dirname(os.path.abspath(__file__))
@@ -29,7 +30,7 @@ class TestSequenceFunctions(unittest.TestCase):
         omega = sensor.omega
         
         self.assertAlmostEqual((rate - 50), 0)
-        self.assertAlmostEqual( (omega[0,2] + 0.0020045), 0)
+        self.assertAlmostEqual( (np.rad2deg(omega[0,2]) + 0.0020045), 0)
         
 if __name__ == '__main__':
     unittest.main()
