@@ -1,9 +1,10 @@
 '''
-Test import from import data saved with XIO-sensors, through subclassing "IMU_Base"
+Test import from import data saved with NGIMU sensors from x-io, through subclassing "IMU_Base"
 '''
 
 '''
 Author: Thomas Haslwanter
+Date: Feb-2018
 '''
 
 import numpy as np
@@ -15,21 +16,21 @@ sys.path.insert(0, os.path.join(myPath, '..'))
 import unittest
 import imus
 from time import sleep
-from sensors.xio import XIO
+from sensors.xio_ngimu import NGIMU
 
 class TestSequenceFunctions(unittest.TestCase):
     
     def test_import_xio(self):
         # Get data, with a specified input from an XIO system
-        in_file = os.path.join(myPath, 'data', 'data_xio')
-        sensor = XIO(in_file=in_file, q_type=None)
+        in_file = os.path.join(myPath, 'data', 'data_ngimu')
+        sensor = NGIMU(in_file=in_file, q_type=None)
         
         rate = sensor.rate
         acc = sensor.acc
         omega = sensor.omega
         
-        self.assertAlmostEqual((rate - 256), 0)
-        self.assertAlmostEqual( (np.rad2deg(omega[0,2]) -10.125), 0)
+        self.assertAlmostEqual((rate - 50), 0)
+        self.assertAlmostEqual( (np.rad2deg(omega[0,2]) + 0.0020045), 0)
         
 if __name__ == '__main__':
     unittest.main()

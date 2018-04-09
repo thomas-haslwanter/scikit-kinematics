@@ -47,6 +47,11 @@ It is hosted under https://github.com/thomas-haslwanter/scikit-kinematics, and c
 
 *view*  Visualization of time-series data, and of 3D orientations
 
+In addition, the packages includes the general module
+
+*misc*  Mainly GUI-functions for directory- and file selection etc.
+
+
 .. figure:: _static/viewer_large.png
     :scale: 35%
 
@@ -107,6 +112,7 @@ Modules
    :maxdepth: 2
 
    imus
+   misc
    quat
    rotmat
    markers
@@ -123,9 +129,9 @@ Indices and tables
 
 .. note::
     | *Author:*     Thomas Haslwanter
-    | *Version:*    0.7.4
+    | *Version:*    0.7.5
     | *Date:*       Jan 2018
     | *email:*      thomas.haslwanter@fh-linz.at
-    | *Copyright (c):*      2017, Thomas Haslwanter. All rights reserved.
+    | *Copyright (c):*      2018, Thomas Haslwanter. All rights reserved.
     | *Licence:*    This work is licensed under the `BSD 2-Clause License <http://opensource.org/licenses/BSD-2-Clause>`_
 
