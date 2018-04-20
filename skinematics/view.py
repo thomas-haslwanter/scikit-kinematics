@@ -284,7 +284,7 @@ def orientation(quats, out_file=None, title_text=None, deltaT=100):
     >>> omegas = np.tile(omega, [num_rep, 1])
     >>> q = skin.quat.calc_quat(omegas, q0, rate, 'sf')
     >>>     
-    >>> orientation(q, out_file, 'Well done!')
+    >>> orientation(q, out_file, 'Well done!', dt)
             
     '''
     
