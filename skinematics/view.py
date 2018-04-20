@@ -279,12 +279,11 @@ def orientation(quats, out_file=None, title_text=None, deltaT=100):
     >>> title_text = 'Rotation Demo'
     >>> 
     >>> # Calculate the orientation
-    >>> dt = 1./rate
     >>> num_rep = duration*rate
     >>> omegas = np.tile(omega, [num_rep, 1])
     >>> q = skin.quat.calc_quat(omegas, q0, rate, 'sf')
     >>>     
-    >>> orientation(q, out_file, 'Well done!', dt)
+    >>> orientation(q, out_file, 'Well done!', deltaT=1000./rate)
             
     '''
     
