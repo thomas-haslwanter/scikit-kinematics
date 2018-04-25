@@ -63,9 +63,9 @@ class Polulu(IMU_Base):
             data_interp = pd.DataFrame()
             # Different sampling times for acc/gyr and for mag!
             for ii in range(6):
-                data_interp[data.keys()[ii]] = np.interp(t_lin*1000, data['taccgyr'], data.ix[:,ii])
+                data_interp[data.keys()[ii]] = np.interp(t_lin*1000, data['taccgyr'], data.iloc[:,ii])
             for ii in range(6,9):
-                data_interp[data.keys()[ii]] = np.interp(t_lin*1000, data['tmag'], data.ix[:,ii])
+                data_interp[data.keys()[ii]] = np.interp(t_lin*1000, data['tmag'], data.iloc[:,ii])
             data_interp['time'] = t_lin
             
             # Set the conversion factors by hand, and apply them
