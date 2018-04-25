@@ -263,11 +263,11 @@ class IMU_Base(metaclass=abc.ABCMeta):
 
         method = self._q_type
         if method == 'analytical':
-            (quaternion, position) = analytical(self.R_init, self.omega, initialPosition, self.acc, self.rate) 
+            (quaternion, position) = analytical(self.R_init, np.deg2rad(self.omega), initialPosition, self.acc, self.rate) 
 
         elif method == 'kalman':
             self._checkRequirements()
-            quaternion = kalman(self.rate, self.acc, self.omega, self.mag)
+            quaternion = kalman(self.rate, self.acc, np.deg2rad(self.omega), self.mag)
 
         elif method == 'madgwick':
             self._checkRequirements()
