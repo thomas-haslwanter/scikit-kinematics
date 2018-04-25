@@ -1,12 +1,12 @@
-'''
+"""
 Routines for working with rotation matrices
-'''
- 
-'''
+"""
+
+"""
 comment
 author :  Thomas Haslwanter
-date :    June-2017
-'''
+date :    April-2018
+"""
 
 import numpy as np
 import sympy
@@ -21,20 +21,20 @@ file_dir = os.path.dirname(__file__)
 if file_dir not in sys.path:
     sys.path.insert(0, file_dir)
     
-import quat
 
 # For deprecation warnings
 #import deprecation
 #import warnings
 #warnings.simplefilter('always', DeprecationWarning)
 
-def stm(axis=0, angle=0, translation=[0, 0, 0]):
+
+def stm(axis='x', angle=0, translation=[0, 0, 0]):
     """Spatial Transformation Matrix
     
     Parameters
     ----------
-    axis : skalar
-            Axis of rotation, has to be 0, 1, or 2
+    axis : int or str
+            Axis of rotation, has to be 0, 1, or 2, or 'x', 'y', or 'z'
     angle : float
             rotation angle [deg]
     translation : 3x1 ndarray
@@ -48,30 +48,33 @@ def stm(axis=0, angle=0, translation=[0, 0, 0]):
 
     Examples
     --------
-    >>> rotmat.stm(axis=0, angle=45, translation=[1,2,3.3])
+    >>> rotmat.stm(axis='x', angle=45, translation=[1,2,3.3])
     array([[ 1.        ,  0.        ,  0.        ,  1.        ],
            [ 0.        ,  0.70710678, -0.70710678,  2.        ],
            [ 0.        ,  0.70710678,  0.70710678,  3.3       ],
            [ 0.        ,  0.        ,  0.        ,  1.        ]])
-    >>> R_z = rotmat.stm(axis=2, angle=30)
-    >>> T_y = rotmat.stm(translation=[0, 10, 0)
+    >>> R_z = rotmat.stm(axis='z', angle=30)
+    >>> T_y = rotmat.stm(translation=[0, 10, 0])
     
     """
+    axis = _check_axis(axis)
+
     stm = np.eye(4)
     stm[:-1,:-1] = R(axis, angle)
     stm[:3,-1] = translation
     return stm
 
-def stm_s(axis=0, angle='0', transl='0,0,0'):
-    '''
+
+def stm_s(axis='x', angle='0', transl='0,0,0'):
+    """
     Symbolic spatial transformation matrix about the given axis, by an angle with
     the given name, and translation by the given distances.
     
     Parameters
     ----------
-    axis : skalar
-            Axis of rotation, has to be 0, 1, or 2.
-    alpha : string
+    axis : int or str
+            Axis of rotation, has to be 0, 1, or 2, or 'x', 'y', or 'z'
+    angle : string
             Name of rotation angle, or '0' for no rotation,
             'alpha', 'theta', etc. for a symbolic rotation.
     transl : string
@@ -87,12 +90,13 @@ def stm_s(axis=0, angle='0', transl='0,0,0'):
     Examples
     --------
 
-    >>> Rz_s = STM_s(axis=2, angle='theta', transl='0,0,0')
+    >>> Rz_s = STM_s(axis='z', angle='theta', transl='0,0,0')
     
     >>> Tz_s = STM_s(axis=0, angle='0', transl='0,0,z')
 
-    '''
-    
+    """
+    axis = _check_axis(axis)
+
     # Default is the unit matrix
     STM_s = sympy.eye(4)
     
@@ -111,15 +115,15 @@ def stm_s(axis=0, angle='0', transl='0,0,0'):
     return STM_s        
         
     
-def R(axis=0, angle=90) :
-    '''Rotation matrix for rotation about a cardinal axis.
+def R(axis='x', angle=90) :
+    """Rotation matrix for rotation about a cardinal axis.
     The argument is entered in degree.
     
     Parameters
     ----------
-    axis : skalar
-            Axis of rotation, has to be 0, 1, or 2
-    alpha : float
+    axis : int or str
+            Axis of rotation, has to be 0, 1, or 2, or 'x', 'y', or 'z'
+    angle : float
             rotation angle [deg]
 
     Returns
@@ -128,58 +132,89 @@ def R(axis=0, angle=90) :
 
     Examples
     --------
-    >>> rotmat.R(axis=0, alpha=45)
+    >>> rotmat.R(axis='x', angle=45)
     array([[ 1.        ,  0.        ,  0.        ],
            [ 0.        ,  0.70710678, -0.70710678],
            [ 0.        ,  0.70710678,  0.70710678]])
     
-    >>> rotmat.R(axis=0)
+    >>> rotmat.R(axis='x')
     array([[ 1.        ,  0.        ,  0.        ],
            [ 0.        ,  0.        , -1.        ],
            [ 0.        ,  1.        ,  0.       ]])
     
-    >>> rotmat.R(1, 45)
+    >>> rotmat.R('y', 45)
     array([[ 0.70710678,  0.        ,  0.70710678],
            [ 0.        ,  1.        ,  0.        ],
            [-0.70710678,  0.        ,  0.70710678]])
     
-    >>> rotmat.R(axis=2, alpha=45)
+    >>> rotmat.R(axis=2, angle=45)
     array([[ 0.70710678, -0.70710678,  0.        ],
            [ 0.70710678,  0.70710678,  0.        ],
            [ 0.        ,  0.        ,  1.        ]])
-    '''
+    """
 
-    
+    axis = _check_axis(axis)
+
     # convert from degrees into radian:
     a_rad = np.deg2rad(angle)
     
-    if axis == 0:
+    if axis == 'x':
         R = np.array([[1,             0,            0],
                       [0, np.cos(a_rad), -np.sin(a_rad)],
                       [0, np.sin(a_rad),  np.cos(a_rad)]])
         
-    elif axis == 1:
+    elif axis == 'y':
         R = np.array([[ np.cos(a_rad), 0, np.sin(a_rad) ],
                       [            0,  1,             0 ],
                       [-np.sin(a_rad), 0, np.cos(a_rad) ]])
         
-    elif axis == 2:
+    elif axis == 'z':
         R = np.array([[np.cos(a_rad), -np.sin(a_rad), 0],
                       [np.sin(a_rad),  np.cos(a_rad), 0],
                       [            0,             0,  1]])
     
     else:
-        raise IOError('"axis" has to be 0, 1, or 2')
+        raise IOError('"axis" has to be "x", "y", or "z"')
     return R
 
-def R_s(axis=0, angle='alpha'):
-    '''
+
+def _check_axis(sel_axis):
+    """Leaves u[x/y/z] nchanged, but converts [0/1/2] to [x/y/z]
+
+    Parameters
+    ----------
+        sel_axis : str or int
+            If "str", the value has to be 'x', 'y', or 'z'
+            If "int", the value has to be 0, 1, or 2
+
+    Returns
+    -------
+        axis : str
+        Selected axis, as string
+    """
+
+    seq = 'xyz'
+    if type(sel_axis) is str:
+        if sel_axis not in seq:
+            raise IOError
+        axis = sel_axis
+    elif type(sel_axis) is int:
+        if sel_axis in range(3):
+            axis = seq[sel_axis]
+        else:
+            raise IOError
+
+    return axis
+
+
+def R_s(axis='x', angle='alpha'):
+    """
     Symbolic rotation matrix about the given axis, by an angle with the given name 
     
     Parameters
     ----------
-    axis : skalar
-            Axis of rotation, has to be 0, 1, or 2
+    axis : int or str
+            Axis of rotation, has to be 0, 1, or 2, or 'x', 'y', or 'z'
     alpha : string
             name of rotation angle
 
@@ -194,31 +229,34 @@ def R_s(axis=0, angle='alpha'):
     
     >>> R_nautical = R_s(2) * R_s(1) * R_s(0)
 
-    '''
+    """
+
+    axis = _check_axis(axis)
 
     alpha = sympy.Symbol(angle)
 
-    if axis == 0:
+    if axis == 'x':
         R_s =  sympy.Matrix([[1,                0,                 0],
                          [0, sympy.cos(alpha), -sympy.sin(alpha)],
                          [0, sympy.sin(alpha),  sympy.cos(alpha)]])
         
-    elif axis == 1:
+    elif axis == 'y':
         R_s = sympy.Matrix([[sympy.cos(alpha),0, sympy.sin(alpha)],
                          [0,1,0],
                          [-sympy.sin(alpha), 0, sympy.cos(alpha)]])
         
-    elif axis == 2:
+    elif axis == 'z':
         R_s = sympy.Matrix([[sympy.cos(alpha), -sympy.sin(alpha), 0],
                          [sympy.sin(alpha), sympy.cos(alpha), 0],
                          [0, 0, 1]])
     
     else:
-        raise IOError('"axis" has to be 0, 1, or 2')
+        raise IOError('"axis" has to be "x", "y", or "z", not {0}'.format(axis))
     return R_s
 
+
 def sequence(R, to ='Euler'):
-    '''
+    """
     This function takes a rotation matrix, and calculates
     the corresponding angles for sequential rotations. 
     
@@ -279,7 +317,7 @@ def sequence(R, to ='Euler'):
 
     Note that it is assumed that psi < pi
     
-    '''
+    """
 
     # Reshape the input such that I can use the standard matrix indices
     # For a simple (3,3) matrix, a superfluous first index is added.
@@ -325,7 +363,7 @@ def sequence(R, to ='Euler'):
 
     
 def dh(theta=0, d=0, r=0, alpha=0):
-    '''
+    """
     Denavit Hartenberg transformation and rotation matrix.
 
     .. math::
@@ -355,7 +393,7 @@ def dh(theta=0, d=0, r=0, alpha=0):
 
     >>> theta_1=90.0
     >>> theta_2=90.0
-    >>> theta_2=0.
+    >>> theta_3=0.
     >>> dh(theta_1,60,0,0)*dh(0,88,71,90)*dh(theta_2,15,0,0)*dh(0,0,174,-180)*dh(theta_3,15,0,0)
     [[-6.12323400e-17 -6.12323400e-17 -1.00000000e+00 -7.10542736e-15],
     [ 6.12323400e-17  1.00000000e+00 -6.12323400e-17  7.10000000e+01],
@@ -382,7 +420,7 @@ def dh(theta=0, d=0, r=0, alpha=0):
     dh : ndarray(4x4)
         Denavit Hartenberg transformation matrix.
 
-    '''
+    """
     
     # Calculate Denavit-Hartenberg transformation matrix
     Rx = stm(axis=0, angle=alpha)
@@ -394,17 +432,34 @@ def dh(theta=0, d=0, r=0, alpha=0):
     
     return(t_dh)
 
+
 def dh_s(theta=0, d=0, r=0, alpha=0):
-    '''
+    """
     Symbolic Denavit Hartenberg transformation and rotation matrix.
 
 
     >>> dh_s('theta_1',60,0,0)*dh_s(0,88,71,90)*dh_s('theta_2',15,0,0)*dh_s(0,0,174,-180)*dh_s('theta_3',15,0,0)
 
+    Parameters
+    ----------
+    theta : float
+        rotation angle z axis [deg]
+
+    d : float
+        transformation along the z-axis
+
+    alpha : float
+        rotation angle x axis [deg]
+
+    r : float
+        transformation along the x-axis
+
+
+
     Returns
     -------
     R : Symbolic rotation and transformation  matrix 4x4
-    '''
+    """
     
     # Force the correct input type
     theta_s = str(theta)
@@ -424,7 +479,7 @@ def dh_s(theta=0, d=0, r=0, alpha=0):
 
 
 def convert(rMat, to ='quat'):
-    '''
+    """
     Converts a rotation matrix to the corresponding quaternion.
     Assumes that R has the shape (3,3), or the matrix elements in columns
 
@@ -466,7 +521,7 @@ def convert(rMat, to ='quat'):
     >>> rotmat.convert(rotMat, 'quat')
     array([[ 0.99500417,  0.        ,  0.        ,  0.09983342]])
     
-    '''    
+    """
     
     if to != 'quat':
         raise IOError('Only know "quat"!')
@@ -496,7 +551,7 @@ def convert(rMat, to ='quat'):
     
 
 def seq2quat(rot_angles, seq='nautical'):
-    '''
+    """
     This function takes a angles from sequenctial rotations  and calculates
     the corresponding quaternions.
     
@@ -526,7 +581,7 @@ def seq2quat(rot_angles, seq='nautical'):
     -----
     The equations are longish, and can be found in 3D-Kinematics, 4.1.5 "Relation to Sequential Rotations"
 
-    '''
+    """
     
     rot_angles = np.atleast_2d(np.deg2rad(rot_angles))
     
@@ -617,7 +672,6 @@ if __name__ == '__main__':
     print(t_dh)
     
     
-    '''
     angles = np.r_[20, 0, 0]
     quat = seq2quat(angles)
     print(quat)
@@ -634,18 +688,11 @@ if __name__ == '__main__':
     
     print('Done testing')
     correct = np.r_[[0,0,np.pi/4]]
-    print(R())
-    print(R1(45))
-    from pprint import pprint
-    pprint(R_s(axis=0))
-    pprint(R_s(axis=1, angle='phi'))
-    
-    print(R(1,45))
     print(R_s(1, 'gamma'))
-    
-    R2(30)
-    print(R1(40))
+
+    import quat
     a = np.r_[np.cos(0.1), 0,0,np.sin(0.1)]
     print('The inverse of {0} is {1}'.format(a, quat.q_inv(a)))
     
-    '''
+    print(R(1, 45))
+    print(R('y', 45))

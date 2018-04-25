@@ -29,15 +29,20 @@ class TestSequenceFunctions(unittest.TestCase):
         result = vector.target2orient(np.array([a,b]), 'Fick')
         correct = np.array([[angle, 0., 0],
                             [0, -angle, 0.]] )
+        error = norm(result-correct)
+        self.assertAlmostEqual(error, 0)
         
         q_angle = quat.deg2quat(angle)
-        
         result = vector.target2orient(np.array([a,b]))
         correct = np.array([[0, 0, q_angle],
                             [0, -q_angle, 0.]] )
+        error = norm(result-correct)
+        self.assertAlmostEqual(error, 0)
         
         result = vector.target2orient(a)
         correct = np.array([0, 0, q_angle])
+        error = norm(result-correct)
+        self.assertAlmostEqual(error, 0)
         
         
     def test_normalize(self):
