@@ -5,8 +5,10 @@ scikit-kinematics
 *scikit-kinematics* primarily contains functions for working with 3D
 kinematics, e.g quaternions and rotation matrices.
 This includes utilities to read in data from the following IMU-sensors:
+    - polulu
     - XSens
     - xio
+    - xio-NGIMU
     - YEI
 
 Compatible with Python >= 3.5
@@ -21,8 +23,8 @@ Homepage
 http://work.thaslwanter.at/skinematics/html/
 
 Author:  Thomas Haslwanter
-Date:    19-02-2018
-Ver:     0.7.5
+Date:    25-04-2018
+Ver:     0.7.6
 Licence: BSD 2-Clause License (http://opensource.org/licenses/BSD-2-Clause)
         Copyright (c) 2018, Thomas Haslwanter
         All rights reserved.

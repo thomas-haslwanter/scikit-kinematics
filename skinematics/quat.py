@@ -839,7 +839,7 @@ def calc_quat(omega, q0, rate, CStype):
     >>> v0 = np.r_[0., 0., 100.] * np.pi/180.
     >>> omega = np.tile(v0, (1000,1))
     >>> rate = 100
-    >>> out = quat.vel2quat(omega, [0., 0., 0.], rate, 'sf')
+    >>> out = quat.calc_quat(omega, [0., 0., 0.], rate, 'sf')
     array([[ 1.        ,  0.        ,  0.        ,  0.        ],
        [ 0.99996192,  0.        ,  0.        ,  0.00872654],
        [ 0.9998477 ,  0.        ,  0.        ,  0.01745241],
@@ -957,7 +957,7 @@ if __name__=='__main__':
     v0 = np.r_[0., 0., 100.] * np.pi/180.
     vel = np.tile(v0, (1000,1))
     rate = 100
-    out = vel2quat(vel, [0., 0., 0.], rate, 'sf')
+    out = calc_quat(vel, [0., 0., 0.], rate, 'sf')
     
     rate = 1000
     t = np.arange(0,10,1./rate)

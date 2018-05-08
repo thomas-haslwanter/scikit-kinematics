@@ -1017,6 +1017,7 @@ if __name__ == '__main__':
     in_file = r'.\tests\data\data_xsens.txt'
     from skinematics.sensors.xsens import XSens
     data = XSens(in_file)
+    orientation(data.quat)
     viewer = Orientation_OGL(quat_in=data.quat)
     viewer.run(looping=False, rate=100)
     

@@ -15,6 +15,7 @@ Author: Thomas Haslwanter
 
 import numpy as np
 import pandas as pd
+from scipy import constants
 import abc
 
 # To ensure that the relative path works
@@ -150,7 +151,7 @@ class XIO(IMU_Base):
         
         # Set the class properties
         in_data = {'rate':rates['InertialAndMagnetic'],
-               'acc':   data[0],
+               'acc':   data[0] * constants.g,
                'omega': np.deg2rad(data[1]),
                'mag':   data[2]}
         self._set_data(in_data)

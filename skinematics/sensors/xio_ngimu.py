@@ -15,6 +15,7 @@ Author: Thomas Haslwanter
 
 import numpy as np
 import pandas as pd
+from scipy import constants
 import abc
 
 # To ensure that the relative path works
@@ -87,11 +88,7 @@ def read_datafile(in_file):
     out_list: list
             Contains the following parameters:
             
-<<<<<<< HEAD
-            -time [s]
-=======
             - time [s]
->>>>>>> 16ac081f68407702523c4fab75ad0c2192752622
             - acceleration [g]
             - angular_velocity [deg/s]
             - mag_field_direction [uT]
@@ -116,11 +113,6 @@ class NGIMU(IMU_Base):
         Get the sampling rate, as well as the recorded data,
         and assign them to the corresponding attributes of "self".
         For the x-io.NGIMU, the data are stored in different files:
-<<<<<<< HEAD
-        - "Settings.txt" : contains all the sensor-settings
-        - "sensors.csv" : contains the recorded sensor data
-        
-=======
 
         - "Settings.txt" : contains all the sensor-settings
         - "sensors.csv" : contains the recorded sensor data
@@ -131,7 +123,6 @@ class NGIMU(IMU_Base):
             - omega : angular_velocity
             - mag : mag_field_direction
 
->>>>>>> 16ac081f68407702523c4fab75ad0c2192752622
         Parameters
         ----------
         in_selection : string
@@ -139,17 +130,7 @@ class NGIMU(IMU_Base):
                 filename of one file in that directory
         in_data : not used here
         
-<<<<<<< HEAD
-        Assigns
-        -------
-        - rate : rate
-        - acc : acceleration
-        - omega : angular_velocity
-        - mag : mag_field_direction
-        - packet_nr : packet_nr
-=======
 
->>>>>>> 16ac081f68407702523c4fab75ad0c2192752622
         '''
         
         in_selection = in_file
@@ -177,12 +158,8 @@ class NGIMU(IMU_Base):
         
         # Set the class properties
         in_data = {'rate':rates['sensors'],
-               'acc':   data[1],
-<<<<<<< HEAD
-               'omega': data[2],
-=======
+               'acc':   data[1] * constants.g,
                'omega': np.deg2rad(data[2]),
->>>>>>> 16ac081f68407702523c4fab75ad0c2192752622
                'mag':   data[3]}
         self._set_data(in_data)
         

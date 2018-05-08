@@ -52,7 +52,7 @@ class IMU_Base(metaclass=abc.ABCMeta):
     A concrete class must be instantiated, which implements "get_data". (See example below.)
 
     Attributes:
-        acc (Nx3 array) : 3D linear acceleration
+        acc (Nx3 array) : 3D linear acceleration [m/s**2]
         dataType (string) : Type of data (commonly float)
         duration (float) : Duration of recording [sec]
         mag (Nx3 array) : 3D orientation of local magnectic field
