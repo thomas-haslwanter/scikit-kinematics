@@ -24,17 +24,23 @@ class TestSequenceFunctions(unittest.TestCase):
         self.delta = 1e-4
         
     def test_analyze3dmarkers(self):
-        t = np.arange(0,10,0.1)
-        translation = (np.c_[[1,1,0]]*t).T
-    
+        # Test-data Generation:
+        
+        # 1) Three marker locations
         M = np.empty((3,3))
         M[0] = np.r_[0,0,0]
         M[1]= np.r_[1,0,0]
         M[2] = np.r_[1,1,0]
         M -= np.mean(M, axis=0) 
     
+        # 2) a gradual translation from 0 to [1,1,0], over 10 sec
+        t = np.arange(0,10,0.1)
+        translation = (np.c_[[1,1,0]]*t).T
+    
+        # 3) A rotation with 100 deg/s about the z-axis
         q = np.vstack((np.zeros_like(t), np.zeros_like(t),quat.deg2quat(100*t))).T
     
+        # Calculate the location of the three test-markers
         M0 = vector.rotate_vector(M[0], q) + translation
         M1 = vector.rotate_vector(M[1], q) + translation
         M2 = vector.rotate_vector(M[2], q) + translation
