@@ -5,7 +5,7 @@ These routines can be used with vectors, as well as with matrices containing a v
  
 '''
 author :  Thomas Haslwanter
-date :    July-2017
+date :    June-2018
 '''
 
 import numpy as np
@@ -75,9 +75,10 @@ def normalize(v):
         
     v = np.atleast_2d(v)
     length = norm(v,axis=1)
+    v[length!=0] = (v[length!=0].T/length[length!=0]).T
     if vectorFlag:
         v = v.ravel()
-    return (v.T/length).T
+    return v
 
 
 def angle(v1,v2):
@@ -516,6 +517,6 @@ if __name__=='__main__':
     a = [3,3,0]
     b = [0, 1, 0]
     
-    projected = project(a,b, projection_type='2D')
-    print(projected)
+    normalized = normalize(np.cross(a,a))
+    print(normalized)
    

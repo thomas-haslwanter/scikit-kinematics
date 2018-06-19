@@ -12,6 +12,7 @@ from numpy.linalg import norm
 import os
 from skinematics import imus, quat, vector, rotmat
 from time import sleep
+from skinematics.simulations.simulate_movements import simulate_imu
 
 class TestSequenceFunctions(unittest.TestCase):
     
@@ -25,58 +26,93 @@ class TestSequenceFunctions(unittest.TestCase):
         self.q3y = r_[2, 0, sin(0.1), 0]
 
         self.delta = 1e-4
+        
+       # Simulate IMU-data
+        duration_movement = 1    # [sec]
+        duration_total = 1      # [sec]
+        rate = 100             # [Hz]
+        
+        B0 = vector.normalize([0, -1, -1])
+        
+        rotation_axis = [0, 1, 0]
+        angle = 90
+        
+        translation = [1,0,0]
+        distance = 0
+        
+        q_init = [0,0,0]
+        pos_init = [0,0,0]
+        
+        self.imu_signals, self.body_pos_orient =  simulate_imu(rate, duration_movement, duration_total,
+                    q_init = q_init, rotation_axis=rotation_axis, deg=angle,
+                    pos_init = pos_init, direction=translation, distance=distance,
+                    B0=B0) 
 
-        '''
+        
     def test_analytical(self):
-        # Get data
-        inFile = os.path.join(myPath, 'data', 'data_xsens.txt')
-        from skinematics.sensors.xsens import XSens
         
-        initialPosition = array([0,0,0])
-        R_initialOrientation = rotmat.R(0,90)
+        # Analyze the simulated data with "analytical"
+        q, pos, vel = imus.analytical(R_initialOrientation=np.eye(3),
+                         omega = self.imu_signals['omega'],
+                         initialPosition=np.zeros(3),
+                         accMeasured = self.imu_signals['gia'],
+                         rate = rate)                         
         
-        sensor = XSens(in_file=inFile, R_init = R_initialOrientation, pos_init = initialPosition)
-        rate = sensor.rate
-        acc = sensor.acc
-        omega = sensor.omega
+        # and then check, if the position is [0,0,0], and the orientation-quat = [0, sin(45), 0]
+        self.assertTrue(np.max(np.abs(pos[-1]))<0.001)      # less than 1mm
         
-        plt.plot(sensor.quat)
-        plt.show()
-        '''
+        result = quat.q_vector(q[-1])
+        correct = array([ 0.,  np.sin(np.deg2rad(45)),  0.])
+        error = norm(result-correct)
+        self.assertAlmostEqual(error, 0)
+        
         
     def test_kalman(self):
-        # Get data
-        inFile = os.path.join(myPath, 'data', 'data_xsens.txt')
-        from skinematics.sensors.xsens import XSens
         
-        initialPosition = array([0,0,0])
-        R_initialOrientation = rotmat.R(0,90)
+        # Analyze the simulated data with "kalman"
+        imu = self.imu_signals
+        q_kalman = kalman(imu.rate, imu.gia, imu.omega, imu.magnetic)
         
-        sensor = XSens(in_file=inFile, R_init = R_initialOrientation, pos_init = initialPosition, q_type='kalman')
-        print(sensor.source)
-        q = sensor.quat
+        # and then check, if the quat_vector = [0, sin(45), 0]
+        result = quat.q_vector(q_kalman[-1])
+        correct = array([ 0.,  np.sin(np.deg2rad(45)),  0.])
+        error = norm(result-correct)
+        self.assertAlmostEqual(error, 0)
+        
+        ## Get data
+        #inFile = os.path.join(myPath, 'data', 'data_xsens.txt')
+        #from skinematics.sensors.xsens import XSens
+        
+        #initialPosition = array([0,0,0])
+        #R_initialOrientation = rotmat.R(0,90)
+        
+        #sensor = XSens(in_file=inFile, R_init = R_initialOrientation, pos_init = initialPosition, q_type='kalman')
+        #print(sensor.source)
+        #q = sensor.quat
         
     def test_madgwick(self):
-        # Get data
-        inFile = os.path.join(myPath, 'data', 'data_xsens.txt')
-        from skinematics.sensors.xsens import XSens
         
-        initialPosition = array([0,0,0])
-        R_initialOrientation = rotmat.R(0,90)
+        ## Get data
+        #inFile = os.path.join(myPath, 'data', 'data_xsens.txt')
+        #from skinematics.sensors.xsens import XSens
         
-        sensor = XSens(in_file=inFile, R_init = R_initialOrientation, pos_init = initialPosition, q_type='madgwick')
-        q = sensor.quat
+        #initialPosition = array([0,0,0])
+        #R_initialOrientation = rotmat.R(0,90)
+        
+        #sensor = XSens(in_file=inFile, R_init = R_initialOrientation, pos_init = initialPosition, q_type='madgwick')
+        #q = sensor.quat
         
     def test_mahony(self):
-        # Get data
-        inFile = os.path.join(myPath, 'data', 'data_xsens.txt')
-        from skinematics.sensors.xsens import XSens
         
-        initialPosition = array([0,0,0])
-        R_initialOrientation = rotmat.R(0,90)
+        ## Get data
+        #inFile = os.path.join(myPath, 'data', 'data_xsens.txt')
+        #from skinematics.sensors.xsens import XSens
         
-        sensor = XSens(in_file=inFile, R_init = R_initialOrientation, pos_init = initialPosition, q_type='mahony')
-        q = sensor.quat
+        #initialPosition = array([0,0,0])
+        #R_initialOrientation = rotmat.R(0,90)
+        
+        #sensor = XSens(in_file=inFile, R_init = R_initialOrientation, pos_init = initialPosition, q_type='mahony')
+        #q = sensor.quat
         
     def test_IMU_calc_orientation_position(self):
         """Currently, this only tests if the two functions are running through"""

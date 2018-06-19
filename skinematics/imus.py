@@ -188,15 +188,15 @@ class IMU_Base(metaclass=abc.ABCMeta):
 
         # Set the analysis method, and consolidate the object (see below)
         # This also means calculating the orientation quaternion!!
-        self.q_type = q_type
+        self.set_qtype(q_type)
         
         if q_type != None:
             if calculate_position:
                 self.calc_position()
 
-    @property
-    def q_type(self):
-        """q_type determines how the orientation is calculated.
+    def set_qtype(self, type_value):                
+        """Sets q_type, and automatically performs the relevant calculations.
+        q_type determines how the orientation is calculated.
         If "q_type" is "None", no orientation gets calculated; otherwise,
         the orientation calculation is performed with 
         "_calc_orientation", using the option "q_type".
@@ -210,24 +210,22 @@ class IMU_Base(metaclass=abc.ABCMeta):
         * None
 
         """
-        return self._q_type
-
-    @q_type.setter
-    def q_type(self, value):
+        
         allowed_values = ['analytical',
                           'kalman',
                           'madgwick',
                           'mahony',
                           None]
-        if value in allowed_values:
-            self._q_type = value
-            if value == None:
+        
+        if type_value in allowed_values:
+            self.q_type = type_value
+            if type_value == None:
                 self.quat = None
             else:
                 self._calc_orientation()
         else:
             raise ValueError('q_type must be one of the following: {0}, not {1}'.format(allowed_values, value))
-
+        
 
     def _set_data(self, data):
         # Set the properties of an IMU-object directly
@@ -261,7 +259,7 @@ class IMU_Base(metaclass=abc.ABCMeta):
 
         initialPosition = np.r_[0,0,0]
 
-        method = self._q_type
+        method = self.q_type
         if method == 'analytical':
             (quaternion, position) = analytical(self.R_init, np.deg2rad(self.omega), initialPosition, self.acc, self.rate) 
 
@@ -711,6 +709,8 @@ if __name__ == '__main__':
 
 
     def show_result(imu_data):
+        "Dummy function, to simplify the visualization"
+        
         fig, axs = plt.subplots(3,1)
         axs[0].plot(imu_data.omega)
         axs[0].set_ylabel('Omega')
@@ -722,12 +722,12 @@ if __name__ == '__main__':
         plt.show()    
         
         # Automatic re-calculation of orientation if "q_type" is changed
-    sensor.q_type = 'madgwick'
+    sensor.set_qtype('madgwick')
     q_Madgwick = sensor.quat
 
     show_result(sensor)
 
-    sensor.q_type = 'kalman'
+    sensor.set_qtype('kalman')
     q_Kalman = sensor.quat
 
     show_result(sensor)
