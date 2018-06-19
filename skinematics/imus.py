@@ -94,6 +94,7 @@ class IMU_Base(metaclass=abc.ABCMeta):
     >>>  
     >>> # Choose a sensor 
     >>> from skinematics.sensors.xsens import XSens
+    >>> from skinematics.sensors.manual import MyOwnSensor
     >>>
     >>> # Only read in the data
     >>> data = XSens(in_file, q_type=None)
@@ -271,7 +272,7 @@ class IMU_Base(metaclass=abc.ABCMeta):
             self._checkRequirements()
 
             # Initialize object
-            AHRS = Madgwick(SamplePeriod=1./self.rate, Beta=1.5)
+            AHRS = Madgwick(SamplePeriod=1./self.rate, Beta=0.5)    # previously: Beta=1.5
             quaternion = np.zeros((self.totalSamples, 4))
 
             # The "Update"-function uses angular velocity in radian/s, and only the directions of acceleration and magnetic field
@@ -288,7 +289,7 @@ class IMU_Base(metaclass=abc.ABCMeta):
             self._checkRequirements()
 
             # Initialize object
-            AHRS = Mahony(SamplePeriod=1./np.float(self.rate), Kp=0.5)
+            AHRS = Mahony(SamplePeriod=1./np.float(self.rate), Kp=0.4)  # previously: Kp=0.5
             quaternion = np.zeros((self.totalSamples, 4))
 
             # The "Update"-function uses angular velocity in radian/s, and only the directions of acceleration and magnetic field
