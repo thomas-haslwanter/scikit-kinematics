@@ -53,7 +53,7 @@ class Polulu(IMU_Base):
             rate = in_data['rate']
             
             # Get the data, and label them
-            data = pd.read_csv(in_file, header=None, sep='[ ]*', engine='python')
+            data = pd.read_csv(in_file, header=None, delim_whitespace=True, engine='python')
             data.columns = ['acc_x', 'acc_y', 'acc_z', 'gyr_x', 'gyr_y', 'gyr_z', 'mag_x', 'mag_y', 'mag_z', 'taccgyr', 'tmag']
             
             # interpolate with a manually set rate. Note that this sensor acquires exactly 25 seconds!

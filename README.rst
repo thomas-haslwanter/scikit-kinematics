@@ -23,8 +23,8 @@ Homepage
 http://work.thaslwanter.at/skinematics/html/
 
 Author:  Thomas Haslwanter
-Date:    08-05-2018
-Ver:     0.7.7
+Date:    18-10-2018
+Ver:     0.8.0
 Licence: BSD 2-Clause License (http://opensource.org/licenses/BSD-2-Clause)
         Copyright (c) 2018, Thomas Haslwanter
         All rights reserved.
@@ -37,7 +37,7 @@ You can install scikit-kinematics with
 
 and upgrade to a new version with
 
-    pip install scikit-kinematics -U
+    pip install --upgrade --no-deps scikit-kinematics
 
 IMUs
 ====
@@ -61,6 +61,8 @@ MARG Systems
 - imus.IMU ... Class for working with data from IMUs
     - imus.IMU.calc_position ... calculate position
     - imus.IMU.setData ... set the properties of an IMU-object
+    - imus.IMU.set_qtype ... sets q_type, and automatically performs the relevant calculations.
+
 - imus.Madgwick ... Class for calculating the 3D orientation with the Madgwick-algorithm
 - imus.Mahony ... Class for calculating the 3D orientation with the Mahony-algorithm
 
@@ -158,3 +160,4 @@ Interactive Data Analysis
 =========================
 
 - viewer.ts ... interactive viewer for time series data
+- view.orientation ... visualize and animate orientations, expressed as quaternions.

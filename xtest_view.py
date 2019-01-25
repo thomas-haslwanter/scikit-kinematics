@@ -1,3 +1,12 @@
+"""
+This file has been removed from the "tests" collection, so that
+tests can be run automatically (without GUI-interruption)
+
+author: thomas haslwanter
+date:   nov-2018
+"""
+
+
 import sys
 import os
 

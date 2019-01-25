@@ -45,6 +45,7 @@ Base-Class & Methods
     imus.IMU_Base
     imus.IMU_Base.calc_position
     imus.IMU_Base.get_data
+    imus.IMU_Base.set_qtype
 
 Classes and Functions for Sensor-Integration
 --------------------------------------------

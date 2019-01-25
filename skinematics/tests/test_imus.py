@@ -32,7 +32,7 @@ class TestSequenceFunctions(unittest.TestCase):
         duration_total = 1      # [sec]
         rate = 100             # [Hz]
         
-        B0 = vector.normalize([0, -1, -1])
+        B0 = vector.normalize([1, 0, 1])
         
         rotation_axis = [0, 1, 0]
         angle = 90
@@ -54,7 +54,7 @@ class TestSequenceFunctions(unittest.TestCase):
         # Analyze the simulated data with "analytical"
         imu = self.imu_signals
         
-        q, pos = imus.analytical(R_initialOrientation=np.eye(3),
+        q, pos, vel = imus.analytical(R_initialOrientation=np.eye(3),
                          omega = imu['omega'],
                          initialPosition=np.zeros(3),
                          accMeasured = imu['gia'],
@@ -69,28 +69,28 @@ class TestSequenceFunctions(unittest.TestCase):
         self.assertAlmostEqual(error, 0)
         
         
-    #def test_kalman(self):
+    def test_kalman(self):
         
-        ## Analyze the simulated data with "kalman"
-        #imu = self.imu_signals
-        #q_kalman = imus.kalman(imu['rate'], imu['gia'], imu['omega'], imu['magnetic'])
+        # Analyze the simulated data with "kalman"
+        imu = self.imu_signals
+        q_kalman = imus.kalman(imu['rate'], imu['gia'], imu['omega'], imu['magnetic'])
         
-        ## and then check, if the quat_vector = [0, sin(45), 0]
-        #result = quat.q_vector(q_kalman[-1])                    # [0.76, 0, 0]
-        #correct = array([ 0.,  np.sin(np.deg2rad(45)),  0.])    # [0, 0.71, 0]
-        #error = norm(result-correct)
-        #self.assertAlmostEqual(error, 0)
+        # and then check, if the quat_vector = [0, sin(45), 0]
+        result = quat.q_vector(q_kalman[-1])                    # [0.76, 0, 0]
+        correct = array([ 0.,  np.sin(np.deg2rad(45)),  0.])    # [0, 0.71, 0]
+        error = norm(result-correct)
+        self.assertAlmostEqual(error, 0, places=2)  # It is not clear why the Kalman filter is not more accurate
         
-        ## Get data
-        #inFile = os.path.join(myPath, 'data', 'data_xsens.txt')
-        #from skinematics.sensors.xsens import XSens
+        # Get data
+        inFile = os.path.join(myPath, 'data', 'data_xsens.txt')
+        from skinematics.sensors.xsens import XSens
         
-        #initialPosition = array([0,0,0])
-        #R_initialOrientation = rotmat.R(0,90)
+        initialPosition = array([0,0,0])
+        R_initialOrientation = rotmat.R(0,90)
         
-        #sensor = XSens(in_file=inFile, R_init = R_initialOrientation, pos_init = initialPosition, q_type='kalman')
-        #print(sensor.source)
-        #q = sensor.quat
+        sensor = XSens(in_file=inFile, R_init = R_initialOrientation, pos_init = initialPosition, q_type='kalman')
+        print(sensor.source)
+        q = sensor.quat
         
     def test_madgwick(self):
         
@@ -179,13 +179,37 @@ class TestSequenceFunctions(unittest.TestCase):
         sensor.calc_position()
         print('done')
         
+    def test_set_qtype(self):
+        """Tests if the test crashes on any of the existing qtype options"""
+        
+        # Get data
+        inFile = os.path.join(myPath, 'data', 'data_xsens.txt')
+        from skinematics.sensors.xsens import XSens
+        
+        initialPosition = array([0,0,0])
+        R_initialOrientation = rotmat.R(0,90)
+        
+        sensor = XSens(in_file=inFile, R_init = R_initialOrientation, pos_init = initialPosition, q_type='kalman') 
+        
+        
+        allowed_values = ['analytical',
+                          'kalman',
+                          'madgwick',
+                          'mahony',
+                          None]        
+        
+        for sensor_type in allowed_values:
+            sensor.set_qtype(sensor_type)
+            print('{0} is running'.format(sensor_type))
+        
+        
 if __name__ == '__main__':
-    #suite = unittest.TestSuite()
-    #suite.addTest(TestSequenceFunctions(methodName='test_IMU_calc_orientation_position'))
-    #runner = unittest.TextTestRunner()
-    #runner.run(suite)
+    suite = unittest.TestSuite()
+    suite.addTest(TestSequenceFunctions(methodName='test_set_qtype'))
+    runner = unittest.TextTestRunner()
+    runner.run(suite)
     
-    unittest.main()
+    #unittest.main()
     
     print('Thanks for using programs from Thomas!')
     sleep(0.2)

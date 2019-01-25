@@ -106,10 +106,10 @@ class IMU_Base(metaclass=abc.ABCMeta):
     >>> q_analytical = sensor.quat
     >>>  
     >>> # Automatic re-calculation of orientation if "q_type" is changed
-    >>> sensor.q_type = 'madgwick'
+    >>> sensor.set_qtype('madgwick')
     >>> q_Madgwick = sensor.quat
     >>>  
-    >>> sensor.q_type = 'kalman'
+    >>> sensor.set_qtype('kalman')
     >>> q_Kalman = sensor.quat
     >>>
     >>> # Demonstrate how to fill up a sensor manually
@@ -129,7 +129,7 @@ class IMU_Base(metaclass=abc.ABCMeta):
         """
 
     def __init__(self, in_file = None,
-                 q_type='madgwick', R_init = np.eye(3),
+                 q_type='analytical', R_init = np.eye(3),
                  calculate_position=True, pos_init = np.zeros(3),
                  in_data = None ):
         """Initialize an IMU-object.
@@ -147,7 +147,7 @@ class IMU_Base(metaclass=abc.ABCMeta):
                 Location of infile / input
         q_type : string
                 Determines how the orientation gets calculated:
-                - 'analytical' .... quaternion integration of angular velocity
+                - 'analytical' .... quaternion integration of angular velocity [default]
                 - 'kalman' ..... quaternion Kalman filter
                 - 'madgwick' ... gradient descent method, efficient
                 - 'mahony' ....  formula from Mahony, as implemented by Madgwick
@@ -262,7 +262,7 @@ class IMU_Base(metaclass=abc.ABCMeta):
 
         method = self.q_type
         if method == 'analytical':
-            (quaternion, position) = analytical(self.R_init, np.deg2rad(self.omega), initialPosition, self.acc, self.rate) 
+            (quaternion, position, velocity) = analytical(self.R_init, self.omega, initialPosition, self.acc, self.rate) 
 
         elif method == 'kalman':
             self._checkRequirements()
@@ -376,6 +376,8 @@ def analytical(R_initialOrientation=np.eye(3),
         Orientation, expressed as a quaternion vector
     pos : ndarray(N,3)
         Position in space [m]
+    vel : ndarray(N,3)
+        Velocity in space [m/s]
 
     Example
     -------
@@ -423,7 +425,7 @@ def analytical(R_initialOrientation=np.eye(3),
         vel[:,ii] = cumtrapz(accReSpace[:,ii], dx=1./rate, initial=0)
         pos[:,ii] = cumtrapz(vel[:,ii],        dx=1./rate, initial=initialPosition[ii])
 
-    return (q, pos)
+    return (q, pos, vel)
 
 def kalman(rate, acc, omega, mag):
     '''
@@ -467,16 +469,17 @@ def kalman(rate, acc, omega, mag):
     for ii in range(3):
         Phi_k[ii,ii] = np.exp(-tstep/tau[ii])
 
-    H_k = np.matrix( np.eye(7) )		# Identity matrix
+    H_k = np.eye(7)		# Identity matrix
 
-    Q_k = np.matrix( np.zeros((7,7)) )	# process noise matrix Q_k
-    D = 0.0001*np.r_[0.4, 0.4, 0.4]		# [rad^2/sec^2]; from Yun, 2006
-                                                                            # check 0.0001 in Yun
+    Q_k = np.zeros((7,7)) 	# process noise matrix Q_k
+    #D = 0.0001*np.r_[0.4, 0.4, 0.4]		# [rad^2/sec^2]; from Yun, 2006
+    D = np.r_[0.4, 0.4, 0.4]		# [rad^2/sec^2]; from Yun, 2006
+               
     for ii in range(3):
         Q_k[ii,ii] =  D[ii]/(2*tau[ii])  * ( 1-np.exp(-2*tstep/tau[ii]) )
 
     # Evaluate measurement noise covariance matrix R_k
-    R_k = np.matrix( np.zeros((7,7)) )
+    R_k = np.zeros((7,7)) 
     r_angvel = 0.01;      # [rad**2/sec**2]; from Yun, 2006
     r_quats = 0.0001;     # from Yun, 2006
     for ii in range(7):
@@ -496,7 +499,7 @@ def kalman(rate, acc, omega, mag):
 
         # Evaluate quaternion based on acceleration and magnetic field data
         accelVec_n = vector.normalize(accelVec)
-        magVec_hor = magVec - accelVec_n * accelVec_n.dot(magVec)
+        magVec_hor = magVec - accelVec_n * (accelVec_n @ magVec)
         magVec_n   = vector.normalize(magVec_hor)
         basisVectors = np.vstack( (magVec_n, np.cross(accelVec_n, magVec_n), accelVec_n) ).T
         quatRef = quat.q_inv(rotmat.convert(basisVectors, to='quat')).flatten()
@@ -507,8 +510,7 @@ def kalman(rate, acc, omega, mag):
 
         # Calculate Kalman Gain
         # K_k = P_k * H_k.T * inv(H_k*P_k*H_k.T + R_k)
-        # Check: why is H_k used in the original formulas?
-        K_k = P_k * np.linalg.inv(P_k + R_k)
+        K_k = P_k @ np.linalg.inv(P_k + R_k)
 
         # Update state vector x_k
         x_k += np.array( K_k.dot(z_k-z_k_pre) ).ravel()
@@ -521,19 +523,18 @@ def kalman(rate, acc, omega, mag):
 
         # Update error covariance matrix
         #P_k = (eye(7)-K_k*H_k)*P_k
-        # Check: why is H_k used in the original formulas?
-        P_k = (H_k - K_k) * P_k
+        P_k = (np.eye(7) - K_k) @ P_k
 
         # Projection of state quaternions
-        x_k[3:] += quat.q_mult(0.5*x_k[3:],np.r_[0, x_k[:3]]).flatten()
+        x_k[3:] += 0.5 * quat.q_mult(x_k[3:], np.r_[0, x_k[:3]]).flatten()
         x_k[3:] = vector.normalize( x_k[3:] )
         x_k[:3] = np.zeros(3)
-        x_k[:3] = tstep * (-x_k[:3]+z_k[:3])
+        x_k[:3] += tstep * (-x_k[:3]+z_k[:3])
 
         qOut[ii,:] = x_k[3:]
 
         # Projection of error covariance matrix
-        P_k = Phi_k * P_k * Phi_k.T + Q_k
+        P_k = Phi_k @ P_k @ Phi_k.T + Q_k
 
     # Make the first position the reference position
     qOut = quat.q_mult(qOut, quat.q_inv(qOut[0]))
@@ -722,7 +723,9 @@ if __name__ == '__main__':
         axs[2].set_ylabel('Quat')
         plt.show()    
         
-        # Automatic re-calculation of orientation if "q_type" is changed
+    show_result(sensor)
+    
+    # Automatic re-calculation of orientation if "q_type" is changed
     sensor.set_qtype('madgwick')
     q_Madgwick = sensor.quat
 

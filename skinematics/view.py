@@ -51,7 +51,12 @@ import vector, quat
 from sensors.xsens import XSens
 
 # For Orientation_Viewers
-import pygame
+# import pygame
+# To avoid the annoying "Hello from the pygame community":
+import contextlib
+with contextlib.redirect_stdout(None):
+    import pygame
+    
 import OpenGL.GL as gl
 import OpenGL.GLU as glu
 
@@ -285,6 +290,10 @@ def orientation(quats, out_file=None, title_text=None, deltaT=100):
     >>>     
     >>> orientation(q, out_file, 'Well done!', deltaT=1000./rate)
             
+    Note
+    ----
+    Seems to be slow. So unless you need a movie, better use "Orientation_OGL".
+    
     '''
     
     # Initialize the 3D-figure
@@ -1014,9 +1023,9 @@ if __name__ == '__main__':
     
     # Test OpenGL viewer:    
     in_file = r'.\tests\data\data_xsens.txt'
-    from skinematics.sensors.xsens import XSens
+    from sensors.xsens import XSens
     data = XSens(in_file)
-    orientation(data.quat)
+    orientation(data.quat, deltaT=5)
     viewer = Orientation_OGL(quat_in=data.quat)
     viewer.run(looping=False, rate=100)
     

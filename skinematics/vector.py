@@ -51,7 +51,7 @@ def normalize(v):
     >>> skinematics.vector.normalize([3, 0, 0])
     array([[ 1.,  0.,  0.]])
     
-    >>> v = [[pi, 2, 3], [2, 0, 0]]
+    >>> v = [[np.pi, 2, 3], [2, 0, 0]]
     >>> skinematics.vector.normalize(v)
     array([[ 0.6569322 ,  0.41821602,  0.62732404],
        [ 1.        ,  0.        ,  0.        ]])
@@ -73,7 +73,7 @@ def normalize(v):
     else:
         vectorFlag = False
         
-    v = np.atleast_2d(v)
+    v = np.double(np.atleast_2d(v))  # otherwise I get in trouble 2 lines down, if v is integer!
     length = norm(v,axis=1)
     v[length!=0] = (v[length!=0].T/length[length!=0]).T
     if vectorFlag:
@@ -516,6 +516,9 @@ def target2orient(target, orient_type='quat'):
 if __name__=='__main__':
     a = [3,3,0]
     b = [0, 1, 0]
+    
+    normalized = normalize(a)
+    print(normalized)
     
     normalized = normalize(np.cross(a,a))
     print(normalized)
