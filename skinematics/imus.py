@@ -61,7 +61,7 @@ class IMU_Base(metaclass=abc.ABCMeta):
         pos_init (3-vector) : Initial position. default is np.ones(3)
         quat (Nx4 array) : 3D orientation
         q_type (string) : Method of calculation for orientation quaternion
-        rate (int) : Sampling rate
+        rate (float) : Sampling rate [Hz]
         R_init (3x3 array) : Rotation matrix defining the initial orientation. Default is np.eye(3)
         source (str) : Name of data-file
         totalSamples (int) : Number of samples
@@ -80,7 +80,7 @@ class IMU_Base(metaclass=abc.ABCMeta):
              Angular velocity [rad/s], about the x-, y-, and z-axis
         [mag] : (N x 3) array (optional)
              Local magnetic field, in the x-, y-, and z-direction
-        rate: integer
+        rate: float
             sample rate [Hz]
 
 
@@ -272,7 +272,7 @@ class IMU_Base(metaclass=abc.ABCMeta):
             self._checkRequirements()
 
             # Initialize object
-            AHRS = Madgwick(SamplePeriod=1./self.rate, Beta=0.5)    # previously: Beta=1.5
+            AHRS = Madgwick(rate=self.rate, Beta=0.5)    # previously: Beta=1.5
             quaternion = np.zeros((self.totalSamples, 4))
 
             # The "Update"-function uses angular velocity in radian/s, and only the directions of acceleration and magnetic field
@@ -289,7 +289,7 @@ class IMU_Base(metaclass=abc.ABCMeta):
             self._checkRequirements()
 
             # Initialize object
-            AHRS = Mahony(SamplePeriod=1./np.float(self.rate), Kp=0.4)  # previously: Kp=0.5
+            AHRS = Mahony(rate=np.float(self.rate), Kp=0.4)  # previously: Kp=0.5
             quaternion = np.zeros((self.totalSamples, 4))
 
             # The "Update"-function uses angular velocity in radian/s, and only the directions of acceleration and magnetic field
@@ -386,6 +386,9 @@ def analytical(R_initialOrientation=np.eye(3),
 
     '''
 
+    if omega.ndim == 1:
+        raise ValueError('The input to "analytical" requires matrix inputs.')
+        
     # Transform recordings to angVel/acceleration in space --------------
 
     # Orientation of \vec{g} with the sensor in the "R_initialOrientation"
@@ -427,7 +430,11 @@ def analytical(R_initialOrientation=np.eye(3),
 
     return (q, pos, vel)
 
-def kalman(rate, acc, omega, mag):
+def kalman(rate, acc, omega, mag,
+           D = [0.4, 0.4, 0.4],
+           tau = [0.5, 0.5, 0.5],
+           Q_k = None,
+           R_k = None):
     '''
     Calclulate the orientation from IMU magnetometer data.
 
@@ -441,6 +448,23 @@ def kalman(rate, acc, omega, mag):
     	  angular velocity [rad/sec]
     mag : (N,3) ndarray
     	  magnetic field orientation
+    D : (,3) ndarray
+          noise variance, for x/y/z [rad^2/sec^2]
+          parameter for tuning the filter; defaults from Yun et al.
+          can also be entered as list
+    tau : (,3) ndarray
+          time constant for the process model, for x/y/z [sec]
+          parameter for tuning the filter; defaults from Yun et al.
+          can also be entered as list
+    Q_k : None, or (7,7) ndarray
+          covariance matrix of process noises
+          parameter for tuning the filter
+          If set to "None", the defaults from Yun et al. are taken!
+    R_k : None, or (7,7) ndarray
+          covariance matrix of measurement noises
+          parameter for tuning the filter; defaults from Yun et al.
+          If set to "None", the defaults from Yun et al. are taken!
+          
 
     Returns
     -------
@@ -457,7 +481,10 @@ def kalman(rate, acc, omega, mag):
 
     # Set parameters for Kalman Filter
     tstep = 1./rate
-    tau = [0.5, 0.5, 0.5]	# from Yun, 2006
+    
+    # check input
+    assert len(tau) == 3
+    tau = np.array(tau)
 
     # Initializations 
     x_k = np.zeros(7)	# state vector
@@ -471,22 +498,31 @@ def kalman(rate, acc, omega, mag):
 
     H_k = np.eye(7)		# Identity matrix
 
-    Q_k = np.zeros((7,7)) 	# process noise matrix Q_k
-    #D = 0.0001*np.r_[0.4, 0.4, 0.4]		# [rad^2/sec^2]; from Yun, 2006
     D = np.r_[0.4, 0.4, 0.4]		# [rad^2/sec^2]; from Yun, 2006
-               
-    for ii in range(3):
-        Q_k[ii,ii] =  D[ii]/(2*tau[ii])  * ( 1-np.exp(-2*tstep/tau[ii]) )
+    
+    if Q_k is None:
+        # Set the default input, from Yun et al.
+        Q_k = np.zeros((7,7)) 	# process noise matrix Q_k
+        for ii in range(3):
+            Q_k[ii,ii] =  D[ii]/(2*tau[ii])  * ( 1-np.exp(-2*tstep/tau[ii]) )
+    else:
+        # Check the shape of the input
+        assert Q_k.shape == (7,7)
 
     # Evaluate measurement noise covariance matrix R_k
-    R_k = np.zeros((7,7)) 
-    r_angvel = 0.01;      # [rad**2/sec**2]; from Yun, 2006
-    r_quats = 0.0001;     # from Yun, 2006
-    for ii in range(7):
-        if ii<3:
-            R_k[ii,ii] = r_angvel
-        else:
-            R_k[ii,ii] = r_quats
+    if R_k is None:
+        # Set the default input, from Yun et al.
+        R_k = np.zeros((7,7)) 
+        r_angvel = 0.01;      # [rad**2/sec**2]; from Yun, 2006
+        r_quats = 0.0001;     # from Yun, 2006
+        for ii in range(7):
+            if ii<3:
+                R_k[ii,ii] = r_angvel
+            else:
+                R_k[ii,ii] = r_quats
+    else:
+        # Check the shape of the input
+        assert R_k.shape == (7,7)
 
     # Calculation of orientation for every time step
     qOut = np.zeros( (numData,4) )
@@ -497,23 +533,23 @@ def kalman(rate, acc, omega, mag):
         angvelVec = omega[ii,:]
         z_k_pre = z_k.copy()	# watch out: by default, Python passes the reference!!
 
-        # Evaluate quaternion based on acceleration and magnetic field data
+        # Evaluate quaternion based on acceleration and magnetic field data 
         accelVec_n = vector.normalize(accelVec)
         magVec_hor = magVec - accelVec_n * (accelVec_n @ magVec)
         magVec_n   = vector.normalize(magVec_hor)
         basisVectors = np.vstack( (magVec_n, np.cross(accelVec_n, magVec_n), accelVec_n) ).T
         quatRef = quat.q_inv(rotmat.convert(basisVectors, to='quat')).flatten()
 
-        # Update measurement vector z_k
-        z_k[:3] = angvelVec
-        z_k[3:] = quatRef
-
         # Calculate Kalman Gain
         # K_k = P_k * H_k.T * inv(H_k*P_k*H_k.T + R_k)
         K_k = P_k @ np.linalg.inv(P_k + R_k)
 
+        # Update measurement vector z_k
+        z_k[:3] = angvelVec
+        z_k[3:] = quatRef
+
         # Update state vector x_k
-        x_k += np.array( K_k.dot(z_k-z_k_pre) ).ravel()
+        x_k += np.array( K_k@(z_k-z_k_pre) ).ravel()
 
         # Evaluate discrete state transition matrix Phi_k
         Phi_k[3,:] = np.r_[-x_k[4]*tstep/2, -x_k[5]*tstep/2, -x_k[6]*tstep/2,              1, -x_k[0]*tstep/2, -x_k[1]*tstep/2, -x_k[2]*tstep/2]
@@ -522,14 +558,14 @@ def kalman(rate, acc, omega, mag):
         Phi_k[6,:] = np.r_[-x_k[5]*tstep/2,  x_k[4]*tstep/2,  x_k[3]*tstep/2, x_k[2]*tstep/2,  x_k[1]*tstep/2, -x_k[0]*tstep/2,               1]
 
         # Update error covariance matrix
-        #P_k = (eye(7)-K_k*H_k)*P_k
         P_k = (np.eye(7) - K_k) @ P_k
 
-        # Projection of state quaternions
-        x_k[3:] += 0.5 * quat.q_mult(x_k[3:], np.r_[0, x_k[:3]]).flatten()
+        # Projection of state
+        # 1) quaternions
+        x_k[3:] += tstep * 0.5 * quat.q_mult(x_k[3:], np.r_[0, x_k[:3]]).flatten()
         x_k[3:] = vector.normalize( x_k[3:] )
-        x_k[:3] = np.zeros(3)
-        x_k[:3] += tstep * (-x_k[:3]+z_k[:3])
+        # 2) angular velocities
+        x_k[:3] -= tstep * tau * x_k[:3]
 
         qOut[ii,:] = x_k[3:]
 
@@ -546,18 +582,19 @@ class Madgwick:
 
         Parameters
         ----------
-        SamplePeriod : double
-            sample period [s]
+        rate : double
+            sample rate [Hz]
         Beta : double
             algorithm gain
         Quaternion : array, shape (N,4)
             output quaternion describing the Earth relative to the sensor
         '''
 
-    def __init__(self, SamplePeriod=1./256, Beta=1.0, Quaternion=[1,0,0,0]):
+    def __init__(self, rate=256.0, Beta=1.0, Quaternion=[1,0,0,0]):
         '''Initialization '''
         
-        self.SamplePeriod = SamplePeriod
+        self.rate = rate
+        self.SamplePeriod = 1/self.rate
         self.Beta = Beta
         self.Quaternion = Quaternion
 
@@ -566,11 +603,11 @@ class Madgwick:
         
         Parameters
         ----------
-        Gyroscope : array, shape (N,3)
+        Gyroscope : array, shape (,3)
             Angular velocity [rad/s]
-        Accelerometer : array, shape (N,3)
+        Accelerometer : array, shape (,3)
             Linear acceleration (Only the direction is used, so units don't matter.)
-        Magnetometer : array, shape (N,3)
+        Magnetometer : array, shape (,3)
             Orientation of local magenetic field.
             (Again, only the direction is used, so units don't matter.)
             
@@ -613,15 +650,17 @@ class Mahony:
 
         Parameters
         ----------
-        SamplePeriod : sample period
+        rate : double
+            sample rate [Hz]
         Kp : algorithm proportional gain
         Ki : algorithm integral gain
         Quaternion : output quaternion describing the Earth relative to the sensor
     '''
-    def __init__(self, SamplePeriod=1./256, Kp=1.0, Ki=0, Quaternion=[1,0,0,0]):
+    def __init__(self, rate=256.0, Kp=1.0, Ki=0, Quaternion=[1,0,0,0]):
         '''Initialization '''
         
-        self.SamplePeriod = SamplePeriod
+        self.rate = rate
+        self.SamplePeriod = 1/self.rate
         self.Kp = Kp
         self.Ki = Ki
         self.Quaternion = Quaternion
@@ -632,11 +671,11 @@ class Mahony:
         
         Parameters
         ----------
-        Gyroscope : array, shape (N,3)
+        Gyroscope : array, shape (,3)
             Angular velocity [rad/s]
-        Accelerometer : array, shape (N,3)
+        Accelerometer : array, shape (,3)
             Linear acceleration (Only the direction is used, so units don't matter.)
-        Magnetometer : array, shape (N,3)
+        Magnetometer : array, shape (,3)
             Orientation of local magenetic field.
             (Again, only the direction is used, so units don't matter.)
             

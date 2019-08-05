@@ -19,7 +19,7 @@ Notable aspects:
 '''
 
 '''
-ThH, Jan-2018
+ThH, Aug-2019
 '''
 
 import sys
@@ -31,7 +31,6 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
 from matplotlib.lines import Line2D
-from matplotlib.mlab import dist
 from sys import _getframe
 from os.path import expanduser, join
 
@@ -414,7 +413,7 @@ class Display:
             
         # Create the canvas
         self.canvas = FigureCanvasTkAgg(fig,master=master)
-        self.canvas.show()
+        #self.canvas.show()
         self.canvas.get_tk_widget().pack(side='top', fill='both', expand=1)
         
         # Keyboard and mouse control
@@ -599,9 +598,12 @@ class Display:
             self.button = False
             
             # Only zoom in if a "reasonably" large area has been selected
-            curDist = dist(np.r_[self._start[:2]], np.r_[self._stop[:2]])
+            start = np.r_[self._start[:2]]
+            stop  = np.r_[self._stop[:2]]
+            x,y = stop-start
+            curDist = np.hypot(x,y)
             
-            if dist(np.r_[self._start[:2]], np.r_[self._stop[:2]]) > self.epsilon:
+            if curDist > self.epsilon:
                 # Zoom in
                 for ii in range(self.numData):
                     self.axs[ii].set_xlim([min(self._start[2], self._stop[2]), max(self._start[2], self._stop[2])])
@@ -979,7 +981,6 @@ def ts(data = None):
     
 if __name__ == '__main__':
     
-    '''
     # 2D Viewer -----------------
     data = np.random.randn(100,3)
     t = np.arange(0,2*np.pi,0.1)
@@ -990,6 +991,7 @@ if __name__ == '__main__':
     #ts(data)
     print('Done')
     
+    '''
     # 3D Viewer ----------------
     # Set the parameters
     omega = np.r_[0, 10, 10]     # [deg/s]
@@ -1019,7 +1021,6 @@ if __name__ == '__main__':
     
     viewer = Orientation_Viewer_pygame(quat_in=q)
     viewer.run()
-    '''
     
     # Test OpenGL viewer:    
     in_file = r'.\tests\data\data_xsens.txt'
@@ -1028,4 +1029,5 @@ if __name__ == '__main__':
     orientation(data.quat, deltaT=5)
     viewer = Orientation_OGL(quat_in=data.quat)
     viewer.run(looping=False, rate=100)
+    '''
     

@@ -53,4 +53,5 @@ v0.7.4, 08-Feb-2018 -- xio-NGIMU sensor added, system path cleaned up
 v0.7.5, 19-Feb-2018 -- corrected rad/deg mistake for NGIMU- and XIO-sensors
 v0.7.6, 25-April-2018 -- corrected g vs m/s^2 mistake for NGIMU- and XIO-sensors, allowed for axis-label "x" etc in rotmat.R
 v0.7.7, 08-May-2018 -- updated tests and docu
-v0.8.0, 18-Oct-2018 -  change of setting for "qtype": introduce "set_qtype", for better readability
+v0.8.0, 18-Oct-2018 --  change of setting for "qtype": introduce "set_qtype", for better readability
+v0.8.2, 05-Aug-2019 -- eliminated matplotlib.mlab.dist (deprecated)
