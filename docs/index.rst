@@ -129,8 +129,8 @@ Indices and tables
 
 .. note::
     | *Author:*     Thomas Haslwanter
-    | *Version:*    0.8.2
-    | *Date:*       Aug 2019
+    | *Version:*    0.8.3
+    | *Date:*       Oct 2019
     | *email:*      thomas.haslwanter@fh-linz.at
     | *Copyright (c):*      2019, Thomas Haslwanter. All rights reserved.
     | *Licence:*    This work is licensed under the `BSD 2-Clause License <http://opensource.org/licenses/BSD-2-Clause>`_

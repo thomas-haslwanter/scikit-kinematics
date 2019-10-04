@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='scikit-kinematics',
-    version="0.8.2",
+    version="0.8.3",
     python_requires='>=3.5',
     packages=find_packages(),
 
@@ -20,7 +20,7 @@ setup(
     author       = "Thomas Haslwanter",
     author_email = "thomas.haslwanter@fh-linz.at",
     description  = 'Python utilites for movements in 3d space',
-    long_description=open('README.rst').read(),
+    long_description=open('README.md').read(),
     license      = 'http://opensource.org/licenses/BSD-2-Clause',
     download_url = 'https://github.com/thomas-haslwanter/scikit-kinematics',
     keywords     = 'quaterions rotations',

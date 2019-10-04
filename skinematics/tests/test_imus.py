@@ -17,22 +17,21 @@ from skinematics.simulations.simulate_movements import simulate_imu
 class TestSequenceFunctions(unittest.TestCase):
     
     def setUp(self):
-        self.qz  = r_[cos(0.1), 0,0,sin(0.1)]
-        self.qy  = r_[cos(0.1),0,sin(0.1), 0]
-
-        self.quatMat = vstack((self.qz,self.qy))
-
-        self.q3x = r_[sin(0.1), 0, 0]
-        self.q3y = r_[2, 0, sin(0.1), 0]
-
-        self.delta = 1e-4
+        
+        # Those are currently not needed
+        #self.qz  = r_[cos(0.1), 0,   0,    sin(0.1)]
+        #self.qy  = r_[cos(0.1), 0, sin(0.1), 0]
+        #self.quatMat = vstack((self.qz,self.qy))
+        #self.q3x = r_[sin(0.1),  0,     0]
+        #self.q3y = r_[  0,   sin(0.1), 0]
+        #self.delta = 1e-4
         
        # Simulate IMU-data
         duration_movement = 1    # [sec]
-        duration_total = 1      # [sec]
-        rate = 100             # [Hz]
+        duration_total = 1       # [sec]
+        rate = 100               # [Hz]
         
-        B0 = vector.normalize([1, 0, 1])
+        B0 = vector.normalize([1, 0, 1])    # geomagnetic field, re earth
         
         rotation_axis = [0, 1, 0]
         angle = 90
@@ -43,9 +42,15 @@ class TestSequenceFunctions(unittest.TestCase):
         self.q_init = [0,0,0]
         self.pos_init = [0,0,0]
         
-        self.imu_signals, self.body_pos_orient =  simulate_imu(rate, duration_movement, duration_total,
-                    q_init = self.q_init, rotation_axis=rotation_axis, deg=angle,
-                    pos_init = self.pos_init, direction=translation, distance=distance,
+        self.imu_signals, self.body_pos_orient =  simulate_imu(rate,
+                    duration_movement,
+                    duration_total,
+                    q_init = self.q_init,
+                    rotation_axis = rotation_axis,
+                    deg = angle,
+                    pos_init = self.pos_init,
+                    direction = translation,
+                    distance = distance,
                     B0=B0) 
 
         

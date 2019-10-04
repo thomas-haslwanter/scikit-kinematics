@@ -55,3 +55,4 @@ v0.7.6, 25-April-2018 -- corrected g vs m/s^2 mistake for NGIMU- and XIO-sensors
 v0.7.7, 08-May-2018 -- updated tests and docu
 v0.8.0, 18-Oct-2018 --  change of setting for "qtype": introduce "set_qtype", for better readability
 v0.8.2, 05-Aug-2019 -- eliminated matplotlib.mlab.dist (deprecated)
+v0.8.3, 04-Oct-2019 -- replace README.rst with README.md, for compatability with PyPi

@@ -64,7 +64,7 @@ copyright = u'2018, thomas haslwanter'
 # built documents.
 #
 # The short X.Y version.
-version = '0.8.2'
+version = '0.8.3'
 # The full version, including alpha/beta/rc tags.
 release = '0.8.2'
 
