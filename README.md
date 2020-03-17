@@ -185,3 +185,7 @@ Interactive Data Analysis
 -   viewer.ts ... interactive viewer for time series data
 -   view.orientation ... visualize and animate orientations, expressed
     as quaternions.
+
+## Errata
+The file [Errata.pdf](Errata.pdf) contains the a list of mistakes in the manuscript, and
+the corresponding corrections.
