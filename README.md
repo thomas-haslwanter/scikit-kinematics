@@ -1,6 +1,7 @@
 ---
 title: 'scikit-kinematics'
 ---
+![Title](docs/Images/skinematics.png)
 
 *scikit-kinematics* primarily contains functions for working with 3D
 kinematics, e.g quaternions and rotation matrices. This includes

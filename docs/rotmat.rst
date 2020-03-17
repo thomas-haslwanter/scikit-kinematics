@@ -23,6 +23,12 @@ For example, you can e.g. generate a Fick-matrix, with
 
     R_Fick = R_s(2, 'theta') * R_s(1, 'phi') * R_s(0, 'psi')
 
+*Note:* For displaying the Greek symbols for LaTeX expressions, such as 'psi', you may have to add the following lines to your Jupyter terminal:
+
+>>> from sympy.interactive import printing
+>>> printing.init_printing(use_latex=True)
+
+
 .. toctree::
    :maxdepth: 2
 
