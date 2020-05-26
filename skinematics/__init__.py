@@ -23,7 +23,9 @@ __license__ = "BSD 2-Clause License"
 __version__ = "0.8.3"
 
 __all__ = ['imus', 'markers', 'misc', 'quat', 'rotmat', 'vector', 'view', 'sensors']
-#__all__ = []
 
 for _m in __all__:
-    importlib.import_module('.'+_m, package='skinematics')
+    try:
+        importlib.import_module('.'+_m, package='skinematics')
+    except:
+        print(f"Failed to automatically import {_m}.")
