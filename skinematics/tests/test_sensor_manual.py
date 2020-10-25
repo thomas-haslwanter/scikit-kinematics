@@ -34,6 +34,11 @@ class TestSequenceFunctions(unittest.TestCase):
         self.assertEqual(my_sensor.rate, 50.)
         self.assertAlmostEqual( (my_sensor.omega[0,2] - 0.050860000000000002), 0)
         
+        
+    #def test_pos(self):
+        ## suggested in github
+        
+        
 if __name__ == '__main__':
     unittest.main()
     print('Thanks for using programs from Thomas!')

@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='scikit-kinematics',
-    version="0.8.3",
+    version="0.8.5",
     python_requires='>=3.5',
     packages=find_packages(),
 

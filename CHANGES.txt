@@ -56,3 +56,5 @@ v0.7.7, 08-May-2018 -- updated tests and docu
 v0.8.0, 18-Oct-2018 --  change of setting for "qtype": introduce "set_qtype", for better readability
 v0.8.2, 05-Aug-2019 -- eliminated matplotlib.mlab.dist (deprecated)
 v0.8.3, 04-Oct-2019 -- replace README.rst with README.md, for compatability with PyPi
+v0.8.4, 02-July-2020 -- split the import, so that it also works without GUI-components
+v0.8.5, 02-Oct-2020 -- correct an error in vector.normalize, which occasionally modified the input values

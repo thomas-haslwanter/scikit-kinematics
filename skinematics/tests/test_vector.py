@@ -51,6 +51,11 @@ class TestSequenceFunctions(unittest.TestCase):
         error = norm(result-correct)
         self.assertAlmostEqual(error, 0)
         
+        # Ensure that 'normalize' does not modify the input values
+        data = 10 * np.ones(5)
+        vector.normalize(data[:3])
+        self.assertEqual(data[2], 10)
+        
         
     def test_project(self):
         v1 = np.array([[1,2,3],

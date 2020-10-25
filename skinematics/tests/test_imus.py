@@ -81,7 +81,7 @@ class TestSequenceFunctions(unittest.TestCase):
         q_kalman = imus.kalman(imu['rate'], imu['gia'], imu['omega'], imu['magnetic'])
         
         # and then check, if the quat_vector = [0, sin(45), 0]
-        result = quat.q_vector(q_kalman[-1])                    # [0.76, 0, 0]
+        result = quat.q_vector(q_kalman[-1])                    # [0, 0.46, 0]
         correct = array([ 0.,  np.sin(np.deg2rad(45)),  0.])    # [0, 0.71, 0]
         error = norm(result-correct)
         self.assertAlmostEqual(error, 0, places=2)  # It is not clear why the Kalman filter is not more accurate

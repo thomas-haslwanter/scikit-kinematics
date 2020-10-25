@@ -12,9 +12,11 @@ for each sensor). Initialization of a sensor object includes a number of
 activities:
 
         - Reading in the data.
-        - Making acceleration, angular\_velocity etc. accessible in a sensor-independent way
+        - Making acceleration, angular\_velocity etc. accessible in a sensor-
+          independent way
         - Calculating duration, totalSamples, etc.
-        - Calculating orientation (expressed as "quat"), with the method specified in "q\_type"
+        - Calculating orientation (expressed as "quat"), with the method
+          specified in "q\_type"
 
 """
 
@@ -49,7 +51,8 @@ import abc
 class IMU_Base(metaclass=abc.ABCMeta):
     '''
     Abstract BaseClass for working with working with inertial measurement units (IMUs)
-    A concrete class must be instantiated, which implements "get_data". (See example below.)
+    A concrete class must be instantiated, which implements "get_data".
+    (See example below.)
 
     Attributes:
         acc (Nx3 array) : 3D linear acceleration [m/s**2]
@@ -62,7 +65,8 @@ class IMU_Base(metaclass=abc.ABCMeta):
         quat (Nx4 array) : 3D orientation
         q_type (string) : Method of calculation for orientation quaternion
         rate (float) : Sampling rate [Hz]
-        R_init (3x3 array) : Rotation matrix defining the initial orientation. Default is np.eye(3)
+        R_init (3x3 array) : Rotation matrix defining the initial orientation.
+                             Default is np.eye(3)
         source (str) : Name of data-file
         totalSamples (int) : Number of samples
         vel (Nx3 array) : 3D velocity
@@ -102,7 +106,8 @@ class IMU_Base(metaclass=abc.ABCMeta):
     >>> # Read in and evaluate the data
     >>> sensor = XSens(in_file=in_file, R_init=initial_orientation)
     >>>  
-    >>> # By default, the orientation quaternion gets automatically calculated, using the option "analytical"
+    >>> # By default, the orientation quaternion gets automatically calculated,
+    >>> #    using the option "analytical"
     >>> q_analytical = sensor.quat
     >>>  
     >>> # Automatic re-calculation of orientation if "q_type" is changed
@@ -135,13 +140,15 @@ class IMU_Base(metaclass=abc.ABCMeta):
         """Initialize an IMU-object.
         Note that this includes a number of activities:
         - Read in the data (which have to be either in "in_file" or in "in_data")
-        - Make acceleration, angular_velocity etc. accessible, in a sensor-independent way
+        - Make acceleration, angular_velocity etc. accessible, in a
+          sensor-independent way
         - Calculates duration, totalSamples, etc
-        - If q_type==None, data are only read in; otherwise, 3-D orientation is calculated
-          with the method specified in "q_type", and stored in the property "quat".
-        - If position==True, the method "calc_position" is automatically called, and the
-          3D position stored in the propery "pos". (Note that if q_type==None, then
-          "position" is set to "False".)
+        - If q_type==None, data are only read in; otherwise, 3-D orientation is
+          calculated with the method specified in "q_type", and stored in the
+          property "quat".
+        - If position==True, the method "calc_position" is automatically called,
+          and the 3D position stored in the propery "pos". (Note that
+          if q_type==None, then "position" is set to "False".)
 
         in_file : string
                 Location of infile / input
@@ -225,7 +232,8 @@ class IMU_Base(metaclass=abc.ABCMeta):
             else:
                 self._calc_orientation()
         else:
-            raise ValueError('q_type must be one of the following: {0}, not {1}'.format(allowed_values, value))
+            raise ValueError('q_type must be one of the following: ' \
+                             '{0}, not {1}'.format(allowed_values, value))
         
 
     def _set_data(self, data):
@@ -262,11 +270,16 @@ class IMU_Base(metaclass=abc.ABCMeta):
 
         method = self.q_type
         if method == 'analytical':
-            (quaternion, position, velocity) = analytical(self.R_init, self.omega, initialPosition, self.acc, self.rate) 
+            (quaternion, position, velocity) = analytical(self.R_init,
+                                                          self.omega,
+                                                          initialPosition,
+                                                          self.acc,
+                                                          self.rate) 
 
         elif method == 'kalman':
             self._checkRequirements()
-            quaternion = kalman(self.rate, self.acc, np.deg2rad(self.omega), self.mag)
+            quaternion = kalman(self.rate, self.acc, np.deg2rad(self.omega),
+                                self.mag)
 
         elif method == 'madgwick':
             self._checkRequirements()
@@ -275,13 +288,15 @@ class IMU_Base(metaclass=abc.ABCMeta):
             AHRS = Madgwick(rate=self.rate, Beta=0.5)    # previously: Beta=1.5
             quaternion = np.zeros((self.totalSamples, 4))
 
-            # The "Update"-function uses angular velocity in radian/s, and only the directions of acceleration and magnetic field
+            # The "Update"-function uses angular velocity in radian/s, and only
+            # the directions of acceleration and magnetic field
             Gyr = self.omega
             Acc = vector.normalize(self.acc)
             Mag = vector.normalize(self.mag)
 
             #for t in range(len(time)):
-            for t in misc.progressbar(range(self.totalSamples), 'Calculating the Quaternions ', 25) :
+            for t in misc.progressbar(range(self.totalSamples),
+                                      'Calculating the Quaternions ', 25) :
                 AHRS.Update(Gyr[t], Acc[t], Mag[t])
                 quaternion[t] = AHRS.Quaternion
 
@@ -292,13 +307,15 @@ class IMU_Base(metaclass=abc.ABCMeta):
             AHRS = Mahony(rate=np.float(self.rate), Kp=0.4)  # previously: Kp=0.5
             quaternion = np.zeros((self.totalSamples, 4))
 
-            # The "Update"-function uses angular velocity in radian/s, and only the directions of acceleration and magnetic field
+            # The "Update"-function uses angular velocity in radian/s, and only
+            # the directions of acceleration and magnetic field
             Gyr = self.omega
             Acc = vector.normalize(self.acc)
             Mag = vector.normalize(self.mag)
 
             #for t in range(len(time)):
-            for t in misc.progressbar(range(self.totalSamples), 'Calculating the Quaternions ', 25) :
+            for t in misc.progressbar(range(self.totalSamples),
+                                      'Calculating the Quaternions ', 25) :
                 AHRS.Update(Gyr[t], Acc[t], Mag[t])
                 quaternion[t] = AHRS.Quaternion
 
@@ -325,8 +342,10 @@ class IMU_Base(metaclass=abc.ABCMeta):
         pos = np.nan*np.ones_like(accReSpace)
 
         for ii in range(accReSpace.shape[1]):
-            vel[:,ii] = cumtrapz(accReSpace[:,ii], dx=1./np.float(self.rate), initial=0)
-            pos[:,ii] = cumtrapz(vel[:,ii],        dx=1./np.float(self.rate), initial=initialPosition[ii])
+            vel[:,ii] = cumtrapz(accReSpace[:,ii],
+                                 dx=1./np.float(self.rate), initial=0)
+            pos[:,ii] = cumtrapz(vel[:,ii],
+                        dx=1./np.float(self.rate), initial=initialPosition[ii])
 
         self.vel = vel
         self.pos = pos
@@ -426,12 +445,12 @@ def analytical(R_initialOrientation=np.eye(3),
 
     for ii in range(accReSpace.shape[1]):
         vel[:,ii] = cumtrapz(accReSpace[:,ii], dx=1./rate, initial=0)
-        pos[:,ii] = cumtrapz(vel[:,ii],        dx=1./rate, initial=initialPosition[ii])
+        pos[:,ii] = cumtrapz(vel[:,ii], dx=1./rate, initial=initialPosition[ii])
 
     return (q, pos, vel)
 
 def kalman(rate, acc, omega, mag,
-           D = [0.4, 0.4, 0.4],
+           D = [0.4, 0.4, 0.4],          
            tau = [0.5, 0.5, 0.5],
            Q_k = None,
            R_k = None):
@@ -469,11 +488,14 @@ def kalman(rate, acc, omega, mag,
     Returns
     -------
     qOut : (N,4) ndarray
-    	   unit quaternion, describing the orientation relativ to the coordinate system spanned by the local magnetic field, and gravity
+    	   unit quaternion, describing the orientation relativ to the coordinate
+           system spanned by the local magnetic field, and gravity
 
     Notes
     -----
-    Based on "Design, Implementation, and Experimental Results of a Quaternion-Based Kalman Filter for Human Body Motion Tracking" Yun, X. and Bachman, E.R., IEEE TRANSACTIONS ON ROBOTICS, VOL. 22, 1216-1227 (2006)
+    Based on "Design, Implementation, and Experimental Results of a Quaternion-
+       Based Kalman Filter for Human Body Motion Tracking" Yun, X. and Bachman,
+       E.R., IEEE TRANSACTIONS ON ROBOTICS, VOL. 22, 1216-1227 (2006)
 
     '''
 
@@ -490,9 +512,9 @@ def kalman(rate, acc, omega, mag,
     x_k = np.zeros(7)	# state vector
     z_k = np.zeros(7)   # measurement vector
     z_k_pre = np.zeros(7)
-    P_k = np.matrix( np.eye(7) )		 # error covariance matrix P_k
+    P_k = np.eye(7)		 # error covariance matrix P_k
 
-    Phi_k = np.matrix( np.zeros((7,7)) ) # discrete state transition matrix Phi_k
+    Phi_k = np.eye(7)    # discrete state transition matrix Phi_k
     for ii in range(3):
         Phi_k[ii,ii] = np.exp(-tstep/tau[ii])
 
@@ -512,14 +534,16 @@ def kalman(rate, acc, omega, mag,
     # Evaluate measurement noise covariance matrix R_k
     if R_k is None:
         # Set the default input, from Yun et al.
-        R_k = np.zeros((7,7)) 
         r_angvel = 0.01;      # [rad**2/sec**2]; from Yun, 2006
         r_quats = 0.0001;     # from Yun, 2006
-        for ii in range(7):
-            if ii<3:
-                R_k[ii,ii] = r_angvel
-            else:
-                R_k[ii,ii] = r_quats
+        
+        r_ii = np.zeros(7)
+        for ii in range(3):
+            r_ii[ii] = r_angvel
+        for ii in range(4):
+            r_ii[ii+3] = r_quats
+            
+        R_k = np.diag(r_ii)    
     else:
         # Check the shape of the input
         assert R_k.shape == (7,7)
@@ -531,14 +555,15 @@ def kalman(rate, acc, omega, mag,
         accelVec  = acc[ii,:]
         magVec    = mag[ii,:]
         angvelVec = omega[ii,:]
-        z_k_pre = z_k.copy()	# watch out: by default, Python passes the reference!!
+        z_k_pre = z_k.copy()  # watch out: by default, Python passes the reference!!
 
         # Evaluate quaternion based on acceleration and magnetic field data 
         accelVec_n = vector.normalize(accelVec)
         magVec_hor = magVec - accelVec_n * (accelVec_n @ magVec)
         magVec_n   = vector.normalize(magVec_hor)
-        basisVectors = np.vstack( (magVec_n, np.cross(accelVec_n, magVec_n), accelVec_n) ).T
-        quatRef = quat.q_inv(rotmat.convert(basisVectors, to='quat')).flatten()
+        basisVectors = np.column_stack( [magVec_n,
+                                np.cross(accelVec_n, magVec_n), accelVec_n] )
+        quatRef = quat.q_inv(rotmat.convert(basisVectors, to='quat')).ravel()
 
         # Calculate Kalman Gain
         # K_k = P_k * H_k.T * inv(H_k*P_k*H_k.T + R_k)
@@ -552,17 +577,21 @@ def kalman(rate, acc, omega, mag,
         x_k += np.array( K_k@(z_k-z_k_pre) ).ravel()
 
         # Evaluate discrete state transition matrix Phi_k
-        Phi_k[3,:] = np.r_[-x_k[4]*tstep/2, -x_k[5]*tstep/2, -x_k[6]*tstep/2,              1, -x_k[0]*tstep/2, -x_k[1]*tstep/2, -x_k[2]*tstep/2]
-        Phi_k[4,:] = np.r_[ x_k[3]*tstep/2, -x_k[6]*tstep/2,  x_k[5]*tstep/2, x_k[0]*tstep/2,               1,  x_k[2]*tstep/2, -x_k[1]*tstep/2]
-        Phi_k[5,:] = np.r_[ x_k[6]*tstep/2,  x_k[3]*tstep/2, -x_k[4]*tstep/2, x_k[1]*tstep/2, -x_k[2]*tstep/2,               1,  x_k[0]*tstep/2]
-        Phi_k[6,:] = np.r_[-x_k[5]*tstep/2,  x_k[4]*tstep/2,  x_k[3]*tstep/2, x_k[2]*tstep/2,  x_k[1]*tstep/2, -x_k[0]*tstep/2,               1]
+        Delta = np.zeros((7,7))
+        Delta[3,:] = np.r_[-x_k[4], -x_k[5], -x_k[6],      0, -x_k[0], -x_k[1], -x_k[2]]
+        Delta[4,:] = np.r_[ x_k[3], -x_k[6],  x_k[5], x_k[0],       0,  x_k[2], -x_k[1]]
+        Delta[5,:] = np.r_[ x_k[6],  x_k[3], -x_k[4], x_k[1], -x_k[2],       0,  x_k[0]]
+        Delta[6,:] = np.r_[-x_k[5],  x_k[4],  x_k[3], x_k[2],  x_k[1], -x_k[0],       0]
+        
+        Delta *= tstep/2
+        Phi_k += Delta
 
         # Update error covariance matrix
         P_k = (np.eye(7) - K_k) @ P_k
 
         # Projection of state
         # 1) quaternions
-        x_k[3:] += tstep * 0.5 * quat.q_mult(x_k[3:], np.r_[0, x_k[:3]]).flatten()
+        x_k[3:] += tstep * 0.5 * quat.q_mult(x_k[3:], np.r_[0, x_k[:3]]).ravel()
         x_k[3:] = vector.normalize( x_k[3:] )
         # 2) angular velocities
         x_k[:3] -= tstep * tau * x_k[:3]
@@ -674,7 +703,8 @@ class Mahony:
         Gyroscope : array, shape (,3)
             Angular velocity [rad/s]
         Accelerometer : array, shape (,3)
-            Linear acceleration (Only the direction is used, so units don't matter.)
+            Linear acceleration (Only the direction is used, so units don't
+            matter.)
         Magnetometer : array, shape (,3)
             Orientation of local magenetic field.
             (Again, only the direction is used, so units don't matter.)
@@ -698,7 +728,8 @@ class Mahony:
             2*b[1]*(q[1]*q[2] - q[0]*q[3]) + 2*b[3]*(q[0]*q[1] + q[2]*q[3]),
             2*b[1]*(q[0]*q[2] + q[1]*q[3]) + 2*b[3]*(0.5 - q[1]**2 - q[2]**2)]) 
 
-        # Error is sum of cross product between estimated direction and measured direction of fields
+        # Error is sum of cross product between estimated direction and measured
+        # direction of fields
         e = np.cross(Accelerometer, v) + np.cross(Magnetometer, w) 
 
         if self.Ki > 0:
@@ -743,9 +774,11 @@ if __name__ == '__main__':
                                     #[0,-1,0]])
     initial_position = np.r_[0,0,0]
 
-    sensor = XSens(in_file=in_file, R_init=initial_orientation, pos_init=initial_position)
+    sensor = XSens(in_file=in_file, R_init=initial_orientation,
+                   pos_init=initial_position)
 
-        # By default, the orientation quaternion gets automatically calculated, using "analytical"
+    # By default, the orientation quaternion gets automatically calculated,
+    # using "analytical"
     q_analytical = sensor.quat
 
 

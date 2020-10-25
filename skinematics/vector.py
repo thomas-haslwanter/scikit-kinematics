@@ -5,7 +5,7 @@ These routines can be used with vectors, as well as with matrices containing a v
  
 '''
 author :  Thomas Haslwanter
-date :    June-2018
+date :    Oct-2020
 '''
 
 import numpy as np
@@ -68,12 +68,16 @@ def normalize(v):
     
     from numpy.linalg import norm
     
+    # Distinguish between a vector and a matrix
     if np.array(v).ndim == 1:
         vectorFlag = True
     else:
         vectorFlag = False
         
-    v = np.double(np.atleast_2d(v))  # otherwise I get in trouble 2 lines down, if v is integer!
+    # The 'atleast_2d' ensures that the program works on matrices.
+    # The 'double' avoids trouble 2 lines down, if v is integer.
+    # And the 'copy' ensures that the input is not modified in the calling program.
+    v = np.double(np.atleast_2d(v)).copy()
     length = norm(v,axis=1)
     v[length!=0] = (v[length!=0].T/length[length!=0]).T
     if vectorFlag:
