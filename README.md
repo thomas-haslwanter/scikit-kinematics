@@ -1,7 +1,7 @@
 ![Title](docs/Images/skinematics.png)
----
+===
 scikit-kinematics
----
+===
 
 *scikit-kinematics* primarily contains functions for working with 3D
 kinematics, e.g quaternions and rotation matrices. This includes
@@ -11,21 +11,21 @@ XSens - xio - xio-NGIMU - YEI
 Compatible with Python &gt;= 3.5
 
 Dependencies
-============
+------------
 
 numpy, scipy, matplotlib, pandas, sympy, easygui
 
 Homepage
-========
+--------
 
 <http://work.thaslwanter.at/skinematics/html/>
 
-Author: Thomas Haslwanter Date: 02-10-2020 Ver: 0.8.5 Licence: BSD
+Author: Thomas Haslwanter Date: 14-05-2021 Ver: 0.8.7 Licence: BSD
 2-Clause License (<http://opensource.org/licenses/BSD-2-Clause>)
-Copyright (c) 2020, Thomas Haslwanter All rights reserved.
+Copyright (c) 2021, Thomas Haslwanter All rights reserved.
 
 Installation
-============
+------------
 
 You can install scikit-kinematics with
 
@@ -36,7 +36,7 @@ and upgrade to a new version with
 > pip install --upgrade --no-deps scikit-kinematics
 
 IMUs
-----
+====
 
 Analysis of signals from IMUs (intertial-measurement-units). Read in
 data, calculate orientation (with one of the algorithms below)
@@ -52,7 +52,7 @@ data, calculate orientation (with one of the algorithms below)
 -   calc\_position
 
 MARG Systems
-============
+------------
 
 -   imus.analytical ... Calculate orientation and position, from angular
     velocity and linear acceleration
@@ -73,7 +73,7 @@ MARG Systems
     Mahony-algorithm
 
 Markers
--------
+=======
 
 Analysis of signals from video-based marker-recordings of 3D movements
 
@@ -83,13 +83,13 @@ Analysis of signals from video-based marker-recordings of 3D movements
     marker positions
 
 Quaternions
------------
+===========
 
 Note that all these functions work with single quaternions and
 quaternion vectors, as well as with arrays containing these.
 
 Quaternion class
-================
+----------------
 
 -   
 
@@ -99,7 +99,7 @@ Quaternion class
         export
 
 Functions for working with quaternions
-======================================
+--------------------------------------
 
 -   quat.q\_conj ... Conjugate quaternion
 -   quat.q\_inv ... Quaternion inversion
@@ -109,7 +109,7 @@ Functions for working with quaternions
 -   quat.unit\_q ... Extend a quaternion vector to a unit quaternion.
 
 Conversion routines - quaternions
-=================================
+--------------------------------=
 
 -   quat.calc\_angvel ... Calculates the velocity in space from
     quaternions
@@ -124,15 +124,15 @@ Conversion routines - quaternions
 -   quat.scale2deg ... Convert quaternion to corresponding axis angle
 
 Rotation Matrices
------------------
+=================
 
 Definition of rotation matrices
-===============================
+------------------------------=
 
 -   rotmat.R ... 3D rotation matrix for rotation about a coordinate axis
 
 Conversion Routines - rotation matrices
-=======================================
+--------------------------------------=
 
 -   rotmat.convert ... Convert a rotation matrix to the corresponding
     quaternion
@@ -141,7 +141,7 @@ Conversion Routines - rotation matrices
     angles
 
 Symbolic matrices
-=================
+-----------------
 
 -   rotmat.R\_s() ... symbolix matrix for rotation about a coordinate
     axis
@@ -152,20 +152,20 @@ For example, you can e.g. generate a Fick-matrix, with
 'psi')
 
 Spatial Transformation Matrices
-===============================
+-------------------------------
 
 -   rotmat.stm ... spatial transformation matrix, for combined
     rotations/translations
 -   rotmat.stm\_s() ... symbolix spatial transformation matrix
 
 Denavit-Hartenberg Transformations
-==================================
+----------------------------------
 
 -   rotmat.dh ... Denavit-Hartenberg transformation matrix
 -   rotmat.dh\_s ... symbolic Denavit-Hartenberg transformation matrix
 
 Vectors
--------
+=======
 
 Routines for working with vectors These routines can be used with
 vectors, as well as with matrices containing a vector in each row.
@@ -181,11 +181,16 @@ vectors, as well as with matrices containing a vector in each row.
     angles
 
 Interactive Data Analysis
--------------------------
+========================-
 
 -   viewer.ts ... interactive viewer for time series data
 -   view.orientation ... visualize and animate orientations, expressed
     as quaternions.
+
+Simulations
+===========
+
+- simulate_movements ... calculated ideal IMU-signals for combined rotations/translations
 
 ## Errata
 The file [Errata.pdf](Errata.pdf) contains the a list of mistakes in the manuscript, and

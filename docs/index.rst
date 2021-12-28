@@ -45,7 +45,12 @@ It is hosted under https://github.com/thomas-haslwanter/scikit-kinematics, and c
     - rotation
     - also work on data arrays
 
-*view*  Visualization of time-series data, and of 3D orientations
+*simulation* Functions to simulate ideal IMU-signalsG
+
+*view*  Visualization of time-series data, and of 3D orientations.
+    **Note:** Since 2021 Mac OSX no longer supports OpenGL. As a consequence,
+    the module *view* is no longer automatically loaded, but has to be 
+    imported separately, with e.g. *from skinematics import view*!
 
 In addition, the packages includes the general module
 
@@ -129,9 +134,9 @@ Indices and tables
 
 .. note::
     | *Author:*     Thomas Haslwanter
-    | *Version:*    0.8.5
-    | *Date:*       Oct 2020
-    | *email:*      thomas.haslwanter@fh-linz.at
-    | *Copyright (c):*      2020, Thomas Haslwanter. All rights reserved.
+    | *Version:*    0.8.7
+    | *Date:*       May 2021
+    | *email:*      thomas.haslwanter@fh-ooe.at
+    | *Copyright (c):*      2021, Thomas Haslwanter. All rights reserved.
     | *Licence:*    This work is licensed under the `BSD 2-Clause License <http://opensource.org/licenses/BSD-2-Clause>`_
 

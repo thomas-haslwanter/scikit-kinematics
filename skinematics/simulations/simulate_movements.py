@@ -1,9 +1,7 @@
-'''
-Simulations of IMU-signals during 3D movements
+""" Simulations of IMU-signals during 3D movements """
 
-author: ThH
-date:   June-2018
-'''
+# author: ThH
+# date:   June-2018
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -12,8 +10,9 @@ import skinematics as skin
 from scipy.constants import g
 import pandas as pd
 
+
 def make_gauss(rate=1000, duration=1, t_0=0.5, sigma=0.1):
-    '''Generate a Gaussian curve with an area of 1 under the curve.
+    """Generate a Gaussian curve with an area of 1 under the curve.
     
     Parameters
     ----------
@@ -30,7 +29,7 @@ def make_gauss(rate=1000, duration=1, t_0=0.5, sigma=0.1):
         Correponding time vector
     dt : float
         Time-step
-    '''
+    """
     
     dt = 1./rate
     t = np.arange(0, duration, dt)
@@ -40,8 +39,9 @@ def make_gauss(rate=1000, duration=1, t_0=0.5, sigma=0.1):
     
     return (gauss, t, dt)
     
+    
 def change_orientation(rate, duration, q_start=[0,0,0], rotation_axis=[0, 0, 1], deg=90):
-    '''Simulate a simple rotation with Gaussian velocity profile about a fixed axis.
+    """Simulate a simple rotation with Gaussian velocity profile about a fixed axis.
     
     Parameters
     ----------
@@ -60,7 +60,7 @@ def change_orientation(rate, duration, q_start=[0,0,0], rotation_axis=[0, 0, 1],
         Orientation, expressed as quaternion
     t : ndarray, shape (n,)
         Time-vector [s]
-    '''    
+    """    
     
     gauss, t, dt = make_gauss(rate, duration)
     num = len(t)
@@ -75,8 +75,9 @@ def change_orientation(rate, duration, q_start=[0,0,0], rotation_axis=[0, 0, 1],
     
     return (omega, quat, t)
     
+
 def change_position(rate, duration, start_pos = [0,0,0], direction=[1,0,0], distance=0.5):
-    '''Simulate a simple translation with Gaussian velocity profile along a space-fixed axis.
+    """Simulate a simple translation with Gaussian velocity profile along a space-fixed axis.
     
     Parameters
     ----------
@@ -95,7 +96,7 @@ def change_position(rate, duration, start_pos = [0,0,0], direction=[1,0,0], dist
     acc : ndarray, shape (n,3)
         Acceleration (m/s**2)
     
-    '''
+    """
     
     # Catch a zero-translation
     if direction == [0,0,0]:
@@ -122,7 +123,7 @@ def change_position(rate, duration, start_pos = [0,0,0], direction=[1,0,0], dist
 
 def simulate_imu(rate, t_move, t_total, q_init=[0,0,0], rotation_axis=[0,0,1],
                  deg=0, pos_init=[0,0,0], direction=[1,0,0], distance=0, B0=[-1,0,-1]):
-    '''Simulate the signals in an IMU, based on acc etc. in space-fixed coordinates
+    """Simulate the signals in an IMU, based on acc etc. in space-fixed coordinates
     After the movement part, the IMU remains stationary for the rest of the
     "duration".
     
@@ -154,7 +155,7 @@ def simulate_imu(rate, t_move, t_total, q_init=[0,0,0], rotation_axis=[0,0,1],
         * pos : position of object [m]; ndarray, shape (n,3)
         * quat : orientation of object; ndarray, shape (n,4)
         
-    '''
+    """
     
     omega, quat, t = change_orientation(rate=rate, duration=t_move,
                       q_start=q_init, rotation_axis=rotation_axis, deg=deg)
@@ -199,6 +200,7 @@ def simulate_imu(rate, t_move, t_total, q_init=[0,0,0], rotation_axis=[0,0,1],
     
     return imu, body
     
+
 def save_as(imu_data, data_format, file_name):
     """
     Save the input in a specifie data-format
