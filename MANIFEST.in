@@ -1,3 +1,5 @@
 include *.txt
-recursive-include skinematics/tests/data *.txt *.csv *.BIN
+include Errata.pdf
+recursive-include tests/data *.txt *.csv *.BIN
+recursive-include tests *.py
 recursive-include docs *.*

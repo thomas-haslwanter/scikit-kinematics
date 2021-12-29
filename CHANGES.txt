@@ -60,3 +60,4 @@ v0.8.4, 02-July-2020 -- split the import, so that it also works without GUI-comp
 v0.8.5, 02-Oct-2020 -- correct an error in vector.normalize, which occasionally modified the input values
 v0.8.6, 29-Apr-2021 -- Fix crash, if OpenGL not availabel; Kalman still broken
 v0.8.7, 14-May-2021 -- Stop automatic import of module 'view', due to problems on OSX
+v0.8.8, 29-Dec-2021 -- Switched project to 'pyproject.toml'-format
