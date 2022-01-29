@@ -46,45 +46,40 @@ class Vicon(IMU_Base):
         - mag : mag_field_direction
         '''        
 
-
-        # Get the sampling rate from the second line in the file
+        # Read the data
+        # Get the sampling rate
         try:
             reader=btk.btkAcquisitionFileReader()
             reader.SetFilename(in_file)
             reader.Update()
             acq=reader.GetOutput()
-            fp=acq.GetPointFrequency
-            fa=acq.GetAnalogFrequency()
+            fp=acq.GetPointFrequency()
         except FileNotFoundError:
             print('{0} does not exist!'.format(in_file))
             return -1
-
-        """try:
-            fh = open(in_file)
-            fh.readline()
-            line = fh.readline()
-            rate = np.float(line.split(':')[1].split('H')[0])
-            fh.close()
-    
-        except FileNotFoundError:
-            print('{0} does not exist!'.format(in_file))
-            return -1"""
-    
-        # Read the data
-        """data = pd.read_csv(in_file,
-                           sep='\t',
-                           skiprows=4, 
-                           index_col=False)
     
         # Extract the columns that you want, and pass them on
-        in_data = {'rate':rate,
-               'acc':   data.filter(regex='Acc').values,
-               'omega': data.filter(regex='Gyr').values,
-               'mag':   data.filter(regex='Mag').values}
-        self._set_data(in_data)"""
+        acc_x_values = acq.GetAnalog("accel.x").GetValues()
+        acc_y_values = acq.GetAnalog("accel.y").GetValues()
+        acc_z_values = acq.GetAnalog("accel.z").GetValues()
+
+        gyro_x_values = acq.GetAnalog("gyro.x").GetValues()
+        gyro_y_values = acq.GetAnalog("gyro.y").GetValues()
+        gyro_z_values = acq.GetAnalog("gyro.z").GetValues()
+
+        mag_x_values = acq.GetAnalog("mag.x").GetValues()
+        mag_y_values = acq.GetAnalog("mag.y").GetValues()
+        mag_z_values = acq.GetAnalog("mag.z").GetValues()
+
+
+        in_data = {'rate':fp,
+               'acc': np.column_stack((acc_x_values,acc_y_values,acc_z_values)),
+               'omega': np.column_stack((gyro_x_values,gyro_y_values,gyro_z_values)),
+               'mag':   np.column_stack((mag_x_values,mag_y_values,mag_z_values))}
+        self._set_data(in_data)
 
 if __name__ == '__main__':
-    my_sensor = Vicon(in_file=r'..\tests\data\LeftFoot-marche01.c3d')    
+    my_sensor = Vicon(in_file=r'C:\Users\riza_\Documents\Thomas\LeftFoot-marche01.c3d')    
     
     import matplotlib.pyplot as plt    
     
