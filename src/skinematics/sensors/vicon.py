@@ -79,7 +79,7 @@ class Vicon(IMU_Base):
         self._set_data(in_data)
 
 if __name__ == '__main__':
-    my_sensor = Vicon(in_file=r'C:\Users\riza_\Documents\Thomas\LeftFoot-marche01.c3d')    
+    my_sensor = Vicon(in_file=r'..\tests\data\LeftFoot-marche01.c3d')    
     
     import matplotlib.pyplot as plt    
     
