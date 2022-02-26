@@ -7,7 +7,7 @@ The advantage of using an "abstract base class" is that it allows to write
 code that is independent of the IMU-sensor. All IMUs provide acceleration
 and angular velocities, and most of them also the direction of the local
 magnetic field. The specifics of each sensor are hidden in the sensor-object
-(specifically, in the "get\_data" method which has to be implemented once
+(specifically, in the "get_data" method which has to be implemented once
 for each sensor). Initialization of a sensor object includes a number of
 activities:
 
@@ -22,18 +22,17 @@ activities:
 
 #Author: Thomas Haslwanter
 
+import os
+import sys
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd 
 import scipy as sp
 from scipy import constants     # for "g"
 from scipy.integrate import cumtrapz
-import re
 
 # The following construct is required since I want to run the module as a script
 # inside the skinematics-directory
-import os
-import sys
 
 file_dir = os.path.dirname(__file__)
 if file_dir not in sys.path:
@@ -49,7 +48,7 @@ import warnings
 import abc
 
 class IMU_Base(metaclass=abc.ABCMeta):
-    '''
+    """
     Abstract BaseClass for working with working with inertial measurement units (IMUs)
     A concrete class must be instantiated, which implements "get_data".
     (See example below.)
@@ -124,7 +123,7 @@ class IMU_Base(metaclass=abc.ABCMeta):
     >>>         'mag':sensor.mag}
     >>> my_sensor = MyOwnSensor(in_file='My own 123 sensor.', in_data=in_data)
 
-    '''
+    """
 
     @abc.abstractmethod
     def get_data(self, in_file=None, in_data=None):
@@ -253,7 +252,7 @@ class IMU_Base(metaclass=abc.ABCMeta):
 
 
     def _calc_orientation(self):
-        '''
+        """
         Calculate the current orientation
 
         Parameters
@@ -264,7 +263,7 @@ class IMU_Base(metaclass=abc.ABCMeta):
                 - 'madgwick' ... gradient descent method, efficient
                 - 'mahony' ....  formula from Mahony, as implemented by Madgwick
 
-        '''
+        """
 
         initialPosition = np.r_[0,0,0]
 
@@ -327,7 +326,7 @@ class IMU_Base(metaclass=abc.ABCMeta):
 
 
     def calc_position(self):
-        '''Calculate the position, assuming that the orientation is already known.'''
+        """Calculate the position, assuming that the orientation is already known."""
 
         initialPosition = self.pos_init
         # Acceleration, velocity, and position ----------------------------
@@ -351,7 +350,7 @@ class IMU_Base(metaclass=abc.ABCMeta):
         self.pos = pos
 
     def _checkRequirements(self):
-        '''Check if all the necessary variables are available.'''
+        """Check if all the necessary variables are available."""
         required = [ 'rate', 'acc', 'omega', 'mag' ]
 
         for field in required:
@@ -359,7 +358,7 @@ class IMU_Base(metaclass=abc.ABCMeta):
                 print('Cannot find {0} in calc_orientation!'.format(field))
 
     def _set_info(self):
-        '''Complete the information properties of that IMU'''
+        """Complete the information properties of that IMU"""
 
         self.totalSamples = len(self.omega)
         self.duration = np.float(self.totalSamples)/self.rate # [sec]
@@ -371,7 +370,7 @@ def analytical(R_initialOrientation=np.eye(3),
                initialPosition=np.zeros(3),
                accMeasured=np.column_stack((np.zeros((5,2)), 9.81*np.ones(5))),
                rate=100):
-    ''' Reconstruct position and orientation with an analytical solution,
+    """ Reconstruct position and orientation with an analytical solution,
     from angular velocity and linear acceleration.
     Assumes a start in a stationary position. No compensation for drift.
 
@@ -403,7 +402,7 @@ def analytical(R_initialOrientation=np.eye(3),
      
     >>> q1, pos1 = analytical(R_initialOrientation, omega, initialPosition, acc, rate)
 
-    '''
+    """
 
     if omega.ndim == 1:
         raise ValueError('The input to "analytical" requires matrix inputs.')
@@ -454,7 +453,7 @@ def kalman(rate, acc, omega, mag,
            tau = [0.5, 0.5, 0.5],
            Q_k = None,
            R_k = None):
-    '''
+    """
     Calclulate the orientation from IMU magnetometer data.
 
     Parameters
@@ -497,7 +496,7 @@ def kalman(rate, acc, omega, mag,
        Based Kalman Filter for Human Body Motion Tracking" Yun, X. and Bachman,
        E.R., IEEE TRANSACTIONS ON ROBOTICS, VOL. 22, 1216-1227 (2006)
 
-    '''
+    """
 
     numData = len(acc)
 
@@ -607,7 +606,7 @@ def kalman(rate, acc, omega, mag,
     return qOut
 
 class Madgwick:
-    '''Madgwick's gradient descent filter.
+    """Madgwick's gradient descent filter.
 
         Parameters
         ----------
@@ -617,10 +616,10 @@ class Madgwick:
             algorithm gain
         Quaternion : array, shape (N,4)
             output quaternion describing the Earth relative to the sensor
-        '''
+        """
 
     def __init__(self, rate=256.0, Beta=1.0, Quaternion=[1,0,0,0]):
-        '''Initialization '''
+        """Initialization """
         
         self.rate = rate
         self.SamplePeriod = 1/self.rate
@@ -628,7 +627,7 @@ class Madgwick:
         self.Quaternion = Quaternion
 
     def Update(self, Gyroscope, Accelerometer, Magnetometer):
-        '''Calculate the best quaternion to the given measurement values.
+        """Calculate the best quaternion to the given measurement values.
         
         Parameters
         ----------
@@ -640,7 +639,7 @@ class Madgwick:
             Orientation of local magenetic field.
             (Again, only the direction is used, so units don't matter.)
             
-        '''
+        """
 
         q = self.Quaternion; # short name local variable for readability
 
@@ -675,7 +674,7 @@ class Madgwick:
         self.Quaternion = vector.normalize(q).flatten()
 
 class Mahony:
-    '''Madgwick's implementation of Mayhony's AHRS algorithm
+    """Madgwick's implementation of Mayhony's AHRS algorithm
 
         Parameters
         ----------
@@ -684,9 +683,9 @@ class Mahony:
         Kp : algorithm proportional gain
         Ki : algorithm integral gain
         Quaternion : output quaternion describing the Earth relative to the sensor
-    '''
+    """
     def __init__(self, rate=256.0, Kp=1.0, Ki=0, Quaternion=[1,0,0,0]):
-        '''Initialization '''
+        """Initialization """
         
         self.rate = rate
         self.SamplePeriod = 1/self.rate
@@ -696,7 +695,7 @@ class Mahony:
         self._eInt = [0, 0, 0]  # integral error
 
     def Update(self, Gyroscope, Accelerometer, Magnetometer):
-        '''Calculate the best quaternion to the given measurement values.
+        """Calculate the best quaternion to the given measurement values.
         
         Parameters
         ----------
@@ -709,7 +708,7 @@ class Mahony:
             Orientation of local magenetic field.
             (Again, only the direction is used, so units don't matter.)
             
-        '''
+        """
 
         q = self.Quaternion; # short name local variable for readability
 
@@ -751,7 +750,7 @@ class Mahony:
 
 
 if __name__ == '__main__':
-    '''
+    """
     in_file = r'../others/skinematics-invalid-sqrt.txt'
     import pandas as pd
     
@@ -760,10 +759,10 @@ if __name__ == '__main__':
     acc = data.filter(regex='Acc*').values    
     analytical(omega = omega, accMeasured=acc)
     
-    '''
+    """
     from sensors.xsens import XSens
 
-    in_file = r'tests/data/data_xsens.txt'
+    in_file = r'../../tests/data/data_xsens.txt'
     initial_orientation = np.array([ [1,0,0],
                                      [0,0,-1],
                                      [0,1,0]])
