@@ -46,7 +46,7 @@ class XSens(IMU_Base):
             fh = open(in_file)
             fh.readline()
             line = fh.readline()
-            rate = np.float(line.split(':')[1].split('H')[0])
+            rate = float(line.split(':')[1].split('H')[0])
             fh.close()
     
         except FileNotFoundError:

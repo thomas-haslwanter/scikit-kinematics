@@ -57,7 +57,7 @@ class Polulu(IMU_Base):
             data.columns = ['acc_x', 'acc_y', 'acc_z', 'gyr_x', 'gyr_y', 'gyr_z', 'mag_x', 'mag_y', 'mag_z', 'taccgyr', 'tmag']
             
             # interpolate with a manually set rate. Note that this sensor acquires exactly 25 seconds!
-            dt = 1/np.float(rate)
+            dt = 1/float(rate)
             t_lin = np.arange(0, 25, dt)
     
             data_interp = pd.DataFrame()

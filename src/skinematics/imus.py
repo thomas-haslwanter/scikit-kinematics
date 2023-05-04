@@ -304,7 +304,7 @@ class IMU_Base(metaclass=abc.ABCMeta):
             self._checkRequirements()
 
             # Initialize object
-            AHRS = Mahony(rate=np.float(self.rate), Kp=0.4)  # previously: Kp=0.5
+            AHRS = Mahony(rate=float(self.rate), Kp=0.4)  # previously: Kp=0.5
             quaternion = np.zeros((self.totalSamples, 4))
 
             # The "Update"-function uses angular velocity in radian/s, and only
@@ -343,9 +343,9 @@ class IMU_Base(metaclass=abc.ABCMeta):
 
         for ii in range(accReSpace.shape[1]):
             vel[:,ii] = cumtrapz(accReSpace[:,ii],
-                                 dx=1./np.float(self.rate), initial=0)
+                                 dx=1./float(self.rate), initial=0)
             pos[:,ii] = cumtrapz(vel[:,ii],
-                        dx=1./np.float(self.rate), initial=initialPosition[ii])
+                        dx=1./float(self.rate), initial=initialPosition[ii])
 
         self.vel = vel
         self.pos = pos
@@ -362,7 +362,7 @@ class IMU_Base(metaclass=abc.ABCMeta):
         '''Complete the information properties of that IMU'''
 
         self.totalSamples = len(self.omega)
-        self.duration = np.float(self.totalSamples)/self.rate # [sec]
+        self.duration = float(self.totalSamples)/self.rate # [sec]
         self.dataType = str(self.omega.dtype)
 
 
@@ -735,7 +735,7 @@ class Mahony:
         if self.Ki > 0:
             self._eInt += e * self.SamplePeriod  
         else:
-            self._eInt = np.array([0, 0, 0], dtype=np.float)
+            self._eInt = np.array([0, 0, 0], dtype=float)
 
         # Apply feedback terms
         Gyroscope += self.Kp * e + self.Ki * self._eInt;            

@@ -66,7 +66,7 @@ def read_ratefile(reg_file):
         if line.find('rate') > 0:
             # e.g.: "/rate/quaternion, 50f"
             param_full, val_txt = line.split()
-            value = np.float(val_txt[:-1])  # skip the "f"
+            value = float(val_txt[:-1])  # skip the "f"
             param = param_full.split('/')[2][:-1]
             if value > 0:
                 rates[param] = value
