@@ -12,7 +12,7 @@ Homepage
 --------
 http://work.thaslwanter.at/skinematics/html/
 
-Copyright (c) 2021 Thomas Haslwanter <thomas.haslwanter@fh-ooe.at>
+Copyright (c) 2023 Thomas Haslwanter <thomas.haslwanter@fh-ooe.at>
 
 '''
 
@@ -20,7 +20,7 @@ import importlib
 
 __author__ = "Thomas Haslwanter <thomas.haslwanter@fh-linz.at"
 __license__ = "BSD 2-Clause License"
-__version__ = "0.8.8"
+__version__ = "0.9.0"
 
 
 required_imports = ['markers', 'quat', 'rotmat', 'vector', 'sensors']

@@ -26,7 +26,7 @@ import os
 import sys
 import numpy as np
 import matplotlib.pyplot as plt
-import pandas as pd 
+import pandas as pd
 import scipy as sp
 from scipy import constants     # for "g"
 from scipy.integrate import cumtrapz
@@ -89,13 +89,13 @@ class IMU_Base(metaclass=abc.ABCMeta):
 
     Examples
     --------
-    >>> # Set the in-file, initial sensor orientation 
+    >>> # Set the in-file, initial sensor orientation
     >>> in_file = r'tests/data/data_xsens.txt'
     >>> initial_orientation = np.array([[1,0,0],
     >>>                                 [0,0,-1],
     >>>                                 [0,1,0]])
-    >>>  
-    >>> # Choose a sensor 
+    >>>
+    >>> # Choose a sensor
     >>> from skinematics.sensors.xsens import XSens
     >>> from skinematics.sensors.manual import MyOwnSensor
     >>>
@@ -104,15 +104,15 @@ class IMU_Base(metaclass=abc.ABCMeta):
     >>>
     >>> # Read in and evaluate the data
     >>> sensor = XSens(in_file=in_file, R_init=initial_orientation)
-    >>>  
+    >>>
     >>> # By default, the orientation quaternion gets automatically calculated,
     >>> #    using the option "analytical"
     >>> q_analytical = sensor.quat
-    >>>  
+    >>>
     >>> # Automatic re-calculation of orientation if "q_type" is changed
     >>> sensor.set_qtype('madgwick')
     >>> q_Madgwick = sensor.quat
-    >>>  
+    >>>
     >>> sensor.set_qtype('kalman')
     >>> q_Kalman = sensor.quat
     >>>
@@ -182,9 +182,9 @@ class IMU_Base(metaclass=abc.ABCMeta):
             # self.source is set to "None"
             self._set_data(in_data)
 
-        else: 
+        else:
             # Set rate, acc, omega, mag
-            # Note: this is implemented in the concrete class, implenented in 
+            # Note: this is implemented in the concrete class, implenented in
             # the corresponding module in "sensors"
             self.source = in_file
             self.get_data(in_file, in_data)
@@ -196,16 +196,16 @@ class IMU_Base(metaclass=abc.ABCMeta):
         # Set the analysis method, and consolidate the object (see below)
         # This also means calculating the orientation quaternion!!
         self.set_qtype(q_type)
-        
+
         if q_type != None:
             if calculate_position:
                 self.calc_position()
 
-    def set_qtype(self, type_value):                
+    def set_qtype(self, type_value):
         """Sets q_type, and automatically performs the relevant calculations.
         q_type determines how the orientation is calculated.
         If "q_type" is "None", no orientation gets calculated; otherwise,
-        the orientation calculation is performed with 
+        the orientation calculation is performed with
         "_calc_orientation", using the option "q_type".
 
         It has to be one of the following values:
@@ -217,13 +217,13 @@ class IMU_Base(metaclass=abc.ABCMeta):
         * None
 
         """
-        
+
         allowed_values = ['analytical',
                           'kalman',
                           'madgwick',
                           'mahony',
                           None]
-        
+
         if type_value in allowed_values:
             self.q_type = type_value
             if type_value == None:
@@ -233,7 +233,7 @@ class IMU_Base(metaclass=abc.ABCMeta):
         else:
             raise ValueError('q_type must be one of the following: ' \
                              '{0}, not {1}'.format(allowed_values, value))
-        
+
 
     def _set_data(self, data):
         # Set the properties of an IMU-object directly
@@ -273,7 +273,7 @@ class IMU_Base(metaclass=abc.ABCMeta):
                                                           self.omega,
                                                           initialPosition,
                                                           self.acc,
-                                                          self.rate) 
+                                                          self.rate)
 
         elif method == 'kalman':
             self._checkRequirements()
@@ -303,7 +303,7 @@ class IMU_Base(metaclass=abc.ABCMeta):
             self._checkRequirements()
 
             # Initialize object
-            AHRS = Mahony(rate=np.float(self.rate), Kp=0.4)  # previously: Kp=0.5
+            AHRS = Mahony(rate=np.float64(self.rate), Kp=0.4)  # previously: Kp=0.5
             quaternion = np.zeros((self.totalSamples, 4))
 
             # The "Update"-function uses angular velocity in radian/s, and only
@@ -332,7 +332,7 @@ class IMU_Base(metaclass=abc.ABCMeta):
         # Acceleration, velocity, and position ----------------------------
         # From q and the measured acceleration, get the \frac{d^2x}{dt^2}
         g = constants.g
-        g_v = np.r_[0, 0, g] 
+        g_v = np.r_[0, 0, g]
         accReSensor = self.acc - vector.rotate_vector(g_v, quat.q_inv(self.quat))
         accReSpace = vector.rotate_vector(accReSensor, self.quat)
 
@@ -341,10 +341,10 @@ class IMU_Base(metaclass=abc.ABCMeta):
         pos = np.nan*np.ones_like(accReSpace)
 
         for ii in range(accReSpace.shape[1]):
-            vel[:,ii] = cumtrapz(accReSpace[:,ii],
-                                 dx=1./np.float(self.rate), initial=0)
-            pos[:,ii] = cumtrapz(vel[:,ii],
-                        dx=1./np.float(self.rate), initial=initialPosition[ii])
+            vel[:, ii] = cumtrapz(accReSpace[:, ii],
+                                 dx=1. / np.float64(self.rate), initial=0)
+            pos[:, ii] = cumtrapz(vel[:, ii],
+                        dx=1. / np.float64(self.rate), initial=initialPosition[ii])
 
         self.vel = vel
         self.pos = pos
@@ -361,7 +361,7 @@ class IMU_Base(metaclass=abc.ABCMeta):
         """Complete the information properties of that IMU"""
 
         self.totalSamples = len(self.omega)
-        self.duration = np.float(self.totalSamples)/self.rate # [sec]
+        self.duration = np.float64(self.totalSamples) / self.rate # [sec]
         self.dataType = str(self.omega.dtype)
 
 
@@ -399,14 +399,14 @@ def analytical(R_initialOrientation=np.eye(3),
 
     Example
     -------
-     
+
     >>> q1, pos1 = analytical(R_initialOrientation, omega, initialPosition, acc, rate)
 
     """
 
     if omega.ndim == 1:
         raise ValueError('The input to "analytical" requires matrix inputs.')
-        
+
     # Transform recordings to angVel/acceleration in space --------------
 
     # Orientation of \vec{g} with the sensor in the "R_initialOrientation"
@@ -414,20 +414,20 @@ def analytical(R_initialOrientation=np.eye(3),
     g0 = np.linalg.inv(R_initialOrientation).dot(np.r_[0,0,g])
 
     # for the remaining deviation, assume the shortest rotation to there
-    q0 = vector.q_shortest_rotation(accMeasured[0], g0)    
-    
+    q0 = vector.q_shortest_rotation(accMeasured[0], g0)
+
     q_initial = rotmat.convert(R_initialOrientation, to='quat')
-    
+
     # combine the two, to form a reference orientation. Note that the sequence
     # is very important!
     q_ref = quat.q_mult(q_initial, q0)
-    
+
     # Calculate orientation q by "integrating" omega -----------------
     q = quat.calc_quat(omega, q_ref, rate, 'bf')
 
     # Acceleration, velocity, and position ----------------------------
     # From q and the measured acceleration, get the \frac{d^2x}{dt^2}
-    g_v = np.r_[0, 0, g] 
+    g_v = np.r_[0, 0, g]
     accReSensor = accMeasured - vector.rotate_vector(g_v, quat.q_inv(q))
     accReSpace = vector.rotate_vector(accReSensor, q)
 
@@ -449,7 +449,7 @@ def analytical(R_initialOrientation=np.eye(3),
     return (q, pos, vel)
 
 def kalman(rate, acc, omega, mag,
-           D = [0.4, 0.4, 0.4],          
+           D = [0.4, 0.4, 0.4],
            tau = [0.5, 0.5, 0.5],
            Q_k = None,
            R_k = None):
@@ -459,7 +459,7 @@ def kalman(rate, acc, omega, mag,
     Parameters
     ----------
     rate : float
-    	   sample rate [Hz]	
+    	   sample rate [Hz]
     acc : (N,3) ndarray
     	  linear acceleration [m/sec^2]
     omega : (N,3) ndarray
@@ -482,7 +482,7 @@ def kalman(rate, acc, omega, mag,
           covariance matrix of measurement noises
           parameter for tuning the filter; defaults from Yun et al.
           If set to "None", the defaults from Yun et al. are taken!
-          
+
 
     Returns
     -------
@@ -502,12 +502,12 @@ def kalman(rate, acc, omega, mag,
 
     # Set parameters for Kalman Filter
     tstep = 1./rate
-    
+
     # check input
     assert len(tau) == 3
     tau = np.array(tau)
 
-    # Initializations 
+    # Initializations
     x_k = np.zeros(7)	# state vector
     z_k = np.zeros(7)   # measurement vector
     z_k_pre = np.zeros(7)
@@ -520,7 +520,7 @@ def kalman(rate, acc, omega, mag,
     H_k = np.eye(7)		# Identity matrix
 
     D = np.r_[0.4, 0.4, 0.4]		# [rad^2/sec^2]; from Yun, 2006
-    
+
     if Q_k is None:
         # Set the default input, from Yun et al.
         Q_k = np.zeros((7,7)) 	# process noise matrix Q_k
@@ -535,14 +535,14 @@ def kalman(rate, acc, omega, mag,
         # Set the default input, from Yun et al.
         r_angvel = 0.01;      # [rad**2/sec**2]; from Yun, 2006
         r_quats = 0.0001;     # from Yun, 2006
-        
+
         r_ii = np.zeros(7)
         for ii in range(3):
             r_ii[ii] = r_angvel
         for ii in range(4):
             r_ii[ii+3] = r_quats
-            
-        R_k = np.diag(r_ii)    
+
+        R_k = np.diag(r_ii)
     else:
         # Check the shape of the input
         assert R_k.shape == (7,7)
@@ -556,7 +556,7 @@ def kalman(rate, acc, omega, mag,
         angvelVec = omega[ii,:]
         z_k_pre = z_k.copy()  # watch out: by default, Python passes the reference!!
 
-        # Evaluate quaternion based on acceleration and magnetic field data 
+        # Evaluate quaternion based on acceleration and magnetic field data
         accelVec_n = vector.normalize(accelVec)
         magVec_hor = magVec - accelVec_n * (accelVec_n @ magVec)
         magVec_n   = vector.normalize(magVec_hor)
@@ -581,7 +581,7 @@ def kalman(rate, acc, omega, mag,
         Delta[4,:] = np.r_[ x_k[3], -x_k[6],  x_k[5], x_k[0],       0,  x_k[2], -x_k[1]]
         Delta[5,:] = np.r_[ x_k[6],  x_k[3], -x_k[4], x_k[1], -x_k[2],       0,  x_k[0]]
         Delta[6,:] = np.r_[-x_k[5],  x_k[4],  x_k[3], x_k[2],  x_k[1], -x_k[0],       0]
-        
+
         Delta *= tstep/2
         Phi_k += Delta
 
@@ -620,7 +620,7 @@ class Madgwick:
 
     def __init__(self, rate=256.0, Beta=1.0, Quaternion=[1,0,0,0]):
         """Initialization """
-        
+
         self.rate = rate
         self.SamplePeriod = 1/self.rate
         self.Beta = Beta
@@ -628,7 +628,7 @@ class Madgwick:
 
     def Update(self, Gyroscope, Accelerometer, Magnetometer):
         """Calculate the best quaternion to the given measurement values.
-        
+
         Parameters
         ----------
         Gyroscope : array, shape (,3)
@@ -638,7 +638,7 @@ class Madgwick:
         Magnetometer : array, shape (,3)
             Orientation of local magenetic field.
             (Again, only the direction is used, so units don't matter.)
-            
+
         """
 
         q = self.Quaternion; # short name local variable for readability
@@ -686,7 +686,7 @@ class Mahony:
     """
     def __init__(self, rate=256.0, Kp=1.0, Ki=0, Quaternion=[1,0,0,0]):
         """Initialization """
-        
+
         self.rate = rate
         self.SamplePeriod = 1/self.rate
         self.Kp = Kp
@@ -696,7 +696,7 @@ class Mahony:
 
     def Update(self, Gyroscope, Accelerometer, Magnetometer):
         """Calculate the best quaternion to the given measurement values.
-        
+
         Parameters
         ----------
         Gyroscope : array, shape (,3)
@@ -707,7 +707,7 @@ class Mahony:
         Magnetometer : array, shape (,3)
             Orientation of local magenetic field.
             (Again, only the direction is used, so units don't matter.)
-            
+
         """
 
         q = self.Quaternion; # short name local variable for readability
@@ -725,19 +725,19 @@ class Mahony:
         w = np.array([
             2*b[1]*(0.5 - q[2]**2 - q[3]**2) + 2*b[3]*(q[1]*q[3] - q[0]*q[2]),
             2*b[1]*(q[1]*q[2] - q[0]*q[3]) + 2*b[3]*(q[0]*q[1] + q[2]*q[3]),
-            2*b[1]*(q[0]*q[2] + q[1]*q[3]) + 2*b[3]*(0.5 - q[1]**2 - q[2]**2)]) 
+            2*b[1]*(q[0]*q[2] + q[1]*q[3]) + 2*b[3]*(0.5 - q[1]**2 - q[2]**2)])
 
         # Error is sum of cross product between estimated direction and measured
         # direction of fields
-        e = np.cross(Accelerometer, v) + np.cross(Magnetometer, w) 
+        e = np.cross(Accelerometer, v) + np.cross(Magnetometer, w)
 
         if self.Ki > 0:
-            self._eInt += e * self.SamplePeriod  
+            self._eInt += e * self.SamplePeriod
         else:
-            self._eInt = np.array([0, 0, 0], dtype=np.float)
+            self._eInt = np.array([0, 0, 0], dtype=np.float64)
 
         # Apply feedback terms
-        Gyroscope += self.Kp * e + self.Ki * self._eInt;            
+        Gyroscope += self.Kp * e + self.Ki * self._eInt;
 
         # Compute rate of change of quaternion
         qDot = 0.5 * quat.q_mult(q, np.hstack([0, Gyroscope])).flatten()
@@ -753,12 +753,12 @@ if __name__ == '__main__':
     """
     in_file = r'../others/skinematics-invalid-sqrt.txt'
     import pandas as pd
-    
+
     data = pd.read_csv(in_file, delimiter='\t')
     omega = data.filter(regex='Gyr*').values
-    acc = data.filter(regex='Acc*').values    
+    acc = data.filter(regex='Acc*').values
     analytical(omega = omega, accMeasured=acc)
-    
+
     """
     from sensors.xsens import XSens
 
@@ -783,7 +783,7 @@ if __name__ == '__main__':
 
     def show_result(imu_data):
         "Dummy function, to simplify the visualization"
-        
+
         fig, axs = plt.subplots(3,1)
         axs[0].plot(imu_data.omega)
         axs[0].set_ylabel('Omega')
@@ -792,10 +792,10 @@ if __name__ == '__main__':
         axs[1].set_ylabel('Acc')
         axs[2].plot(imu_data.quat[:,1:])
         axs[2].set_ylabel('Quat')
-        plt.show()    
-        
+        plt.show()
+
     show_result(sensor)
-    
+
     # Automatic re-calculation of orientation if "q_type" is changed
     sensor.set_qtype('madgwick')
     q_Madgwick = sensor.quat
