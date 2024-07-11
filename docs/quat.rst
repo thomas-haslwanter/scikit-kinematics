@@ -6,10 +6,12 @@ Quaternions
 Note that all these functions work with single quaternions and quaternion vectors,
 as well as with arrays containing these.
 
+
 Quaternion class
 ----------------
 
-* :class:`quat.Quaternion` ... Quaternion class
+* :class:`quat.Quaternion` ... Quaternion class, with multiplication, division, and inversion.
+
 
 Functions for working with quaternions
 --------------------------------------
@@ -20,6 +22,7 @@ Functions for working with quaternions
 * :func:`quat.q_scalar` ... Extract the scalar part from a quaternion
 * :func:`quat.q_vector` ... Extract the vector part from a quaternion
 * :func:`quat.unit_q` ... Extend a quaternion vector to a unit quaternion.
+
 
 Conversion routines
 -------------------
@@ -38,3 +41,4 @@ Details
 -------
 .. automodule:: quat
     :members:
+

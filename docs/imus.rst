@@ -10,15 +10,13 @@ They are implemented in an object oriented way. (Don't worry if you have not
 used objects before, it won't be a problem here!) All sensor implementations
 are based on the abstract base class "IMU_Base". For each sensor, the
 corresponding method "get_data" has to be implemented, by sub-classing
-IMU_Base. Currently 6 sensor types are supported:
+IMU_Base. Currently 5 sensor types are supported
 
 * XSens
 * xio (original, and NGIMU)
 * YEI
 * polulu
-* Vicon
 * manual
-
 
 The last one is not a "real" sensor, but allows the creation of an
 IMU-object with your own IMU-data, without defining a new class.
@@ -39,6 +37,8 @@ provide:
 
 Data are read in, and by default the orientation is automatically calculated
 based on the parameter "q_type" and using the function _calc_orientation.
+
+Note: support vor "Vicon" has dropped, because the Vicon btk is no longer supported.
 
 Base-Class & Methods
 --------------------
@@ -103,8 +103,4 @@ Polulu
 .. automodule:: sensors.polulu
     :members:
 
-Vicon
-^^^^^^
-.. automodule:: sensors.Vicon
-    :members:
 

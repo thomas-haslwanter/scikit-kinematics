@@ -62,3 +62,4 @@ v0.8.6, 29-Apr-2021 -- Fix crash, if OpenGL not availabel; Kalman still broken
 v0.8.7, 14-May-2021 -- Stop automatic import of module 'view', due to problems on OSX
 v0.8.8, 29-Dec-2021 -- Switched project to 'pyproject.toml'-format
 v0.9.0, 12-May-2023 -- Switched project packaging to 'poetry', fixed 'float'-errors
+v0.9.1, 26-Feb-2024 -- The 'vicon' sensor has been eliminated
