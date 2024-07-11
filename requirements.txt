@@ -44,7 +44,7 @@ python-dateutil==2.8.2
 pytz==2023.3
 pywin32-ctypes==0.2.0
 readme-renderer==37.3
-requests==2.31.0
+requests==2.32.0
 requests-toolbelt==1.0.0
 rfc3986==2.0.0
 rich==13.3.5
