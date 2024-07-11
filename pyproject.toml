@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "scikit-kinematics"
-version = "0.9.1"
+version = "0.9.2"
 description  = "Python utilites for movements in 3d space"
 authors = ["Thomas Haslwanter <thomas.haslwanter@fh-ooe.at>"]
 readme = "README.md"

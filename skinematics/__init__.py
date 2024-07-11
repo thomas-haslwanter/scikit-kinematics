@@ -20,7 +20,7 @@ import importlib
 
 __author__ = "Thomas Haslwanter <thomas.haslwanter@fh-linz.at"
 __license__ = "BSD 2-Clause License"
-__version__ = "0.9.1"
+__version__ = "0.9.2"
 
 
 required_imports = ['markers', 'quat', 'rotmat', 'vector', 'sensors']
