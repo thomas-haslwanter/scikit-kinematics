@@ -12,11 +12,11 @@ for each sensor). Initialization of a sensor object includes a number of
 activities:
 
         - Reading in the data.
-        - Making acceleration, angular\_velocity etc. accessible in a sensor-
+        - Making acceleration, angular_velocity etc. accessible in a sensor-
           independent way
         - Calculating duration, totalSamples, etc.
         - Calculating orientation (expressed as "quat"), with the method
-          specified in "q\_type"
+          specified in "q_type"
 
 """
 
@@ -27,9 +27,13 @@ import sys
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
-import scipy as sp
+import scipy
 from scipy import constants     # for "g"
-from scipy.integrate import cumtrapz
+if int(scipy.__version__.split('.')[1]) >= 12:
+    from scipy.integrate import cumulative_trapezoid, simpson
+else:
+    from scipy.integrate import cumtrapz as cumulative_trapezoid
+    from scipy.integrate import simps as simpson
 
 # The following construct is required since I want to run the module as a script
 # inside the skinematics-directory
@@ -341,9 +345,9 @@ class IMU_Base(metaclass=abc.ABCMeta):
         pos = np.nan*np.ones_like(accReSpace)
 
         for ii in range(accReSpace.shape[1]):
-            vel[:, ii] = cumtrapz(accReSpace[:, ii],
+            vel[:, ii] = cumulative_trapezoid(accReSpace[:, ii],
                                  dx=1. / np.float64(self.rate), initial=0)
-            pos[:, ii] = cumtrapz(vel[:, ii],
+            pos[:, ii] = cumulative_trapezoid(vel[:, ii],
                         dx=1. / np.float64(self.rate), initial=initialPosition[ii])
 
         self.vel = vel
@@ -443,8 +447,10 @@ def analytical(R_initialOrientation=np.eye(3),
     pos = np.nan*np.ones_like(accReSpace)
 
     for ii in range(accReSpace.shape[1]):
-        vel[:,ii] = cumtrapz(accReSpace[:,ii], dx=1./rate, initial=0)
-        pos[:,ii] = cumtrapz(vel[:,ii], dx=1./rate, initial=initialPosition[ii])
+        vel[:, ii] = cumulative_trapezoid(
+            accReSpace[:, ii], dx=1. / rate, initial=0)
+        pos[:, ii] = cumulative_trapezoid(
+            vel[:, ii], dx=1. / rate, initial=initialPosition[ii])
 
     return (q, pos, vel)
 
@@ -762,7 +768,7 @@ if __name__ == '__main__':
     """
     from sensors.xsens import XSens
 
-    in_file = r'../../tests/data/data_xsens.txt'
+    in_file = r'../tests/data/data_xsens.txt'
     initial_orientation = np.array([ [1,0,0],
                                      [0,0,-1],
                                      [0,1,0]])
