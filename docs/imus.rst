@@ -10,10 +10,10 @@ They are implemented in an object oriented way. (Don't worry if you have not
 used objects before, it won't be a problem here!) All sensor implementations
 are based on the abstract base class "IMU_Base". For each sensor, the
 corresponding method "get_data" has to be implemented, by sub-classing
-IMU_Base. Currently 5 sensor types are supported
+IMU_Base. Currently the following sensor types are supported:
 
 * XSens
-* xio (original, and NGIMU)
+* xio (XIO, NGIMU, and XIO3)
 * YEI
 * polulu
 * manual

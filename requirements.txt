@@ -1,8 +1,0 @@
-docutils 
-matplotlib 
-numpy 
-pandas 
-sympy 
-scipy 
-pygame 
-pytest

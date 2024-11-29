@@ -130,7 +130,7 @@ class IMU_Base(metaclass=abc.ABCMeta):
     """
 
     @abc.abstractmethod
-    def get_data(self, in_file=None, in_data=None):
+    def get_data(self, in_file=None, in_data:float|None|np.ndarray=None):
         """Retrieve "rate", "acc", "omega", "mag" from the input source
         and set the corresponding values of "self".
         With some sensors, "rate" has to be provided, and is taken from "in_data".

@@ -6,25 +6,17 @@ Note that the data are in two files:
     - a reg-file
 
 More info about the sensor on http://x-io.co.uk
-
 '''
 
-'''
-Author: Thomas Haslwanter
-'''
+# Author: Thomas Haslwanter
 
 import numpy as np
 import pandas as pd
+import os
 from scipy import constants
 import abc
 
-# To ensure that the relative path works
-import os
-import sys
-dir_name = os.path.dirname(__file__)
-sys.path.insert(0, os.path.realpath(os.path.join(dir_name, "..")))
-
-from imus import IMU_Base
+from skinematics.imus import IMU_Base
 
 def read_ratefile(reg_file):
     '''Read send-rates from an NGIMU sensor.
@@ -165,7 +157,7 @@ class NGIMU(IMU_Base):
 
 
 if __name__ == '__main__':
-    test_dir = r'../tests/data/data_ngimu'
+    test_dir = r'../../tests/data/data_ngimu'
     assert os.path.exists(test_dir)
 
     my_sensor = NGIMU(in_file=test_dir)

@@ -13,16 +13,11 @@ More info about the sensor on https://x-io.co.uk/x-imu3/
 
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 from scipy import constants
-from pathlib import Path
-
-# To ensure that the relative path works
 import os
-import sys
-dir_name = os.path.dirname(__file__)
-sys.path.insert(0, os.path.realpath(os.path.join(dir_name, "..")))
 
-from imus import IMU_Base
+from skinematics.imus import IMU_Base
 
 
 def read_datafiles(in_files, rate):
@@ -142,13 +137,11 @@ class XIO3(IMU_Base):
 
 
 if __name__ == '__main__':
-    test_dir = 'c:/Users/p20529/CloudStation/Projects/IMUs/XIO/IMU3/data/data_1/x-IMU3 - 9F78-5410-EC7B-D9FF (TCP)'
+    test_dir = r'..\..\tests\data\data_xio3'
     assert os.path.exists(test_dir)
 
-    sample_rate = 50 # Hz
+    sample_rate = 50. # Hz
     my_sensor = XIO3(in_file=test_dir, in_data=sample_rate)
-
-    import matplotlib.pyplot as plt
 
     plt.plot(my_sensor.acc)
     print(my_sensor.rate)

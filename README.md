@@ -8,7 +8,7 @@ kinematics, e.g quaternions and rotation matrices. This includes
 utilities to read in data from the following IMU-sensors: - polulu -
 XSens - xio - xio-NGIMU - YEI
 
-Compatible with Python &gt;= 3.5
+Compatible with Python &gt;= 3.9
 
 Dependencies
 ------------
@@ -20,7 +20,7 @@ Homepage
 
 <http://work.thaslwanter.at/skinematics/html/>
 
-Author: Thomas Haslwanter Date: 11-07-2024 Ver: 0.9.3 Licence: BSD
+Author: Thomas Haslwanter Date: 11-07-2024 Ver: 0.10.0 Licence: BSD
 2-Clause License (<http://opensource.org/licenses/BSD-2-Clause>)
 Copyright (c) 2024, Thomas Haslwanter All rights reserved.
 
@@ -45,7 +45,7 @@ data, calculate orientation (with one of the algorithms below)
     sensors, or from your own sensor. Currenlty the following sensors
     types are available:
     -   XSens
-    -   xio (original, and NGIMU)
+    -   xio (XIO, NGIMU, and XIO3)
     -   yei
 
     \* polulu

@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "scikit-kinematics"
-version = "0.9.3"
+version = "0.10.0"
 description  = "Python utilites for movements in 3d space"
 authors = ["Thomas Haslwanter <thomas.haslwanter@fh-ooe.at>"]
 readme = "README.md"
@@ -35,6 +35,8 @@ scipy = ">= 1.5"
 pygame = ">= 2.0"
 
 # PyOpenGL>3.0.0]
+
+
 
 
 [tool.poetry.group.dev.dependencies]

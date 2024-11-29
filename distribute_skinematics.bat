@@ -1,5 +1,5 @@
 REM cd scikit-kinematics
-REM nvim CHANGES.txt README.md pyproject.toml docs\conf.py docs\index.rst skinematics\__init__.py skinematics\sensors\__init__.py
+nvim CHANGES.txt README.md pyproject.toml docs\conf.py docs\index.rst skinematics\__init__.py skinematics\sensors\__init__.py
 del dist\*
 poetry build
 

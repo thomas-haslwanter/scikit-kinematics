@@ -9,6 +9,7 @@ from skinematics import imus, quat, vector, rotmat
 from time import sleep
 from skinematics.simulations.simulate_movements import simulate_imu
 
+myPath = os.path.dirname(os.path.abspath(__file__))
 
 class TestSequenceFunctions(unittest.TestCase):
     def setUp(self):
@@ -186,7 +187,10 @@ class TestSequenceFunctions(unittest.TestCase):
         """Currently, this only tests if the two functions are running through"""
 
         # Get data, with a specified input from an XSens system
-        inFile = os.path.join('.', "data", "data_xsens.txt")
+        # data_dir = resources.files('data')
+        # inFile = data_dir/'data_xsens.txt'
+
+        inFile = os.path.join(myPath, "data", "data_xsens.txt")
         initial_orientation = np.array([[1, 0, 0], [0, 0, -1], [0, 1, 0]])
         initial_position = np.r_[0, 0, 0]
 
@@ -202,7 +206,9 @@ class TestSequenceFunctions(unittest.TestCase):
         """Tests if the test crashes on any of the existing qtype options"""
 
         # Get data
-        inFile = os.path.join('.', "data", "data_xsens.txt")
+        # data_dir = resources.files('data')
+        # inFile = data_dir/'data_xsens.txt'
+        inFile = os.path.join(myPath, "data", "data_xsens.txt")
         from skinematics.sensors.xsens import XSens
 
         initialPosition = array([0, 0, 0])
@@ -218,8 +224,8 @@ class TestSequenceFunctions(unittest.TestCase):
         allowed_values = ["analytical", "kalman", "madgwick", "mahony", None]
 
         for sensor_type in allowed_values:
-            sensor.set_qtype(sensor_type)
             print("{0} is running".format(sensor_type))
+            sensor.set_qtype(sensor_type)
 
 
 if __name__ == "__main__":

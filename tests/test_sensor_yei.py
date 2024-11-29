@@ -8,11 +8,13 @@ from skinematics import imus
 from time import sleep
 from skinematics.sensors.yei import YEI
 
+myPath = os.path.dirname(os.path.abspath(__file__))
+
 class TestSequenceFunctions(unittest.TestCase):
     
     def test_import_yei(self):
         # Get data, with a specified input from a YEI system
-        in_file = os.path.join('.', 'data', 'data_yei.txt')
+        in_file = os.path.join(myPath, 'data', 'data_yei.txt')
         sensor = YEI(in_file=in_file, q_type=None)
         
         rate = sensor.rate

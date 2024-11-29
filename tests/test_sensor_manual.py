@@ -8,11 +8,13 @@ import os
 from skinematics.sensors.xsens import XSens
 from skinematics.sensors.manual import MyOwnSensor
 
+myPath = os.path.dirname(os.path.abspath(__file__))
+
 class TestSequenceFunctions(unittest.TestCase):
 
     def test_import_manual(self):
         # Get data, with a specified input from an XSens system
-        in_file = os.path.join('.', 'data', 'data_xsens.txt')
+        in_file = os.path.join(myPath, 'data', 'data_xsens.txt')
 
         sensor = XSens(in_file=in_file, q_type=None)
 
