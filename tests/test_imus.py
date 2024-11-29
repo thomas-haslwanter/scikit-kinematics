@@ -1,13 +1,7 @@
 # from .context import skinematics
-import sys
-import os
-
-myPath = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, os.path.join(myPath, "..", ".."))
 
 import unittest
 import numpy as np
-import matplotlib.pyplot as plt
 from numpy import sin, cos, array, r_, vstack, abs, tile, pi
 from numpy.linalg import norm
 import os
@@ -192,7 +186,7 @@ class TestSequenceFunctions(unittest.TestCase):
         """Currently, this only tests if the two functions are running through"""
 
         # Get data, with a specified input from an XSens system
-        inFile = os.path.join(myPath, "data", "data_xsens.txt")
+        inFile = os.path.join('.', "data", "data_xsens.txt")
         initial_orientation = np.array([[1, 0, 0], [0, 0, -1], [0, 1, 0]])
         initial_position = np.r_[0, 0, 0]
 
@@ -208,7 +202,7 @@ class TestSequenceFunctions(unittest.TestCase):
         """Tests if the test crashes on any of the existing qtype options"""
 
         # Get data
-        inFile = os.path.join(myPath, "data", "data_xsens.txt")
+        inFile = os.path.join('.', "data", "data_xsens.txt")
         from skinematics.sensors.xsens import XSens
 
         initialPosition = array([0, 0, 0])

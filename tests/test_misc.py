@@ -1,10 +1,4 @@
-import sys
-import os
-myPath = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, os.path.join(myPath, '..', '..'))
-
 import unittest
-import numpy as np
 from time import sleep
 from skinematics import misc
 

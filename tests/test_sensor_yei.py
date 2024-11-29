@@ -1,28 +1,18 @@
-'''
-Test import data saved with YEI-sensors, through subclassing "IMU_Base"
-'''
+''' Test import data saved with YEI-sensors, through subclassing "IMU_Base" '''
 
-'''
-Author: Thomas Haslwanter
-Version: 0.1
-Date: Sept-2017
-'''
+# Author: Thomas Haslwanter
 
-import sys
 import os
-myPath = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, os.path.join(myPath, '..'))
-
 import unittest
 from skinematics import imus
 from time import sleep
-from sensors.yei import YEI
+from skinematics.sensors.yei import YEI
 
 class TestSequenceFunctions(unittest.TestCase):
     
     def test_import_yei(self):
         # Get data, with a specified input from a YEI system
-        in_file = os.path.join(myPath, 'data', 'data_yei.txt')
+        in_file = os.path.join('.', 'data', 'data_yei.txt')
         sensor = YEI(in_file=in_file, q_type=None)
         
         rate = sensor.rate

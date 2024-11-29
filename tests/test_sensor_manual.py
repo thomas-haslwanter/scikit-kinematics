@@ -1,27 +1,18 @@
-'''
-Test manual data entry, through subclassing "IMU_Base"
-'''
+''' Test manual data entry, through subclassing "IMU_Base" '''
 
-'''
-Author: Thomas Haslwanter
-'''
-
-import sys
-import os
-myPath = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, os.path.join(myPath, '..', 'skinematics'))
+# Author: Thomas Haslwanter
 
 import unittest
-import imus
 from time import sleep
-from sensors.xsens import XSens
-from sensors.manual import MyOwnSensor
+import os
+from skinematics.sensors.xsens import XSens
+from skinematics.sensors.manual import MyOwnSensor
 
 class TestSequenceFunctions(unittest.TestCase):
 
     def test_import_manual(self):
         # Get data, with a specified input from an XSens system
-        in_file = os.path.join(myPath, 'data', 'data_xsens.txt')
+        in_file = os.path.join('.', 'data', 'data_xsens.txt')
 
         sensor = XSens(in_file=in_file, q_type=None)
 

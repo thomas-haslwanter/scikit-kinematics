@@ -1,27 +1,19 @@
-'''
-Test import data saved with Polulu-sensors, through subclassing "IMU_Base"
-'''
+''' Test import data saved with Polulu-sensors, through subclassing "IMU_Base" '''
 
-'''
-Author: Thomas Haslwanter
-'''
+# Author: Thomas Haslwanter
 
-import sys
 import os
-myPath = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, os.path.join(myPath, '..'))
-
 import unittest
 from skinematics import imus
 from time import sleep
-from sensors.polulu import Polulu
+from skinematics.sensors.polulu import Polulu
 
 class TestSequenceFunctions(unittest.TestCase):
     
     def test_import_polulu(self):
         # Get data, with a specified input from a Polulu system
         in_data = {'rate':125}
-        in_file = os.path.join(myPath, 'data', 'data_polulu.txt')
+        in_file = os.path.join('.', 'data', 'data_polulu.txt')
         sensor = Polulu(in_file=in_file, in_data = in_data, q_type=None)
         
         rate = sensor.rate

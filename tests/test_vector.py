@@ -1,13 +1,7 @@
 import numpy as np
-import sys
-import os
-myPath = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, os.path.join(myPath, '..', 'skinematics'))
-
 from numpy.linalg import norm
 import unittest
-
-import vector, quat
+from skinematics import vector, quat
 
 class TestSequenceFunctions(unittest.TestCase):
     def setUp(self):

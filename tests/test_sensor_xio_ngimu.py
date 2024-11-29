@@ -1,26 +1,21 @@
-"""
-Test import from import data saved with NGIMU sensors from x-io,
-through subclassing 'IMU_Base'
-"""
+""" Test import from import data saved with NGIMU sensors from x-io,
+through subclassing 'IMU_Base' """
 
 # Author: Thomas Haslwanter
 
 import numpy as np
-import sys
 import os
-myPath = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, os.path.join(myPath, '..', 'skinematics'))
 
 import unittest
-import imus
 from time import sleep
-from sensors.xio_ngimu import NGIMU
+from skinematics import imus
+from skinematics.sensors.xio_ngimu import NGIMU
 
 class TestSequenceFunctions(unittest.TestCase):
 
     def test_import_xio(self):
         # Get data, with a specified input from an XIO system
-        in_file = os.path.join(myPath, 'data', 'data_ngimu')
+        in_file = os.path.join('.', 'data', 'data_ngimu')
         sensor = NGIMU(in_file=in_file, q_type=None)
 
         rate = sensor.rate
