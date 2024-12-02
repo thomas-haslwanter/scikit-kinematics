@@ -1,3 +1,5 @@
+""" Tests of rotation matrices """
+
 from skinematics import rotmat, quat
 import unittest
 import numpy as np
