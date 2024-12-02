@@ -84,8 +84,13 @@ XIO
     :members:
 
 x-io NGIMU
-----------
+^^^^^^^^^^
 .. automodule:: sensors.xio_ngimu
+    :members:
+
+x-io XIO3
+^^^^^^^^^
+.. automodule:: sensors.xio3
     :members:
 
 XSens

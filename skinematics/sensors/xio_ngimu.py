@@ -5,7 +5,8 @@ Note that the data are in two files:
     - a data-file
     - a reg-file
 
-More info about the sensor on http://x-io.co.uk
+More info about the sensor on http://x-io.co.uk/ngimu
+
 '''
 
 # Author: Thomas Haslwanter
