@@ -20,15 +20,17 @@ import os
 from skinematics.imus import IMU_Base
 
 
-def read_datafiles(in_files, rate):
+def read_datafiles(in_files, rate=50):
     '''Read data from XIO3-files.
-    To provide a fixed frequency, the data are re-sampled to "rate".
+    The data from inertial- and magnet-sensor sensors are sampled at
+    different frequencies. To nevertheless provide a fixed frequency, the data
+    are re-sampled to "rate".
 
     Parameters
     ----------
 
     in_file : list with file-paths of the data-files
-    rate : sample-rate for the interpolated data
+    rate : sample-rate for the interpolated data (Hz)
 
     Returns
     -------
