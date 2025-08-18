@@ -99,12 +99,9 @@ class Quaternion():
     Examples
     --------
 
-    >>> q = Quaternion(array([[0,0,0.1],
-                              [0,0,0.2],
-                              [0,0,0.5]]))
+    >>> q = Quaternion(array([[0,0,0.1], [0,0,0.2], [0,0,0.5]]))
     >>> p = Quaternion(array([0,0,0.2]))
-    >>> fick = Quaternion( array([[0,0,10],
-                                  [0,10,10]]), 'Fick')
+    >>> fick = Quaternion( array([[0,0,10], [0,10,10]]), 'Fick')
     >>> combined = p * q
     >>> divided = q / p
     >>> extracted = q[1:2]
