@@ -20,7 +20,7 @@ Homepage
 
 <http://work.thaslwanter.at/skinematics/html/>
 
-Author: Thomas Haslwanter Date: 02-12-2024 Ver: 0.10.1 Licence: BSD
+Author: Thomas Haslwanter Date: 21-08-2025 Ver: 0.10.4 Licence: BSD
 2-Clause License (<http://opensource.org/licenses/BSD-2-Clause>)
 Copyright (c) 2024, Thomas Haslwanter All rights reserved.
 
@@ -130,6 +130,7 @@ Definition of rotation matrices
 ------------------------------=
 
 -   rotmat.R ... 3D rotation matrix for rotation about a coordinate axis
+-   rotmat.R_2d ... 2D rotation matrix
 
 Conversion Routines - rotation matrices
 --------------------------------------=
@@ -145,6 +146,7 @@ Symbolic matrices
 
 -   rotmat.R\_s() ... symbolix matrix for rotation about a coordinate
     axis
+-   rotmat.R\_2d\_s() ... symbolix 2D matrix
 
 For example, you can e.g. generate a Fick-matrix, with
 

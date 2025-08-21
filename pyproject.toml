@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "scikit-kinematics"
-version = "0.10.2"
+version = "0.10.4"
 description  = "Python utilites for movements in 3d space"
 authors = ["Thomas Haslwanter <thomas.haslwanter@fh-ooe.at>"]
 readme = "README.md"
@@ -27,7 +27,7 @@ packages = [
 [tool.poetry.dependencies]
 python = ">=3.9"
 docutils = ">= 0.3"
-matplotlib = "< 3.9.1"
+matplotlib = "> 3.9.1"
 numpy = ">= 1.13.0"
 pandas = ">= 1.0"
 sympy = ">= 1.0"
