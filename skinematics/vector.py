@@ -1,14 +1,15 @@
-'''
+"""
 Routines for working with vectors
 These routines can be used with vectors, as well as with matrices containing a vector in each row.
-'''
+"""
 
-'''
+"""
 author :  Thomas Haslwanter
 date :    Oct-2020
-'''
+"""
 
 import numpy as np
+from deprecated import deprecated
 
 
 # The following construct is required since I want to run the module as a script
@@ -23,13 +24,13 @@ if file_dir not in sys.path:
 import quat
 
 # For deprecation warnings
-#import deprecation
+# import deprecation
 import warnings
-#warnings.simplefilter('always', DeprecationWarning)
+# warnings.simplefilter('always', DeprecationWarning)
 
 
 def normalize(v):
-    ''' Normalization of a given vector (with image)
+    """Normalization of a given vector (with image)
 
     Parameters
     ----------
@@ -64,7 +65,7 @@ def normalize(v):
 
 
 
-    '''
+    """
 
     from numpy.linalg import norm
 
@@ -78,15 +79,15 @@ def normalize(v):
     # The 'double' avoids trouble 2 lines down, if v is integer.
     # And the 'copy' ensures that the input is not modified in the calling program.
     v = np.double(np.atleast_2d(v)).copy()
-    length = norm(v,axis=1)
-    v[length!=0] = (v[length!=0].T/length[length!=0]).T
+    length = norm(v, axis=1)
+    v[length != 0] = (v[length != 0].T / length[length != 0]).T
     if vectorFlag:
         v = v.ravel()
     return v
 
 
-def angle(v1,v2):
-    '''Angle between two vectors
+def angle(v1, v2):
+    """Angle between two vectors
 
     Parameters
     ----------
@@ -121,8 +122,7 @@ def angle(v1,v2):
         \\cdot | \\vec{v_2}|})
 
 
-    '''
-
+    """
 
     # make sure lists are handled correctly
     v1 = np.array(v1)
@@ -139,93 +139,136 @@ def angle(v1,v2):
     return angle
 
 
-def project(v1,v2, projection_type='1D'):
-    '''Project one vector onto another, or into the plane perpendicular to that vector.
+def project_onto_line(vec: np.ndarray, to: np.ndarray) -> np.ndarray:
+    """Project one vector onto another.
 
     Parameters
     ----------
-    v1 : array (N,) or (M,N)
-        projected vector
-    v2 : array (N,) or (M,N):
+    vec : array (N,) or (M,N)
+        original vector
+    to : array (N,) or (M,N):
         target vector
-    projection_type : scalar
-        Has to be one of the following:
-
-        - 1D ... projection onto a vector (Default)
-        - 2D ... projection into the plane perpendicular to that vector
-
 
     Returns
     -------
     v_projected : array (N,) or (M,N)
-        projection of v1 onto v2
+        projection of v1 onto (normalized) v2
 
+    Notes
+    -----
+    * Either 'vec' or 'to' has to be 1-dimensional!
+
+    .. math::
+        \\vec{n} = \\frac{ \\vec{to} }{| \\vec{to} |}
+
+        \\vec{v}_{line} = (\\vec{v} \\cdot \\vec{n}) \\vec{n}
 
     .. image:: ../docs/Images/vector_project.png
         :scale: 33%
 
     Example
     -------
-    >>> v1 = np.array([[1,2,3],
-    >>>       [4,5,6]])
-    >>> v2 = np.array([[1,0,0],
-    >>>       [0,1,0]])
-    >>> skinematics.vector.project(v1,v2)
-    array([[ 1.,  0.,  0.],
-       [ 0.,  5.,  0.]])
+    >>> v1 = np.array([[1,0,0],
+    >>>       [1,1,0]])
+    >>> v2 = np.r_[1,1,1]
+    >>> skinematics.vector.project_onto_line(v1,v2)
+    array([[0.33333333 0.33333333 0.33333333]
+        [0.66666667 0.66666667 0.66666667]])
+
+
+    """
+
+    if np.ndim(vec) == 1:
+        is_matrix = False
+    else:
+        is_matrix = True
+        if np.ndim(to_vec) != 1:
+            print("At least one vector must be 1D!")
+            raise NotImplementedError
+
+    to = np.atleast_2d(to)
+    to_n = normalize(to)
+
+    if is_matrix:
+        dot_prod = np.atleast_2d(vec @ to_n.T)
+    else:
+        dot_prod = np.atleast_2d(vec @ to_n.T).T
+
+    projected = dot_prod * to_n
+
+    return projected
+
+
+def project_into_plane(vec: np.ndarray, n_plane: np.ndarray) -> np.ndarray:
+    """Projection into the plane perpendicular to n, through zero
+
+    Parameters
+    ----------
+    vec : array (3,) or (M,3)
+          Vector(s) to be projected
+    n_plane : array (3,)
+              Vector perpendicular to plane (does not have to be normalized)
+
+    Returns
+    -------
+    v_projected : array (3,) or (M,3)
+                  Vector(s) projected into the plane
 
     Notes
     -----
 
     .. math::
-        \\vec{n} = \\frac{ \\vec{a} }{| \\vec{a} |}
+        \\vec{n} = \\frac{ \\overrightarrow{n_{plane}}}{| \\overrightarrow{n_{plane}} |}
 
-        \\vec{v}_{proj} = \\vec{n} (\\vec{v} \\cdot \\vec{n})
+        \\vec{v}_{plane} = \\vec{v} - (\\vec{v} \\cdot \\vec{n})\\vec{n}
 
-        \\mathbf{c}^{image} = \\mathbf{R} \\cdot \\mathbf{c}^{space} + \\mathbf{p}_{CS}
+    """
+    vec = np.array(vec)
+    n_plane = normalize(n_plane)
+    vec_projected = vec - project_onto_line(vec, n_plane)
 
-    *Note* that the orientation of the 2D projection is not uniquely defined.
-    It is chosen here such that the y-axis points up, and one is "looking down"
-    rather than "looking up".
+    return vec_projected
 
 
-    '''
+@deprecated
+def project(v1, v2, projection_type="1D"):
+    """Deprecated function, calls 'project_onto_line' or 'project_into_plane'.
+    Project one vector onto another, or into the plane perpendicular to that vector.
 
-    v1 = np.atleast_2d(v1)
-    v2 = np.atleast_2d(v2)
 
-    e2 = normalize(v2)
+        Parameters
+        ----------
+        v1 : array (N,) or (M,N)
+            projected vector
+        v2 : array (N,) or (M,N):
+            target vector
+        projection_type : scalar
+            Has to be one of the following:
 
-    if projection_type == '1D':
-        if e2.ndim == 1 or e2.shape[0]==1:
-            return (e2 * list(map(np.dot, v1, e2))).ravel()
-        else:
-            return (e2.T * list(map(np.dot, v1, e2))).T
-    elif projection_type == '2D':
-        if e2.shape[0] > 1:
-            raise ValueError('2D projections only implemented for fixed projection-plane!')
+            - 1D ... projection onto a vector (Default)
+            - 2D ... projection into the plane perpendicular to that vector
 
-        x,y,z = e2[0]
-        projection_matrix = np.array(
-            [[-y,      -x*z, x],
-             [ x,      -y*z, y],
-             [ 0, x**2+y**2, z]])
+        Returns
+        -------
+        v_projected : array (N,) or (M,N)
+            projection of v1 onto v2
 
-        if z > 0:    # choose a downward-pointing look for the projection
-            projection_matrix  = projection_matrix * np.r_[-1, 1, -1]
+    """
 
-        projected = v1 @ projection_matrix
-        projected = projected[:,:2]
-        if e2.ndim == 1 or e2.shape[0]==1:
-            return projected.ravel()
-        else:
-            return projected
+    if projection_type == "1D":
+        return project_onto_line(v1, v2)
+    elif projection_type == "2D":
+        return project_into_plane(v1, v2)
     else:
-        raise ValueError('{0} not allowed as projection_type in vector.project!'.format(projection_type))
+        raise ValueError(
+            "{0} not allowed as projection_type in vector.project!".format(
+                projection_type
+            )
+        )
 
 
-def GramSchmidt(p0,p1,p2):
-    '''Gram-Schmidt orthogonalization
+def GramSchmidt(p0, p1, p2):
+    """Gram-Schmidt orthogonalization
 
     Parameters
     ----------
@@ -264,24 +307,25 @@ def GramSchmidt(p0,p1,p2):
     .. math::
         \\mathbf{R} = [ \\vec{e}_1 \\, \\vec{e}_2 \\, \\vec{e}_3 ]
 
-    '''
+    """
 
     # If inputs are lists, convert them to arrays:
     p0 = np.array(p0)
     p1 = np.array(p1)
     p2 = np.array(p2)
 
-    v1 = np.atleast_2d(p1-p0)
-    v2 = np.atleast_2d(p2-p0)
+    v1 = np.atleast_2d(p1 - p0)
+    v2 = np.atleast_2d(p2 - p0)
 
     ex = normalize(v1)
-    ey = normalize(v2- project(v2,ex))
-    ez = np.cross(ex,ey)
+    ey = normalize(v2 - project(v2, ex))
+    ez = np.cross(ex, ey)
 
-    return np.hstack((ex,ey,ez))
+    return np.hstack((ex, ey, ez))
+
 
 def plane_orientation(p0, p1, p2):
-    '''The vector perpendicular to the plane defined by three points.
+    """The vector perpendicular to the plane defined by three points.
 
     Parameters
     ----------
@@ -317,24 +361,26 @@ def plane_orientation(p0, p1, p2):
         \\vec{n} = \\frac{ \\vec{a} \\times \\vec{b}} {| \\vec{a} \\times \\vec{b}|}
 
 
-    '''
+    """
 
     # If inputs are lists, convert them to arrays:
     p0 = np.array(p0)
     p1 = np.array(p1)
     p2 = np.array(p2)
 
-    v01 = p1-p0
-    v02 = p2-p0
-    n = np.cross(v01,v02)
+    v01 = p1 - p0
+    v02 = p2 - p0
+    n = np.cross(v01, v02)
     return normalize(n)
 
-#@deprecation.deprecated(deprecated_in="1.7", removed_in="1.9",
-                        #current_version=__version__,
-                        #details="Use the ``q_shortest_rotation`` function instead")
 
-def q_shortest_rotation(v1,v2):
-    '''Quaternion indicating the shortest rotation from one vector into another.
+# @deprecation.deprecated(deprecated_in="1.7", removed_in="1.9",
+# current_version=__version__,
+# details="Use the ``q_shortest_rotation`` function instead")
+
+
+def q_shortest_rotation(v1, v2):
+    """Quaternion indicating the shortest rotation from one vector into another.
     You can read "qrotate" as either "quaternion rotate" or as "quick
     rotate".
 
@@ -361,31 +407,31 @@ def q_shortest_rotation(v1,v2):
     >>> q = qrotate(v1, v2)
     >>> print(q)
     [ 0.          0.          0.38268343]
-    '''
+    """
 
     # calculate the direction
-    n = normalize(np.cross(v1,v2))
+    n = normalize(np.cross(v1, v2))
 
     # make sure vectors are handled correctly
     n = np.atleast_2d(n)
 
     # handle 0-quaternions
-    nanindex = np.isnan(n[:,0])
-    n[nanindex,:] = 0
+    nanindex = np.isnan(n[:, 0])
+    n[nanindex, :] = 0
 
     # find the angle, and calculate the quaternion
-    angle12 = angle(v1,v2)
-    q = (n.T*np.sin(angle12/2.)).T
+    angle12 = angle(v1, v2)
+    q = (n.T * np.sin(angle12 / 2.0)).T
 
     # if you are working with vectors, only return a vector
-    if q.shape[0]==1:
+    if q.shape[0] == 1:
         q = q.flatten()
 
     return q
 
 
 def rotate_vector(vector, q):
-    '''
+    """
     Rotates a vector, according to the given quaternions.
     Note that a single vector can be rotated into many orientations;
     or a row of vectors can all be rotated by a single quaternion.
@@ -429,20 +475,20 @@ def rotate_vector(vector, q):
            [-0.19866933,  0.98006658,  0.        ],
            [ 0.        ,  0.        ,  1.        ]])
 
-    '''
+    """
     vector = np.atleast_2d(vector)
-    qvector = np.hstack((np.zeros((vector.shape[0],1)), vector))
+    qvector = np.hstack((np.zeros((vector.shape[0], 1)), vector))
     vRotated = quat.q_mult(q, quat.q_mult(qvector, quat.q_inv(q)))
-    vRotated = vRotated[:,1:]
+    vRotated = vRotated[:, 1:]
 
-    if min(vRotated.shape)==1:
+    if min(vRotated.shape) == 1:
         vRotated = vRotated.ravel()
 
     return vRotated
 
 
-def target2orient(target, orient_type='quat'):
-    ''' Converts a target vector into a corresponding orientation.
+def target2orient(target, orient_type="quat"):
+    """Converts a target vector into a corresponding orientation.
     Useful for targeting devices, such as eyes, cameras, or missile trackers.
     Based on the assumption, that in the reference orientation, the targeting
     device points forward.
@@ -484,31 +530,31 @@ def target2orient(target, orient_type='quat'):
 
     >>> skinematics.vector.target2orient(a, orient_type='nautical')
     [ 45.  -0.   0.]
-    '''
+    """
 
-    if orient_type == 'quat':
-        orientation = q_shortest_rotation([1,0,0], target)
+    if orient_type == "quat":
+        orientation = q_shortest_rotation([1, 0, 0], target)
 
-    elif orient_type =='Fick' or orient_type =='nautical':
+    elif orient_type == "Fick" or orient_type == "nautical":
         n = np.atleast_2d(normalize(target))
 
-        theta = np.arctan2(n[:,1], n[:,0])
-        phi = -np.arcsin(n[:,2])
+        theta = np.arctan2(n[:, 1], n[:, 0])
+        phi = -np.arcsin(n[:, 2])
 
-        orientation =  np.column_stack((theta, phi, np.zeros_like(theta)))
+        orientation = np.column_stack((theta, phi, np.zeros_like(theta)))
         orientation = np.rad2deg(orientation)
 
-    elif orient_type == 'Helmholtz':
+    elif orient_type == "Helmholtz":
         n = np.atleast_2d(normalize(target))
 
-        phi = -np.arctan2(n[:,2], n[:,0])
-        theta = np.arcsin(n[:,1])
+        phi = -np.arctan2(n[:, 2], n[:, 0])
+        theta = np.arcsin(n[:, 1])
 
-        orientation =  np.column_stack((phi, theta, np.zeros_like(theta)))
+        orientation = np.column_stack((phi, theta, np.zeros_like(theta)))
         orientation = np.rad2deg(orientation)
 
     else:
-        raise ValueError('Input parameter {0} not known'.format(orientation))
+        raise ValueError("Input parameter {0} not known".format(orientation))
 
     # For vector input, return a vector:
     if orientation.shape[0] == 1:
@@ -517,13 +563,12 @@ def target2orient(target, orient_type='quat'):
     return orientation
 
 
-if __name__=='__main__':
-    a = [3,3,0]
-    b = [0, 1, 0]
+if __name__ == "__main__":
+    v1 = np.r_[1, 0, 0]
+    v2 = np.r_[1, 1, 0]
+    v3 = np.r_[1, 1, 1]
 
-    normalized = normalize(a)
-    print(normalized)
+    data = np.vstack((v2, v3))
 
-    normalized = normalize(np.cross(a,a))
-    print(normalized)
-
+    print(project(v1, v3))
+    print(project(v1, data))
