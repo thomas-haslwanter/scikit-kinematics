@@ -1,13 +1,15 @@
-[tool.poetry]
+[project]
 name = "scikit-kinematics"
-version = "0.10.4"
-description  = "Python utilites for movements in 3d space"
-authors = ["Thomas Haslwanter <thomas.haslwanter@fh-ooe.at>"]
+version = "0.11.0"
+description = "Python utilites for movements in 3d space"
+authors = [{ name = "Thomas Haslwanter", email = "thomas.haslwanter@fh-ooe.at" }]
+requires-python = ">=3.9"
 readme = "README.md"
 license = "BSD-3-Clause"
-homepage = "https://work.thaslwanter.at/skinematics/html"
-repository = "https://github.com/thomas-haslwanter/scikit-kinematics"
-keywords = ["quaterions", "rotations"]
+keywords = [
+    "quaterions",
+    "rotations",
+]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Programming Language :: Python :: 3",
@@ -16,31 +18,40 @@ classifiers = [
     "License :: OSI Approved :: BSD License",
     "Topic :: Scientific/Engineering",
 ]
-packages = [
-    {include = "skinematics" },
-    {include = "tests" },
+dependencies = [
+    "docutils>= 0.3",
+    "matplotlib> 3.9.1",
+    "numpy>= 1.13.0",
+    "pandas>= 1.0",
+    "sympy>= 1.0",
+    "scipy>= 1.5",
+    "pygame>= 2.0",
+    "deprecated>=1.2.8"
 ]
-# include = [
-#     { path = "tests/data" },
-# ]
 
-[tool.poetry.dependencies]
-python = ">=3.9"
-docutils = ">= 0.3"
-matplotlib = "> 3.9.1"
-numpy = ">= 1.13.0"
-pandas = ">= 1.0"
-sympy = ">= 1.0"
-scipy = ">= 1.5"
-pygame = ">= 2.0"
+[project.urls]
+Homepage = "https://work.thaslwanter.at/skinematics/html"
+Repository = "https://github.com/thomas-haslwanter/scikit-kinematics"
 
-# PyOpenGL>3.0.0]
+[dependency-groups]
+dev = [
+    "pytest~=5.2",
+    "black>=23.3.0,<24",
+    "sphinx>=7.3.7,<8",
+]
 
-[tool.poetry.group.dev.dependencies]
-pytest = "^5.2"
-black = "^23.3.0"
-sphinx = "^7.3.7"
+[tool.hatch.build.targets.sdist]
+include = [
+    "skinematics",
+    "tests",
+]
+
+[tool.hatch.build.targets.wheel]
+include = [
+    "skinematics",
+    "tests",
+]
 
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"

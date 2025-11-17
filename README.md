@@ -1,5 +1,6 @@
 ![Title](docs/Images/skinematics.png)
 ===
+
 scikit-kinematics
 ===
 
@@ -20,9 +21,9 @@ Homepage
 
 <http://work.thaslwanter.at/skinematics/html/>
 
-Author: Thomas Haslwanter Date: 21-08-2025 Ver: 0.10.4 Licence: BSD
+Author: Thomas Haslwanter Date: 15-Nov-2025 Ver: 0.11.0 Licence: BSD
 2-Clause License (<http://opensource.org/licenses/BSD-2-Clause>)
-Copyright (c) 2024, Thomas Haslwanter All rights reserved.
+Copyright (c) 2025, Thomas Haslwanter All rights reserved.
 
 Installation
 ------------
@@ -41,24 +42,24 @@ IMUs
 Analysis of signals from IMUs (intertial-measurement-units). Read in
 data, calculate orientation (with one of the algorithms below)
 
--   get\_data ... This method must be taken from one of the existing
+- get\_data ... This method must be taken from one of the existing
     sensors, or from your own sensor. Currenlty the following sensors
     types are available:
-    -   XSens
-    -   xio (XIO, NGIMU, and XIO3)
-    -   yei
+  - XSens
+  - xio (XIO, NGIMU, and XIO3)
+  - yei
 
     \* polulu
--   calc\_position
+- calc\_position
 
 MARG Systems
 ------------
 
--   imus.analytical ... Calculate orientation and position, from angular
+- imus.analytical ... Calculate orientation and position, from angular
     velocity and linear acceleration
--   imus.kalman ... Calculate orientation from IMU-data using an
+- imus.kalman ... Calculate orientation from IMU-data using an
     Extended Kalman Filter.
--   
+-
 
     imus.IMU ... Class for working with data from IMUs
 
@@ -67,9 +68,9 @@ MARG Systems
         -   imus.IMU.set\_qtype ... sets q\_type, and automatically
             performs the relevant calculations.
 
--   imus.Madgwick ... Class for calculating the 3D orientation with the
+- imus.Madgwick ... Class for calculating the 3D orientation with the
     Madgwick-algorithm
--   imus.Mahony ... Class for calculating the 3D orientation with the
+- imus.Mahony ... Class for calculating the 3D orientation with the
     Mahony-algorithm
 
 Markers
@@ -77,9 +78,9 @@ Markers
 
 Analysis of signals from video-based marker-recordings of 3D movements
 
--   markers.analyze\_3Dmarkers ... Kinematic analysis of
-    video-basedrecordings of 3D markers
--   markers.find\_trajectory ... Calculation of joint-movements from 3D
+- markers.analyze\_3Dmarkers ... Kinematic analysis of
+    video-based recordings of 3D markers
+- markers.find\_trajectory ... Calculation of joint-movements from 3D
     marker positions
 
 Quaternions
@@ -91,7 +92,7 @@ quaternion vectors, as well as with arrays containing these.
 Quaternion class
 ----------------
 
--   
+-
 
     quat.Quaternion ... class, including overloading for multiplication and
 
@@ -101,27 +102,27 @@ Quaternion class
 Functions for working with quaternions
 --------------------------------------
 
--   quat.q\_conj ... Conjugate quaternion
--   quat.q\_inv ... Quaternion inversion
--   quat.q\_mult ... Quaternion multiplication
--   quat.q\_scalar ... Extract the scalar part from a quaternion
--   quat.q\_vector ... Extract the vector part from a quaternion
--   quat.unit\_q ... Extend a quaternion vector to a unit quaternion.
+- quat.q\_conj ... Conjugate quaternion
+- quat.q\_inv ... Quaternion inversion
+- quat.q\_mult ... Quaternion multiplication
+- quat.q\_scalar ... Extract the scalar part from a quaternion
+- quat.q\_vector ... Extract the vector part from a quaternion
+- quat.unit\_q ... Extend a quaternion vector to a unit quaternion.
 
 Conversion routines - quaternions
 --------------------------------=
 
--   quat.calc\_angvel ... Calculates the velocity in space from
+- quat.calc\_angvel ... Calculates the velocity in space from
     quaternions
--   quat.calc\_quat ... Calculate orientation from a starting
+- quat.calc\_quat ... Calculate orientation from a starting
     orientation and angular velocity.
--   quat.convert ... Convert quaternion to corresponding rotation matrix
+- quat.convert ... Convert quaternion to corresponding rotation matrix
     or Gibbs vector
--   quat.deg2quat ... Convert number or axis angles to quaternion
+- quat.deg2quat ... Convert number or axis angles to quaternion
     vectors
--   quat.quat2seq ... Convert quaternions to sequention rotations
+- quat.quat2seq ... Convert quaternions to sequention rotations
     ("nautical" angles, etc)
--   quat.scale2deg ... Convert quaternion to corresponding axis angle
+- quat.scale2deg ... Convert quaternion to corresponding axis angle
 
 Rotation Matrices
 =================
@@ -129,24 +130,24 @@ Rotation Matrices
 Definition of rotation matrices
 ------------------------------=
 
--   rotmat.R ... 3D rotation matrix for rotation about a coordinate axis
--   rotmat.R_2d ... 2D rotation matrix
+- rotmat.R ... 3D rotation matrix for rotation about a coordinate axis
+- rotmat.R_2d ... 2D rotation matrix
 
 Conversion Routines - rotation matrices
 --------------------------------------=
 
--   rotmat.convert ... Convert a rotation matrix to the corresponding
+- rotmat.convert ... Convert a rotation matrix to the corresponding
     quaternion
--   rotmat.seq2quat ... Convert nautical angles etc. to quaternions
--   rotmat.sequence ... Calculation of Euler, Fick, Helmholtz, ...
+- rotmat.seq2quat ... Convert nautical angles etc. to quaternions
+- rotmat.sequence ... Calculation of Euler, Fick, Helmholtz, ...
     angles
 
 Symbolic matrices
 -----------------
 
--   rotmat.R\_s() ... symbolix matrix for rotation about a coordinate
+- rotmat.R\_s() ... symbolix matrix for rotation about a coordinate
     axis
--   rotmat.R\_2d\_s() ... symbolix 2D matrix
+- rotmat.R\_2d\_s() ... symbolix 2D matrix
 
 For example, you can e.g. generate a Fick-matrix, with
 
@@ -156,15 +157,15 @@ For example, you can e.g. generate a Fick-matrix, with
 Spatial Transformation Matrices
 -------------------------------
 
--   rotmat.stm ... spatial transformation matrix, for combined
+- rotmat.stm ... spatial transformation matrix, for combined
     rotations/translations
--   rotmat.stm\_s() ... symbolix spatial transformation matrix
+- rotmat.stm\_s() ... symbolix spatial transformation matrix
 
 Denavit-Hartenberg Transformations
 ----------------------------------
 
--   rotmat.dh ... Denavit-Hartenberg transformation matrix
--   rotmat.dh\_s ... symbolic Denavit-Hartenberg transformation matrix
+- rotmat.dh ... Denavit-Hartenberg transformation matrix
+- rotmat.dh\_s ... symbolic Denavit-Hartenberg transformation matrix
 
 Vectors
 =======
@@ -172,21 +173,22 @@ Vectors
 Routines for working with vectors These routines can be used with
 vectors, as well as with matrices containing a vector in each row.
 
--   vector.normalize ... Vector normalization
--   vector.project ... Projection of one vector onto another one
--   vector.GramSchmidt ... Gram-Schmidt orthogonalization of three
+- vector.normalize ... Vector normalization
+- vector.project_onto_line ... Projection of one vector onto another
+- vector.project_into_plane ... Projection of one vector into a plane
+- vector.GramSchmidt ... Gram-Schmidt orthogonalization of three
     points
--   vector.q\_shortest\_rotation ... Quaternion indicating the shortest
+- vector.q\_shortest\_rotation ... Quaternion indicating the shortest
     rotation from one vector into another.
--   vector.rotate\_vector ... Rotation of a vector
--   vector.target2orient ... Convert target location into orientation
+- vector.rotate\_vector ... Rotation of a vector
+- vector.target2orient ... Convert target location into orientation
     angles
 
 Interactive Data Analysis
 ========================-
 
--   viewer.ts ... interactive viewer for time series data
--   view.orientation ... visualize and animate orientations, expressed
+- viewer.ts ... interactive viewer for time series data
+- view.orientation ... visualize and animate orientations, expressed
     as quaternions.
 
 Simulations
@@ -195,5 +197,6 @@ Simulations
 - simulate_movements ... calculated ideal IMU-signals for combined rotations/translations
 
 ## Errata
+
 The file [Errata.pdf](Errata.pdf) contains the a list of mistakes in the manuscript, and
 the corresponding corrections.

@@ -70,3 +70,4 @@ v0.10.1, 03-Dec-2024 -- XIO docu updated
 v0.10.2, 18-Aug-2025 -- 2D rotation matrix added
 v0.10.3, 19-Aug-2025 -- previous built crashed
 v0.10.4, 21-Aug-2025 -- fixed Matplotlib bug in Ver 3.9.0
+v0.11.0, 16-Nov-2025 -- Changed project to uv. Fixed mistakes in vector.project/Gram-Schmidt

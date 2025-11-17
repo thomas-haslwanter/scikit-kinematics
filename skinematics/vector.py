@@ -139,15 +139,15 @@ def angle(v1, v2):
     return angle
 
 
-def project_onto_line(vec: np.ndarray, to: np.ndarray) -> np.ndarray:
+def project_onto_line(data: np.ndarray, to: np.ndarray) -> np.ndarray:
     """Project one vector onto another.
 
     Parameters
     ----------
-    vec : array (N,) or (M,N)
-        original vector
+    data : array (N,) or (M,N)
+        original vector(s)
     to : array (N,) or (M,N):
-        target vector
+        target vector(s)
 
     Returns
     -------
@@ -178,23 +178,21 @@ def project_onto_line(vec: np.ndarray, to: np.ndarray) -> np.ndarray:
 
     """
 
-    if np.ndim(vec) == 1:
-        is_matrix = False
-    else:
-        is_matrix = True
-        if np.ndim(to_vec) != 1:
-            print("At least one vector must be 1D!")
-            raise NotImplementedError
+    # if e2.ndim == 1 or e2.shape[0] == 1:
+    #     return (e2 * list(map(np.dot, v1, e2))).ravel()
+    # else:
+    #     return (e2.T * list(map(np.dot, v1, e2))).T
 
+    data = np.atleast_2d(data)
     to = np.atleast_2d(to)
     to_n = normalize(to)
 
-    if is_matrix:
-        dot_prod = np.atleast_2d(vec @ to_n.T)
+    if to.shape[0] == 1:
+        projected = (data @ to_n.T) @ to_n
+    elif data.shape == to.shape:
+        projected = (to_n.T * list(map(np.dot, data, to_n))).T
     else:
-        dot_prod = np.atleast_2d(vec @ to_n.T).T
-
-    projected = dot_prod * to_n
+        raise TypeError('PROJECT_ONTO_LINE: "data" and "to" must have the same shape')
 
     return projected
 
@@ -230,7 +228,8 @@ def project_into_plane(vec: np.ndarray, n_plane: np.ndarray) -> np.ndarray:
     return vec_projected
 
 
-@deprecated
+@deprecated(version='0.11.0', reason='Use "project_onto_line" or '
+                                     '"project_into_plane" instead.')
 def project(v1, v2, projection_type="1D"):
     """Deprecated function, calls 'project_onto_line' or 'project_into_plane'.
     Project one vector onto another, or into the plane perpendicular to that vector.
@@ -267,22 +266,25 @@ def project(v1, v2, projection_type="1D"):
         )
 
 
-def GramSchmidt(p0, p1, p2):
+def GramSchmidt(p0, p1, p2, rotmat=False):
     """Gram-Schmidt orthogonalization
 
     Parameters
     ----------
     p0 : array (3,) or (M,3)
-        coordinates of Point 1
+        coordinates of Point 1:
     p1 : array (3,) or (M,3)
         coordinates of Point 2
     p2 : array (3,) or (M,3)
         coordinates of Point 3
+    rotmat : if 'True', the output corresponds to a rotation matrix;
+             if 'False' (default), the output corresponds to the inverse of
+             the rotation matrix (i.e. rows = coordinate unit vectors)
 
     Returns
     -------
     Rmat : array (9,) or (M,9)
-        flattened rotation matrix
+        flattened rotation matrix, or its inverse (see option 'rotmat')
 
 
     .. image:: ../docs/Images/GramSchmidt.jpg
@@ -302,7 +304,7 @@ def GramSchmidt(p0, p1, p2):
     Notes
     -----
 
-    The flattened rotation matrix corresponds to
+    The flattened rotation matrix (option: "rotmat=True"!) corresponds to
 
     .. math::
         \\mathbf{R} = [ \\vec{e}_1 \\, \\vec{e}_2 \\, \\vec{e}_3 ]
@@ -318,10 +320,13 @@ def GramSchmidt(p0, p1, p2):
     v2 = np.atleast_2d(p2 - p0)
 
     ex = normalize(v1)
-    ey = normalize(v2 - project(v2, ex))
+    ey = normalize(v2 - project_onto_line(v2, ex))
     ez = np.cross(ex, ey)
 
-    return np.hstack((ex, ey, ez))
+    if rotmat:
+        return np.hstack((ex, ey, ez)).T
+    else:
+        return np.hstack((ex, ey, ez))
 
 
 def plane_orientation(p0, p1, p2):
@@ -567,8 +572,7 @@ if __name__ == "__main__":
     v1 = np.r_[1, 0, 0]
     v2 = np.r_[1, 1, 0]
     v3 = np.r_[1, 1, 1]
+    data = np.vstack((v1, v2, v3))
 
-    data = np.vstack((v2, v3))
-
-    print(project(v1, v3))
-    print(project(v1, data))
+    print(project_onto_line(v1, v2))
+    print(project_onto_line(data, v1))

@@ -56,7 +56,7 @@ class TestSequenceFunctions(unittest.TestCase):
                        [0,1,0]])
         correct = np.array([[ 1.,  0.,  0.],
                        [ 0.,  5.,  0.]])
-        result = vector.project(v1,v2)
+        result = vector.project_onto_line(v1,v2)
         self.assertTrue(np.all(np.abs(result-correct)<self.delta))
 
         # Test default "projection_type"
@@ -67,7 +67,7 @@ class TestSequenceFunctions(unittest.TestCase):
         v1 = list(v1[0])
         v2 = list(v2[0])
         correct = correct[0]
-        result = vector.project(v1, v2)
+        result = vector.project_onto_line(v1, v2)
         self.assertTrue(np.all(np.abs(result-correct)<self.delta))
 
     def test_angle(self):
