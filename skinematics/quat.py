@@ -5,7 +5,7 @@ quaternion vectors.
 """
 
 # author: Thomas Haslwanter
-# date:   Feb-2024
+# date:   Nov-2025
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -22,13 +22,14 @@ if file_dir not in sys.path:
 
 import vector, rotmat
 
-#import deprecation
-#import warnings
-#warnings.simplefilter('always', DeprecationWarning)
+# import deprecation
+# import warnings
+# warnings.simplefilter('always', DeprecationWarning)
 
 pi = np.pi
 
-class Quaternion():
+
+class Quaternion:
     """
     Quaternion class, with multiplication, division, and inversion.
     A Quaternion can be created from vectors, rotation matrices,
@@ -112,64 +113,78 @@ class Quaternion():
 
     """
 
-    def __init__(self, inData, inType='vector'):
-        """ Initialization """
+    def __init__(self, inData, inType="vector"):
+        """Initialization"""
 
-        if inType.lower() == 'vector':
+        if inType.lower() == "vector":
             if isinstance(inData, np.ndarray) or isinstance(inData, list):
                 self.values = unit_q(inData)
             elif isinstance(inData, Quaternion):
                 self.values = inData.values
             else:
-                raise TypeError('Quaternions can only be based on ndarray or Quaternions!')
+                raise TypeError(
+                    "Quaternions can only be based on ndarray or Quaternions!"
+                )
 
-        elif inType.lower() == 'rotmat':
+        elif inType.lower() == "rotmat":
             """Conversion from rotation matrices to quaternions."""
             self.values = rotmat2quat(inData)
 
-        elif inType.lower() == 'euler':
+        elif inType.lower() == "euler":
             """ Conversion from Euler angles to quaternions.
             (a,b,g) stands for (alpha, beta, gamma) """
 
-            inData[inData<0] += 360
-            inData = np.deg2rad(inData/2)
+            inData[inData < 0] += 360
+            inData = np.deg2rad(inData / 2)
 
             (ca, cb, cg) = np.cos(inData.T)
             (sa, sb, sg) = np.sin(inData.T)
 
-            self.values = np.vstack( (ca*cb*cg - sa*cb*sg,
-                                      ca*sb*cg + sa*sb*sg,
-                                      ca*sb*sg - sa*sb*cg,
-                                      ca*cb*sg + sa*cb*cg) ).T
-        elif inType.lower() == 'fick':
+            self.values = np.vstack(
+                (
+                    ca * cb * cg - sa * cb * sg,
+                    ca * sb * cg + sa * sb * sg,
+                    ca * sb * sg - sa * sb * cg,
+                    ca * cb * sg + sa * cb * cg,
+                )
+            ).T
+        elif inType.lower() == "fick":
             """ Conversion from Fick angles to quaternions.
             (p,f,t) stands for (psi, phi, theta) """
 
-            inData[inData<0] += 360
-            inData = np.deg2rad(inData/2)
+            inData[inData < 0] += 360
+            inData = np.deg2rad(inData / 2)
 
             (cp, cf, ct) = np.cos(inData.T)
             (sp, sf, st) = np.sin(inData.T)
 
-            self.values = np.vstack( (cp*cf*ct + sp*sf*st,
-                                      sp*cf*ct - cp*sf*st,
-                                      cp*sf*ct + sp*cf*st,
-                                      cp*cf*st - sp*sf*ct) ).T
+            self.values = np.vstack(
+                (
+                    cp * cf * ct + sp * sf * st,
+                    sp * cf * ct - cp * sf * st,
+                    cp * sf * ct + sp * cf * st,
+                    cp * cf * st - sp * sf * ct,
+                )
+            ).T
 
-        elif inType.lower() == 'helmholtz':
+        elif inType.lower() == "helmholtz":
             """ Conversion from Helmholtz angles to quaternions.
             (p,f,t) stands for (psi, phi, theta) """
 
-            inData[inData<0] += 360
-            inData = np.deg2rad(inData/2)
+            inData[inData < 0] += 360
+            inData = np.deg2rad(inData / 2)
 
             (cp, cf, ct) = np.cos(inData.T)
             (sp, sf, st) = np.sin(inData.T)
 
-            self.values = np.vstack( (cp*cf*ct - sp*sf*st,
-                                      sp*cf*ct + cp*sf*st,
-                                      cp*sf*ct + sp*cf*st,
-                                      cp*cf*st - sp*sf*ct ) ).T
+            self.values = np.vstack(
+                (
+                    cp * cf * ct - sp * sf * st,
+                    sp * cf * ct + cp * sf * st,
+                    cp * sf * ct + sp * cf * st,
+                    cp * cf * st - sp * sf * ct,
+                )
+            ).T
 
     def __len__(self):
         """The "length" is given by the number of quaternions."""
@@ -202,17 +217,17 @@ class Quaternion():
     def __setitem__(self, select, item):
         self.values[select] = unit_q(item)
 
-    #def __delitem__(self, select):
-        #np.delete(self.values, select, axis=0)
+    # def __delitem__(self, select):
+    # np.delete(self.values, select, axis=0)
 
     def inv(self):
         """Inverse of a quaternion."""
         return Quaternion(q_inv(self.values))
 
     def __repr__(self):
-        return 'Quaternion ' + str(self.values)
+        return "Quaternion " + str(self.values)
 
-    def export(self, to='rotmat'):
+    def export(self, to="rotmat"):
         """
         Conversion to other formats. May be slow for "Fick", "Helmholtz", and "Euler".
 
@@ -240,40 +255,41 @@ class Quaternion():
         >>> fick = q.export('Fick')
 
         """
-        if to.lower() == 'rotmat' :
-           return convert(self.values, 'rotmat')
+        if to.lower() == "rotmat":
+            return convert(self.values, "rotmat")
 
-        if to.lower() == 'vector' :
-            return self.values[:,1:]
+        if to.lower() == "vector":
+            return self.values[:, 1:]
 
-        if to.lower() == 'euler':
-            Euler = np.zeros((len(self),3))
+        if to.lower() == "euler":
+            Euler = np.zeros((len(self), 3))
             rm = self.export()
-            if rm.shape == (3,3):
-                rm = rm.reshape((1,9))
+            if rm.shape == (3, 3):
+                rm = rm.reshape((1, 9))
             for ii in range(len(self)):
-               Euler[ii,:] = rotmat.rotmat2Euler(rm[ii].reshape((3,3)))
+                Euler[ii, :] = rotmat.rotmat2Euler(rm[ii].reshape((3, 3)))
             return Euler
 
-        if to.lower() == 'fick':
-            Fick = np.zeros((len(self),3))
+        if to.lower() == "fick":
+            Fick = np.zeros((len(self), 3))
             rm = self.export()
-            if rm.shape == (3,3):
-                rm = rm.reshape((1,9))
+            if rm.shape == (3, 3):
+                rm = rm.reshape((1, 9))
             for ii in range(len(self)):
-               Fick[ii,:] = rotmat.rotmat2Fick(rm[ii].reshape((3,3)))
+                Fick[ii, :] = rotmat.rotmat2Fick(rm[ii].reshape((3, 3)))
             return Fick
 
-        if to.lower() == 'helmholtz':
-            Helmholtz = np.zeros((len(self),3))
+        if to.lower() == "helmholtz":
+            Helmholtz = np.zeros((len(self), 3))
             rm = self.export()
-            if rm.shape == (3,3):
-                rm = rm.reshape((1,9))
+            if rm.shape == (3, 3):
+                rm = rm.reshape((1, 9))
             for ii in range(len(self)):
-               Helmholtz[ii,:] = rotmat.rotmat2Helmholtz(rm[ii].reshape((3,3)))
+                Helmholtz[ii, :] = rotmat.rotmat2Helmholtz(rm[ii].reshape((3, 3)))
             return Helmholtz
 
-def convert(quat, to='rotmat'):
+
+def convert(quat, to="rotmat"):
     """ Calculate the rotation matrix corresponding to the quaternion. If
     "inQuat" contains more than one quaternion, the matrix is flattened (to
     facilitate the work with rows of quaternions), and can be restored to
@@ -317,28 +333,28 @@ def convert(quat, to='rotmat'):
         [ 0.        ,  0.        ,  1.        ]])
     """
 
-    if to == 'rotmat':
+    if to == "rotmat":
         q = unit_q(quat).T
 
         R = np.zeros((9, q.shape[1]))
-        R[0] = q[0]**2 + q[1]**2 - q[2]**2 - q[3]**2
-        R[1] = 2*(q[1]*q[2] - q[0]*q[3])
-        R[2] = 2*(q[1]*q[3] + q[0]*q[2])
-        R[3] = 2*(q[1]*q[2] + q[0]*q[3])
-        R[4] = q[0]**2 - q[1]**2 + q[2]**2 - q[3]**2
-        R[5] = 2*(q[2]*q[3] - q[0]*q[1])
-        R[6] = 2*(q[1]*q[3] - q[0]*q[2])
-        R[7] = 2*(q[2]*q[3] + q[0]*q[1])
-        R[8] = q[0]**2 - q[1]**2 - q[2]**2 + q[3]**2
+        R[0] = q[0] ** 2 + q[1] ** 2 - q[2] ** 2 - q[3] ** 2
+        R[1] = 2 * (q[1] * q[2] - q[0] * q[3])
+        R[2] = 2 * (q[1] * q[3] + q[0] * q[2])
+        R[3] = 2 * (q[1] * q[2] + q[0] * q[3])
+        R[4] = q[0] ** 2 - q[1] ** 2 + q[2] ** 2 - q[3] ** 2
+        R[5] = 2 * (q[2] * q[3] - q[0] * q[1])
+        R[6] = 2 * (q[1] * q[3] - q[0] * q[2])
+        R[7] = 2 * (q[2] * q[3] + q[0] * q[1])
+        R[8] = q[0] ** 2 - q[1] ** 2 - q[2] ** 2 + q[3] ** 2
 
         if R.shape[1] == 1:
-            return np.reshape(R, (3,3))
+            return np.reshape(R, (3, 3))
         else:
             return R.T
 
-    elif to == 'Gibbs':
-        q_0 = q_scalar(quat)      # cos(alpha/2)
-        gibbs = (q_vector(quat).T / q_0).T    # tan = sin/cos
+    elif to == "Gibbs":
+        q_0 = q_scalar(quat)  # cos(alpha/2)
+        gibbs = (q_vector(quat).T / q_0).T  # tan = sin/cos
 
         return gibbs
 
@@ -377,11 +393,13 @@ def deg2quat(inDeg):
     0.087155742747658166
 
     """
-    deg = (inDeg+180)%360-180
-    return np.sin(0.5 * deg * pi/180)
+    deg = (inDeg + 180) % 360 - 180
+    return np.sin(0.5 * deg * pi / 180)
+
 
 def q_conj(q):
-    """ Conjugate quaternion
+    """Conjugate quaternion
+    This is a quation with negated vector part.
 
     Parameters
     ----------
@@ -406,19 +424,21 @@ def q_conj(q):
     """
 
     q = np.atleast_2d(q)
-    if q.shape[1]==3:
+    if q.shape[1] == 3:
         q = unit_q(q)
 
-    qConj = q * np.r_[1, -1,-1,-1]
+    qConj = q * np.r_[1, -1, -1, -1]
 
-    if q.shape[0]==1:
-        qConj=qConj.ravel()
+    if q.shape[0] == 1:
+        qConj = qConj.ravel()
 
     return qConj
 
 
 def q_inv(q):
-    """ Quaternion inversion
+    """Quaternion inversion
+    In contrast to the conjugate quaternion, the inverse quaternion can also
+    have a different length.
 
     Parameters
     ----------
@@ -450,15 +470,15 @@ def q_inv(q):
     """
 
     q = np.atleast_2d(q)
-    if q.shape[1]==3:
+    if q.shape[1] == 3:
         return -q
     else:
         qLength = np.sum(q**2, 1)
-        qConj = q * np.r_[1, -1,-1,-1]
+        qConj = q * np.r_[1, -1, -1, -1]
         return (qConj.T / qLength).T
 
 
-def q_mult(p,q):
+def q_mult(p, q):
     """
     Quaternion multiplication: Calculates the product of two quaternions r = p * q
     If one of both of the quaterions have only three columns,
@@ -502,33 +522,35 @@ def q_mult(p,q):
     flag3D = False
     p = np.atleast_2d(p)
     q = np.atleast_2d(q)
-    if p.shape[1]==3 & q.shape[1]==3:
+    if p.shape[1] == 3 & q.shape[1] == 3:
         flag3D = True
 
     if len(p) != len(q):
-        assert (len(p)==1 or len(q)==1), \
-            'Both arguments in the quaternion multiplication must have the same number of rows, unless one has only one row.'
+        assert len(p) == 1 or len(q) == 1, (
+            "Both arguments in the quaternion multiplication must have the same number of rows, unless one has only one row."
+        )
 
     p = unit_q(p).T
     q = unit_q(q).T
 
     if np.prod(np.shape(p)) > np.prod(np.shape(q)):
-        r=np.zeros(np.shape(p))
+        r = np.zeros(np.shape(p))
     else:
-        r=np.zeros(np.shape(q))
+        r = np.zeros(np.shape(q))
 
-    r[0] = p[0]*q[0] - p[1]*q[1] - p[2]*q[2] - p[3]*q[3]
-    r[1] = p[1]*q[0] + p[0]*q[1] + p[2]*q[3] - p[3]*q[2]
-    r[2] = p[2]*q[0] + p[0]*q[2] + p[3]*q[1] - p[1]*q[3]
-    r[3] = p[3]*q[0] + p[0]*q[3] + p[1]*q[2] - p[2]*q[1]
+    r[0] = p[0] * q[0] - p[1] * q[1] - p[2] * q[2] - p[3] * q[3]
+    r[1] = p[1] * q[0] + p[0] * q[1] + p[2] * q[3] - p[3] * q[2]
+    r[2] = p[2] * q[0] + p[0] * q[2] + p[3] * q[1] - p[1] * q[3]
+    r[3] = p[3] * q[0] + p[0] * q[3] + p[1] * q[2] - p[2] * q[1]
 
     if flag3D:
         # for rotations > 180 deg
-        r[:,r[0]<0] = -r[:,r[0]<0]
+        r[:, r[0] < 0] = -r[:, r[0] < 0]
         r = r[1:]
 
     r = r.T
     return r
+
 
 def quat2deg(inQuat):
     """Calculate the axis-angle corresponding to a given quaternion.
@@ -566,8 +588,7 @@ def quat2deg(inQuat):
     return 2 * np.arcsin(q_vector(inQuat)) * 180 / pi
 
 
-
-def quat2seq(quats, seq='nautical'):
+def quat2seq(quats, seq="nautical"):
     """
     This function takes a quaternion, and calculates the corresponding
     angles for sequenctial rotations.
@@ -618,32 +639,32 @@ def quat2seq(quats, seq='nautical'):
     if quats.shape[1] == 3:
         quats = unit_q(quats)
 
-    if seq =='Fick' or seq =='nautical':
-        R_zx = 2 * (quats[:,1]*quats[:,3] - quats[:,0]*quats[:,2])
-        R_yx = 2 * (quats[:,1]*quats[:,2] + quats[:,0]*quats[:,3])
-        R_zy = 2 * (quats[:,2]*quats[:,3] + quats[:,0]*quats[:,1])
+    if seq == "Fick" or seq == "nautical":
+        R_zx = 2 * (quats[:, 1] * quats[:, 3] - quats[:, 0] * quats[:, 2])
+        R_yx = 2 * (quats[:, 1] * quats[:, 2] + quats[:, 0] * quats[:, 3])
+        R_zy = 2 * (quats[:, 2] * quats[:, 3] + quats[:, 0] * quats[:, 1])
 
-        phi  = -np.arcsin(R_zx)
+        phi = -np.arcsin(R_zx)
         theta = np.arcsin(R_yx / np.cos(phi))
-        psi   = np.arcsin(R_zy / np.cos(phi))
+        psi = np.arcsin(R_zy / np.cos(phi))
 
         sequence = np.column_stack((theta, phi, psi))
 
-    elif seq == 'Helmholtz':
-        R_yx = 2 * (quats[:,1]*quats[:,2] + quats[:,0]*quats[:,3])
-        R_zx = 2 * (quats[:,1]*quats[:,3] - quats[:,0]*quats[:,2])
-        R_yz = 2 * (quats[:,2]*quats[:,3] - quats[:,0]*quats[:,1])
+    elif seq == "Helmholtz":
+        R_yx = 2 * (quats[:, 1] * quats[:, 2] + quats[:, 0] * quats[:, 3])
+        R_zx = 2 * (quats[:, 1] * quats[:, 3] - quats[:, 0] * quats[:, 2])
+        R_yz = 2 * (quats[:, 2] * quats[:, 3] - quats[:, 0] * quats[:, 1])
 
         theta = np.arcsin(R_yx)
-        phi  = -np.arcsin(R_zx / np.cos(theta))
-        psi  = -np.arcsin(R_yz / np.cos(theta))
+        phi = -np.arcsin(R_zx / np.cos(theta))
+        psi = -np.arcsin(R_yz / np.cos(theta))
 
         sequence = np.column_stack((phi, theta, psi))
 
-    elif seq == 'Euler':
-        Rs = convert(quats, to='rotmat').reshape((-1,3,3))
+    elif seq == "Euler":
+        Rs = convert(quats, to="rotmat").reshape((-1, 3, 3))
 
-        beta = np.arccos(Rs[:,2,2])
+        beta = np.arccos(Rs[:, 2, 2])
 
         # special handling for (beta == 0)
         bz = beta == 0
@@ -652,17 +673,18 @@ def quat2seq(quats, seq='nautical'):
         alpha = np.nan * np.ones_like(beta)
         gamma = np.nan * np.ones_like(beta)
 
-        alpha[bz] = np.arcsin(Rs[bz,1,0])
+        alpha[bz] = np.arcsin(Rs[bz, 1, 0])
         gamma[bz] = 0
 
-        alpha[~bz] = np.arctan2(Rs[~bz,0,2], Rs[~bz,1,2])
-        gamma[~bz] = np.arctan2(Rs[~bz,2,0], Rs[~bz,2,1])
+        alpha[~bz] = np.arctan2(Rs[~bz, 0, 2], Rs[~bz, 1, 2])
+        gamma[~bz] = np.arctan2(Rs[~bz, 2, 0], Rs[~bz, 2, 1])
 
         sequence = np.column_stack((alpha, beta, gamma))
     else:
-        raise ValueError('Input parameter {0} not known'.format(seq))
+        raise ValueError("Input parameter {0} not known".format(seq))
 
     return np.rad2deg(sequence)
+
 
 def q_vector(inQuat):
     """
@@ -693,12 +715,13 @@ def q_vector(inQuat):
 
     inQuat = np.atleast_2d(inQuat)
     if inQuat.shape[1] == 4:
-        vect = inQuat[:,1:]
+        vect = inQuat[:, 1:]
     else:
         vect = inQuat
-    if np.min(vect.shape)==1:
+    if np.min(vect.shape) == 1:
         vect = vect.ravel()
     return vect
+
 
 def q_scalar(inQuat):
     """
@@ -730,16 +753,16 @@ def q_scalar(inQuat):
 
     inQuat = np.atleast_2d(inQuat)
     if inQuat.shape[1] == 4:
-        scalar = inQuat[:,0]
+        scalar = inQuat[:, 0]
     else:
-        scalar = np.sqrt(1-np.linalg.norm(inQuat, axis=1))
-    if np.min(scalar.shape)==1:
+        scalar = np.sqrt(1 - np.linalg.norm(inQuat, axis=1))
+    if np.min(scalar.shape) == 1:
         scalar = scalar.ravel()
     return scalar
 
 
 def unit_q(inData):
-    """ Utility function, which turns a quaternion vector into a unit quaternion.
+    """Utility function, which turns a quaternion vector into a unit quaternion.
     If the input is already a full quaternion, the output equals the input.
 
     Parameters
@@ -766,24 +789,25 @@ def unit_q(inData):
 
     """
     inData = np.atleast_2d(inData)
-    (m,n) = inData.shape
-    if (n!=3)&(n!=4):
-        raise ValueError('Quaternion must have 3 or 4 columns')
+    (m, n) = inData.shape
+    if (n != 3) & (n != 4):
+        raise ValueError("Quaternion must have 3 or 4 columns")
     if n == 3:
-        qLength = 1-np.sum(inData**2,1)
+        qLength = 1 - np.sum(inData**2, 1)
         numLimit = 1e-12
         # Check for numerical problems
         if np.min(qLength) < -numLimit:
-            raise ValueError('Quaternion is too long!')
+            raise ValueError("Quaternion is too long!")
         else:
             # Correct for numerical problems
-            qLength[qLength<0] = 0
+            qLength[qLength < 0] = 0
         outData = np.hstack((np.c_[np.sqrt(qLength)], inData))
 
     else:
         outData = inData
 
     return outData
+
 
 def calc_quat(omega, q0, rate, CStype):
     """
@@ -839,32 +863,35 @@ def calc_quat(omega, q0, rate, CStype):
     omega_05 = np.atleast_2d(omega).copy()
 
     # The following is (approximately) the quaternion-equivalent of the trapezoidal integration (cumtrapz)
-    if omega_05.shape[1]>1:
-        omega_05[:-1] = 0.5*(omega_05[:-1] + omega_05[1:])
+    if omega_05.shape[1] > 1:
+        omega_05[:-1] = 0.5 * (omega_05[:-1] + omega_05[1:])
 
     omega_t = np.sqrt(np.sum(omega_05**2, 1))
-    omega_nonZero = omega_t>0
+    omega_nonZero = omega_t > 0
 
     # initialize the quaternion
     q_delta = np.zeros(omega_05.shape)
-    q_pos = np.zeros((len(omega_05),4))
-    q_pos[0,:] = unit_q(q0)
+    q_pos = np.zeros((len(omega_05), 4))
+    q_pos[0, :] = unit_q(q0)
 
     # magnitude of position steps
-    dq_total = np.sin(omega_t[omega_nonZero]/(2.*rate))
+    dq_total = np.sin(omega_t[omega_nonZero] / (2.0 * rate))
 
-    q_delta[omega_nonZero,:] = omega_05[omega_nonZero,:] * np.tile(dq_total/omega_t[omega_nonZero], (3,1)).T
+    q_delta[omega_nonZero, :] = (
+        omega_05[omega_nonZero, :]
+        * np.tile(dq_total / omega_t[omega_nonZero], (3, 1)).T
+    )
 
-    for ii in range(len(omega_05)-1):
-        q1 = unit_q(q_delta[ii,:])
-        q2 = q_pos[ii,:]
-        if CStype == 'sf':
-            qm = q_mult(q1,q2)
-        elif CStype == 'bf':
-            qm = q_mult(q2,q1)
+    for ii in range(len(omega_05) - 1):
+        q1 = unit_q(q_delta[ii, :])
+        q2 = q_pos[ii, :]
+        if CStype == "sf":
+            qm = q_mult(q1, q2)
+        elif CStype == "bf":
+            qm = q_mult(q2, q1)
         else:
-            print('I don''t know this type of coordinate system!')
-        q_pos[ii+1,:] = qm
+            print("I dont know this type of coordinate system!")
+        q_pos[ii + 1, :] = qm
 
     return q_pos
 
@@ -912,33 +939,38 @@ def calc_angvel(q, rate=1, winSize=5, order=2):
     """
 
     if np.mod(winSize, 2) != 1:
-        raise ValueError('Window size must be odd!')
+        raise ValueError("Window size must be odd!")
 
     numCols = q.shape[1]
     if numCols < 3 or numCols > 4:
-        raise TypeError('quaternions must have 3 or 4 columns')
+        raise TypeError("quaternions must have 3 or 4 columns")
 
     # This has to be done: otherwise q_mult will "complete" dq_dt to be a unit
     # quaternion, resulting in wrong value
     if numCols == 3:
         q = unit_q(q)
 
-    dq_dt = signal.savgol_filter(q, window_length=winSize, polyorder=order, deriv=1, delta=1./rate, axis=0)
+    dq_dt = signal.savgol_filter(
+        q, window_length=winSize, polyorder=order, deriv=1, delta=1.0 / rate, axis=0
+    )
     angVel = 2 * q_mult(dq_dt, q_inv(q))
 
-    return angVel[:,1:]
+    return angVel[:, 1:]
 
-if __name__=='__main__':
+
+if __name__ == "__main__":
     """These are some simple tests to see if the functions produce the
     proper output.
     More extensive tests are found in tests/test_quat.py"""
 
-    a = np.r_[np.cos(0.1), 0,0,np.sin(0.1)]
-    b = np.r_[np.cos(0.2), 0,np.sin(0.2),0]
-    seq = quat2seq(np.vstack((a,b)), seq='Euler')
+    a = np.r_[np.cos(0.1), 0, 0, np.sin(0.1)]
+    b = np.r_[np.cos(0.2), 0, np.sin(0.2), 0]
+    seq = quat2seq(np.vstack((a, b)), seq="Euler")
     print(seq)
 
     """
+    import numpy as np
+    np.ara
     from skinematics.vector import rotate_vector
 
     v0 = np.r_[0., 0., 100.] * np.pi/180.
