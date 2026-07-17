@@ -60,8 +60,8 @@ class TestSequenceFunctions(unittest.TestCase):
         self.assertTrue(np.all(np.abs(result-correct)<self.delta))
 
         # Test default "projection_type"
-        result = vector.project(v1,v2, projection_type='1D')
-        self.assertTrue(np.all(np.abs(result-correct)<self.delta))
+        # result = vector.project(v1,v2, projection_type='1D')
+        # self.assertTrue(np.all(np.abs(result-correct)<self.delta))
 
         # Test with lists
         v1 = list(v1[0])

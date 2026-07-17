@@ -85,7 +85,7 @@ class Orientation_OGL:
 
     Examples
     --------
-    >>> in_file = r'.\tests\data\data_xsens.txt'
+    >>> in_file = './tests/data/data_xsens.txt'
     >>> from skinematics.sensors.xsens import XSens
     >>> data = XSens(in_file)
     >>> viewer = Orientation_OGL(quat_in=data.quat)
@@ -1013,7 +1013,7 @@ if __name__ == '__main__':
     q = quat.calc_quat(omegas, q0, rate, 'sf')
 
     #orientation(q)
-    in_file = r'.\tests\data\data_xsens.txt'
+    in_file = './tests/data/data_xsens.txt'
     from skinematics.sensors.xsens import XSens
     data = XSens(in_file)
 
