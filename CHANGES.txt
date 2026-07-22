@@ -71,3 +71,4 @@ v0.10.2, 18-Aug-2025 -- 2D rotation matrix added
 v0.10.3, 19-Aug-2025 -- previous built crashed
 v0.10.4, 21-Aug-2025 -- fixed Matplotlib bug in Ver 3.9.0
 v0.11.0, 16-Nov-2025 -- Changed project to uv. Fixed mistakes in vector.project/Gram-Schmidt
+v0.12.0, 21-Jul-2026 -- replace pygame with pygame-ce, update to Python 3.14

@@ -9,7 +9,7 @@ kinematics, e.g quaternions and rotation matrices. This includes
 utilities to read in data from the following IMU-sensors: - polulu -
 XSens - xio - xio-NGIMU - YEI
 
-Compatible with Python &gt;= 3.9
+Compatible with Python &gt;= 3.12
 
 Dependencies
 ------------
@@ -21,9 +21,9 @@ Homepage
 
 <http://work.thaslwanter.at/skinematics/html/>
 
-Author: Thomas Haslwanter Date: 15-Nov-2025 Ver: 0.11.0 Licence: BSD
+Author: Thomas Haslwanter Date: 21-Jul-2026 Ver: 0.12.0 Licence: BSD
 2-Clause License (<http://opensource.org/licenses/BSD-2-Clause>)
-Copyright (c) 2025, Thomas Haslwanter All rights reserved.
+Copyright (c) 2026, Thomas Haslwanter All rights reserved.
 
 Installation
 ------------

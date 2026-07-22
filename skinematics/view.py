@@ -1013,7 +1013,7 @@ if __name__ == '__main__':
     q = quat.calc_quat(omegas, q0, rate, 'sf')
 
     #orientation(q)
-    in_file = './tests/data/data_xsens.txt'
+    in_file = '../tests/data/data_xsens.txt'
     from skinematics.sensors.xsens import XSens
     data = XSens(in_file)
 
@@ -1031,7 +1031,7 @@ if __name__ == '__main__':
 
     """
     # Test OpenGL viewer:
-    in_file = r'.\tests\data\data_xsens.txt'
+    in_file = r'..\tests\data\data_xsens.txt'
     from sensors.xsens import XSens
     data = XSens(in_file)
     orientation(data.quat, deltaT=5)
