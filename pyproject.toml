@@ -31,6 +31,7 @@ dependencies = [
     "pygame-ce>=2.5.7",
     "scipy-stubs~=1.18.0",
     "pytest>=7.0",
+    "tkinter",
 ]
 
 [project.urls]
