@@ -14,7 +14,10 @@ Compatible with Python &gt;= 3.12
 Dependencies
 ------------
 
-numpy, scipy, matplotlib, pandas, sympy
+numpy, scipy, matplotlib, pandas, sympy, deprecated
+
+Optional, for the 3D orientation viewer `view.Orientation_OGL`: pygame-ce, PyOpenGL
+(install with `pip install scikit-kinematics[view]`)
 
 Homepage
 --------

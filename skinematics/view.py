@@ -47,16 +47,13 @@ if file_dir not in sys.path:
 import vector, quat
 from sensors.xsens import XSens
 
-# For Orientation_Viewers
-# import pygame
-# To avoid the annoying "Hello from the pygame community":
-import contextlib
-with contextlib.redirect_stdout(None):
-    import pygame
-
-
+# For Orientation_OGL: optional, install with "pip install scikit-kinematics[view]"
 # Since 2021, MacOS no longer supports OpenGL :(
 try:
+    # To avoid the annoying "Hello from the pygame community":
+    import contextlib
+    with contextlib.redirect_stdout(None):
+        import pygame
     import OpenGL.GL as gl
     import OpenGL.GLU as glu
     openGL_installed = True
@@ -115,7 +112,7 @@ class Orientation_OGL:
             self.define_elements()
             self.quat = quat_in
         else:
-            raise ModuleNotFoundError('Sorry, OpenGL is not installed on your computer.')
+            raise ModuleNotFoundError('Orientation_OGL requires pygame-ce and PyOpenGL: pip install scikit-kinematics[view]')
 
 
     def define_elements(self):

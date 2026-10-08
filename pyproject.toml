@@ -28,7 +28,12 @@ dependencies = [
     "sympy>= 1.0",
     "scipy>= 1.5",
     "deprecated>=1.2.8",
+]
+
+[project.optional-dependencies]
+view = [
     "pygame-ce>=2.5.7",
+    "PyOpenGL>=3.1",
 ]
 
 [project.urls]
