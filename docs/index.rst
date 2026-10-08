@@ -134,9 +134,9 @@ Indices and tables
 
 .. note::
     | *Author:*     Thomas Haslwanter
-    | *Version:*    0.12.0
-    | *Date:*       Jul-2026
-    | *email:*      thomas.haslwanter@fh-ooe.at
+    | *Version:*    0.13.0
+    | *Date:*       Oct-2026
+    | *email:*      office@thaslwanter.at
     | *Copyright (c):*      2026, Thomas Haslwanter. All rights reserved.
-    | *Licence:*    This work is licensed under the `BSD 2-Clause License <http://opensource.org/licenses/BSD-2-Clause>`_
+    | *Licence:*    This work is licensed under the `BSD 3-Clause License <https://opensource.org/licenses/BSD-3-Clause>`_
 
