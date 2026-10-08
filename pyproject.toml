@@ -43,7 +43,7 @@ Repository = "https://github.com/thomas-haslwanter/scikit-kinematics"
 [dependency-groups]
 dev = [
     "pytest>=7.0",
-    "black>=23.3.0,<24",
+    "black>=26.3.1,<27",
     "sphinx>=7.3.7,<8",
     "docutils>=0.3",
     "pandas-stubs~=3.0.3",
