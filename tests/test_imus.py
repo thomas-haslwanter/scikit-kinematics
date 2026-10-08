@@ -11,6 +11,14 @@ from skinematics.simulations.simulate_movements import simulate_imu
 
 myPath = os.path.dirname(os.path.abspath(__file__))
 
+# The VQF filter is an optional dependency: "pip install scikit-kinematics[vqf]"
+try:
+    import vqf
+
+    vqf_installed = True
+except ModuleNotFoundError:
+    vqf_installed = False
+
 class TestSequenceFunctions(unittest.TestCase):
     def setUp(self):
 
@@ -181,6 +189,83 @@ class TestSequenceFunctions(unittest.TestCase):
         ##sensor = XSens(in_file=inFile, R_init = R_initialOrientation, pos_init = initialPosition, q_type='mahony')
         ##q = sensor.quat
 
+    @unittest.skipUnless(vqf_installed, 'requires "pip install scikit-kinematics[vqf]"')
+    def test_vqf(self):
+
+        from skinematics.sensors.manual import MyOwnSensor
+
+        ## Get data
+        imu = self.imu_signals
+        in_data = {
+            "rate": imu["rate"],
+            "acc": imu["gia"],
+            "omega": imu["omega"],
+            "mag": imu["magnetic"],
+        }
+        correct = array([0.0, np.sin(np.deg2rad(45)), 0.0])
+
+        # with magnetometer (9D), through the sensor-object
+        my_sensor = MyOwnSensor(
+            in_file="Simulated sensor-data",
+            in_data=in_data,
+            R_init=quat.convert(self.q_init, to="rotmat"),
+            pos_init=self.pos_init,
+            q_type="vqf",
+        )
+
+        # and then check, if the quat_vector = [0, sin(45), 0]
+        q_vqf = my_sensor.quat
+        error = norm(quat.q_vector(q_vqf[-1]) - correct)
+        self.assertTrue(error < 1e-2)
+
+        # without magnetometer (6D)
+        del in_data["mag"]
+        my_sensor = MyOwnSensor(
+            in_file="Simulated sensor-data", in_data=in_data, q_type="vqf"
+        )
+        error = norm(quat.q_vector(my_sensor.quat[-1]) - correct)
+        self.assertTrue(error < 1e-2)
+
+        # offline variant
+        q_offline = imus.vqf(
+            imu["rate"], imu["gia"], imu["omega"], imu["magnetic"], offline=True
+        )
+        error = norm(quat.q_vector(q_offline[-1]) - correct)
+        self.assertTrue(error < 1e-2)
+
+    @unittest.skipUnless(vqf_installed, 'requires "pip install scikit-kinematics[vqf]"')
+    def test_vqf_gyro_bias(self):
+        """VQF estimates the gyroscope bias, so the orientation does not drift"""
+
+        # 1 sec movement, followed by 9 sec rest
+        imu_signals, body_pos_orient = simulate_imu(
+            rate=100,
+            t_move=1,
+            t_total=10,
+            q_init=self.q_init,
+            rotation_axis=[0, 1, 0],
+            deg=90,
+            pos_init=self.pos_init,
+            direction=[1, 0, 0],
+            distance=0,
+            B0=vector.normalize([1, 0, 1]),
+        )
+
+        # Add a constant gyroscope bias of 1 deg/s
+        omega = imu_signals["omega"] + np.deg2rad([0, 0, 1])
+        rate = imu_signals["rate"]
+
+        def angle_error(q):
+            """Rotation angle [deg] between the estimated and the true final orientation"""
+            q_err = quat.q_mult(quat.q_inv(body_pos_orient["quat"][-1]), q[-1]).ravel()
+            return np.rad2deg(2 * np.arccos(np.clip(np.abs(q_err[0]), 0, 1)))
+
+        q_gyro = quat.calc_quat(omega, self.q_init, rate=rate, CStype="bf")
+        q_vqf = imus.vqf(rate, imu_signals["gia"], omega, imu_signals["magnetic"])
+
+        self.assertTrue(angle_error(q_gyro) > 5)  # pure integration drifts ...
+        self.assertTrue(angle_error(q_vqf) < 2)  # ... VQF compensates the bias
+
     def test_IMU_calc_orientation_position(self):
         """Currently, this only tests if the two functions are running through"""
 
@@ -220,6 +305,8 @@ class TestSequenceFunctions(unittest.TestCase):
         )
 
         allowed_values = ["analytical", "kalman", "madgwick", "mahony", None]
+        if vqf_installed:
+            allowed_values.append("vqf")
 
         for sensor_type in allowed_values:
             print("{0} is running".format(sensor_type))

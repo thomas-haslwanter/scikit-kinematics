@@ -8,6 +8,7 @@ Dependencies
 ------------
 numpy, scipy, matplotlib, pandas, sympy, deprecated
 Optional (for view.Orientation_OGL): pygame-ce, PyOpenGL
+Optional (for imus.vqf): vqf
 
 Homepage
 --------
@@ -21,7 +22,7 @@ import importlib
 
 __author__ = "Thomas Haslwanter <office@thaslwanter.at>"
 __license__ = "BSD 3-Clause License"
-__version__ = "0.12.2"
+__version__ = "0.13.0"
 
 
 required_imports = ["markers", "quat", "rotmat", "vector", "sensors"]

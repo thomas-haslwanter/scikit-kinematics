@@ -19,12 +19,15 @@ numpy, scipy, matplotlib, pandas, sympy, deprecated
 Optional, for the 3D orientation viewer `view.Orientation_OGL`: pygame-ce, PyOpenGL
 (install with `pip install scikit-kinematics[view]`)
 
+Optional, for the VQF orientation filter `imus.vqf`: vqf
+(install with `pip install scikit-kinematics[vqf]`)
+
 Homepage
 --------
 
 <http://work.thaslwanter.at/skinematics/html/>
 
-Author: Thomas Haslwanter Date: 08-Oct-2026 Ver: 0.12.2 Licence: BSD
+Author: Thomas Haslwanter Date: 08-Oct-2026 Ver: 0.13.0 Licence: BSD
 3-Clause License (<https://opensource.org/licenses/BSD-3-Clause>)
 Copyright (c) 2026, Thomas Haslwanter All rights reserved.
 
@@ -62,6 +65,9 @@ MARG Systems
     velocity and linear acceleration
 - imus.kalman ... Calculate orientation from IMU-data using an
     Extended Kalman Filter.
+- imus.vqf ... Calculate orientation from IMU-data using the VQF filter
+    (Laidig and Seel, 2023), with gyroscope-bias estimation and magnetic
+    disturbance rejection. Requires `pip install scikit-kinematics[vqf]`
 -
 
     imus.IMU ... Class for working with data from IMUs

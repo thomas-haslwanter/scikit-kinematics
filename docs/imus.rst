@@ -33,6 +33,9 @@ provide:
     - "kalman" ... quaternion Kalman filter, using acc, omega, and mag
     - "madgwick" ... Madgwick algorithm, using acc, omega, and mag
     - "mahony" ... Mahony algorithm, using, acc and omega, and mag
+    - "vqf" ... VQF filter (Laidig and Seel, 2023), using acc, omega, and (optionally) mag.
+      Estimates the gyroscope bias, and rejects magnetic disturbances.
+      Requires the optional package "vqf": ``pip install scikit-kinematics[vqf]``
     - "None" ... If you want to only read in the sensor data
 
 Data are read in, and by default the orientation is automatically calculated
@@ -54,6 +57,7 @@ Classes and Functions for Sensor-Integration
 
 * :func:`imus.analytical` ... Calculate orientation and position analytically from angular velocity and linear acceleration 
 * :func:`imus.kalman` ... Calculate orientation from IMU-data using an Extended Kalman Filter
+* :func:`imus.vqf` ... Calculate orientation from IMU-data using the VQF filter
 
 .. autosummary::
     imus.Mahony

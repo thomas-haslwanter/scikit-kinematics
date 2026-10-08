@@ -122,6 +122,9 @@ class IMU_Base(metaclass=abc.ABCMeta):
     >>> sensor.set_qtype('kalman')
     >>> q_Kalman = sensor.quat
     >>>
+    >>> sensor.set_qtype('vqf')    # requires "pip install scikit-kinematics[vqf]"
+    >>> q_VQF = sensor.quat
+    >>>
     >>> # Demonstrate how to fill up a sensor manually
     >>> in_data = {'rate':sensor.rate,
     >>>         'acc': sensor.acc,
@@ -168,6 +171,9 @@ class IMU_Base(metaclass=abc.ABCMeta):
                 - 'kalman' ..... quaternion Kalman filter
                 - 'madgwick' ... gradient descent method, efficient
                 - 'mahony' ....  formula from Mahony, as implemented by Madgwick
+                - 'vqf' ........ VQF filter from Laidig and Seel (2023), with gyro-bias
+                                 estimation and magnetic disturbance rejection
+                                 (requires "pip install scikit-kinematics[vqf]")
                 - 'None' ... data are only read in, no orientation calculated
         R_init : 3x3 array
                 approximate alignment of sensor-CS with space-fixed CS
@@ -225,11 +231,12 @@ class IMU_Base(metaclass=abc.ABCMeta):
         * kalman
         * madgwick
         * mahony
+        * vqf
         * None
 
         """
 
-        allowed_values = ["analytical", "kalman", "madgwick", "mahony", None]
+        allowed_values = ["analytical", "kalman", "madgwick", "mahony", "vqf", None]
 
         if type_value in allowed_values:
             self.q_type = type_value
@@ -240,7 +247,7 @@ class IMU_Base(metaclass=abc.ABCMeta):
         else:
             raise ValueError(
                 "q_type must be one of the following: {0}, not {1}".format(
-                    allowed_values, value
+                    allowed_values, type_value
                 )
             )
 
@@ -270,6 +277,7 @@ class IMU_Base(metaclass=abc.ABCMeta):
                 - 'kalman' ..... quaternion Kalman filter
                 - 'madgwick' ... gradient descent method, efficient
                 - 'mahony' ....  formula from Mahony, as implemented by Madgwick
+                - 'vqf' ........ VQF filter from Laidig and Seel (2023)
 
         """
 
@@ -283,7 +291,7 @@ class IMU_Base(metaclass=abc.ABCMeta):
 
         elif method == "kalman":
             self._checkRequirements()
-            quaternion = kalman(self.rate, self.acc, np.deg2rad(self.omega), self.mag)
+            quaternion = kalman(self.rate, self.acc, self.omega, self.mag)
 
         elif method == "madgwick":
             self._checkRequirements()
@@ -324,6 +332,10 @@ class IMU_Base(metaclass=abc.ABCMeta):
             ):
                 AHRS.Update(Gyr[t], Acc[t], Mag[t])
                 quaternion[t] = AHRS.Quaternion
+
+        elif method == "vqf":
+            # VQF also works without magnetometer data (6D orientation)
+            quaternion = vqf(self.rate, self.acc, self.omega, getattr(self, "mag", None))
 
         else:
             print("Unknown orientation type: {0}".format(method))
@@ -628,6 +640,80 @@ def kalman(
     qOut = quat.q_mult(qOut, quat.q_inv(qOut[0]))
 
     return qOut
+
+
+def vqf(rate, acc, omega, mag=None, offline=False, **params):
+    """
+    Calculate the orientation with the VQF filter.
+
+    VQF ("Versatile Quaternion-based Filter") estimates and removes the gyroscope
+    bias, detects periods of rest, and rejects magnetic disturbances.
+    This function is a wrapper for the reference implementation by the authors
+    (package "vqf"), which has to be installed separately:
+
+        pip install scikit-kinematics[vqf]
+
+    Parameters
+    ----------
+    rate : float
+               sample rate [Hz]
+    acc : (N,3) ndarray
+              linear acceleration [m/sec^2]
+    omega : (N,3) ndarray
+              angular velocity [rad/sec]
+    mag : None, or (N,3) ndarray
+              magnetic field orientation (only the direction is used).
+              If "None", only gyroscope and accelerometer are used (6D), and
+              the heading is arbitrary.
+    offline : boolean
+              If "True", the offline variant of VQF is used, which uses past and
+              future samples and is thus more accurate, but not causal.
+    params : keyword arguments
+              Tuning parameters of the filter, e.g. "tauAcc" or "tauMag".
+              See the documentation of the package "vqf" for the full list.
+
+    Returns
+    -------
+    qOut : (N,4) ndarray
+               unit quaternion, describing the orientation of the sensor relative
+           to the space-fixed coordinate system. As for "madgwick" and "mahony",
+           this system has the z-axis pointing up, and the x-axis along the
+           horizontal component of the magnetic field.
+
+    Notes
+    -----
+    D. Laidig and T. Seel. "VQF: Highly Accurate IMU Orientation Estimation with
+       Bias Estimation and Magnetic Disturbance Rejection." Information Fusion 91,
+       187-204 (2023). https://doi.org/10.1016/j.inffus.2022.10.014
+
+    """
+
+    try:
+        from vqf import VQF, offlineVQF
+    except ModuleNotFoundError:
+        raise ModuleNotFoundError(
+            'The VQF filter requires the package "vqf": '
+            "pip install scikit-kinematics[vqf]"
+        )
+
+    # The compiled VQF-code requires contiguous float64-arrays
+    gyr = np.ascontiguousarray(omega, dtype=np.float64)
+    acc = np.ascontiguousarray(acc, dtype=np.float64)
+    if mag is not None:
+        mag = np.ascontiguousarray(mag, dtype=np.float64)
+
+    if offline:
+        out = offlineVQF(gyr, acc, mag, 1.0 / rate, params)
+    else:
+        out = VQF(1.0 / rate, **params).updateBatch(gyr, acc, mag)
+
+    if mag is None:
+        return out["quat6D"]
+
+    # VQF uses an East-North-Up reference frame; skinematics uses x along the
+    # horizontal magnetic field ("North"), and z up: rotate by -90 deg about z
+    q_ENU_to_NWU = np.r_[np.cos(-np.pi / 4), 0, 0, np.sin(-np.pi / 4)]
+    return quat.q_mult(q_ENU_to_NWU, out["quat9D"])
 
 
 class Madgwick:

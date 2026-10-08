@@ -1,6 +1,6 @@
 [project]
 name = "scikit-kinematics"
-version = "0.12.2"
+version = "0.13.0"
 description = "Python utilities for movements in 3d space"
 authors = [{ name = "Thomas Haslwanter", email = "office@thaslwanter.at" }]
 requires-python = ">=3.12"
@@ -34,6 +34,9 @@ dependencies = [
 view = [
     "pygame-ce>=2.5.7",
     "PyOpenGL>=3.1",
+]
+vqf = [
+    "vqf>=2.1",
 ]
 
 [project.urls]
