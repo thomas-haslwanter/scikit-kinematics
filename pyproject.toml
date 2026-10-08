@@ -1,6 +1,6 @@
 [project]
 name = "scikit-kinematics"
-version = "0.12.1"
+version = "0.12.2"
 description = "Python utilities for movements in 3d space"
 authors = [{ name = "Thomas Haslwanter", email = "office@thaslwanter.at" }]
 requires-python = ">=3.12"

@@ -24,7 +24,7 @@ Homepage
 
 <http://work.thaslwanter.at/skinematics/html/>
 
-Author: Thomas Haslwanter Date: 08-Oct-2026 Ver: 0.12.1 Licence: BSD
+Author: Thomas Haslwanter Date: 08-Oct-2026 Ver: 0.12.2 Licence: BSD
 3-Clause License (<https://opensource.org/licenses/BSD-3-Clause>)
 Copyright (c) 2026, Thomas Haslwanter All rights reserved.
 

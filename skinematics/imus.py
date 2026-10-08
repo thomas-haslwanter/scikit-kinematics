@@ -516,21 +516,12 @@ def kalman(
 
     # check input
     assert len(tau) == 3
-    tau = np.array(tau)
+    tau = np.array(tau, dtype=float)
+    assert len(D) == 3
+    D = np.array(D, dtype=float)  # [rad^2/sec^2]
 
-    # Initializations
-    x_k = np.zeros(7)  # state vector
-    z_k = np.zeros(7)  # measurement vector
-    z_k_pre = np.zeros(7)
-    P_k = np.eye(7)  # error covariance matrix P_k
-
-    Phi_k = np.eye(7)  # discrete state transition matrix Phi_k
-    for ii in range(3):
-        Phi_k[ii, ii] = np.exp(-tstep / tau[ii])
-
-    H_k = np.eye(7)  # Identity matrix
-
-    D = np.r_[0.4, 0.4, 0.4]  # [rad^2/sec^2]; from Yun, 2006
+    # Decay of the angular velocity during one time step (first-order Gauss-Markov process)
+    decay = np.exp(-tstep / tau)
 
     if Q_k is None:
         # Set the default input, from Yun et al.
@@ -558,59 +549,80 @@ def kalman(
         # Check the shape of the input
         assert R_k.shape == (7, 7)
 
-    # Calculation of orientation for every time step
-    qOut = np.zeros((numData, 4))
-
-    for ii in range(numData):
-        accelVec = acc[ii, :]
-        magVec = mag[ii, :]
-        angvelVec = omega[ii, :]
-        z_k_pre = z_k.copy()  # watch out: by default, Python passes the reference!!
-
-        # Evaluate quaternion based on acceleration and magnetic field data
+    def quat_from_acc_mag(accelVec, magVec):
+        """Orientation quaternion from the directions of gravity and magnetic field"""
         accelVec_n = vector.normalize(accelVec)
         magVec_hor = magVec - accelVec_n * (accelVec_n @ magVec)
         magVec_n = vector.normalize(magVec_hor)
         basisVectors = np.column_stack(
             [magVec_n, np.cross(accelVec_n, magVec_n), accelVec_n]
         )
-        quatRef = quat.q_inv(rotmat.convert(basisVectors, to="quat")).ravel()
+        return quat.q_inv(rotmat.convert(basisVectors, to="quat")).ravel()
+
+    # Initializations: state vector x_k = [angular velocity (3), quaternion (4)]
+    x_k = np.r_[omega[0, :], quat_from_acc_mag(acc[0, :], mag[0, :])]
+    P_k = np.eye(7)  # error covariance matrix P_k
+    H_k = np.eye(7)  # measurement matrix: all states are measured directly
+
+    # Calculation of orientation for every time step
+    qOut = np.zeros((numData, 4))
+
+    for ii in range(numData):
+        if ii > 0:
+            # Prediction ----------------------------------------
+            w, q = x_k[:3], x_k[3:]
+
+            # Discrete state transition matrix Phi_k, linearized about the current state
+            # Note: it has to be re-built in every step, and must not accumulate!
+            Phi_k = np.eye(7)
+            Phi_k[:3, :3] = np.diag(decay)
+            Phi_k[3:, 3:] += (tstep / 2) * np.array(
+                [
+                    [0, -w[0], -w[1], -w[2]],
+                    [w[0], 0, w[2], -w[1]],
+                    [w[1], -w[2], 0, w[0]],
+                    [w[2], w[1], -w[0], 0],
+                ]
+            )
+            Phi_k[3:, :3] = (tstep / 2) * np.array(
+                [
+                    [-q[1], -q[2], -q[3]],
+                    [q[0], -q[3], q[2]],
+                    [q[3], q[0], -q[1]],
+                    [-q[2], q[1], q[0]],
+                ]
+            )
+
+            # Projection of state
+            # 1) quaternions
+            x_k[3:] = vector.normalize(
+                q + tstep * 0.5 * quat.q_mult(q, np.r_[0, w]).ravel()
+            )
+            # 2) angular velocities
+            x_k[:3] = decay * w
+
+            # Projection of error covariance matrix
+            P_k = Phi_k @ P_k @ Phi_k.T + Q_k
+
+        # Correction ----------------------------------------
+        # Measurement vector z_k
+        z_k = np.r_[omega[ii, :], quat_from_acc_mag(acc[ii, :], mag[ii, :])]
+
+        # q and -q describe the same orientation: take the one closer to the prediction
+        if z_k[3:] @ x_k[3:] < 0:
+            z_k[3:] *= -1
 
         # Calculate Kalman Gain
-        # K_k = P_k * H_k.T * inv(H_k*P_k*H_k.T + R_k)
-        K_k = P_k @ np.linalg.inv(P_k + R_k)
+        K_k = P_k @ H_k.T @ np.linalg.inv(H_k @ P_k @ H_k.T + R_k)
 
-        # Update measurement vector z_k
-        z_k[:3] = angvelVec
-        z_k[3:] = quatRef
-
-        # Update state vector x_k
-        x_k += np.array(K_k @ (z_k - z_k_pre)).ravel()
-
-        # Evaluate discrete state transition matrix Phi_k
-        Delta = np.zeros((7, 7))
-        Delta[3, :] = np.r_[-x_k[4], -x_k[5], -x_k[6], 0, -x_k[0], -x_k[1], -x_k[2]]
-        Delta[4, :] = np.r_[x_k[3], -x_k[6], x_k[5], x_k[0], 0, x_k[2], -x_k[1]]
-        Delta[5, :] = np.r_[x_k[6], x_k[3], -x_k[4], x_k[1], -x_k[2], 0, x_k[0]]
-        Delta[6, :] = np.r_[-x_k[5], x_k[4], x_k[3], x_k[2], x_k[1], -x_k[0], 0]
-
-        Delta *= tstep / 2
-        Phi_k += Delta
+        # Update state vector x_k with the innovation (measurement - prediction)
+        x_k += K_k @ (z_k - H_k @ x_k)
+        x_k[3:] = vector.normalize(x_k[3:])
 
         # Update error covariance matrix
-        P_k = (np.eye(7) - K_k) @ P_k
-
-        # Projection of state
-        # 1) quaternions
-        x_k[3:] += tstep * 0.5 * quat.q_mult(x_k[3:], np.r_[0, x_k[:3]]).ravel()
-        x_k[3:] = vector.normalize(x_k[3:])
-        # 2) angular velocities
-        x_k[:3] -= tstep * tau * x_k[:3]
+        P_k = (np.eye(7) - K_k @ H_k) @ P_k
 
         qOut[ii, :] = x_k[3:]
-
-        # Projection of error covariance matrix
-        P_k = Phi_k @ P_k @ Phi_k.T + Q_k
 
     # Make the first position the reference position
     qOut = quat.q_mult(qOut, quat.q_inv(qOut[0]))

@@ -72,35 +72,33 @@ class TestSequenceFunctions(unittest.TestCase):
         error = norm(result - correct)
         self.assertAlmostEqual(error, 0)
 
-    # def test_kalman(self):
+    def test_kalman(self):
 
-    #     # Analyze the simulated data with "kalman"
-    #     imu = self.imu_signals
-    #     q_kalman = imus.kalman(imu["rate"], imu["gia"], imu["omega"], imu["magnetic"])
+        # Analyze the simulated data with "kalman"
+        imu = self.imu_signals
+        q_kalman = imus.kalman(imu["rate"], imu["gia"], imu["omega"], imu["magnetic"])
 
-    #     # and then check, if the quat_vector = [0, sin(45), 0]
-    #     result = quat.q_vector(q_kalman[-1])  # [0, 0.46, 0]
-    #     correct = array([0.0, np.sin(np.deg2rad(45)), 0.0])  # [0, 0.71, 0]
-    #     error = norm(result - correct)
-    #     self.assertAlmostEqual(
-    #         error, 0, places=2
-    #     )  # It is not clear why the Kalman filter is not more accurate
+        # and then check, if the quat_vector = [0, sin(45), 0]
+        result = quat.q_vector(q_kalman[-1])
+        correct = array([0.0, np.sin(np.deg2rad(45)), 0.0])  # [0, 0.71, 0]
+        error = norm(result - correct)
+        self.assertAlmostEqual(error, 0, places=2)
 
-    #     # Get data
-    #     inFile = os.path.join(myPath, "data", "data_xsens.txt")
-    #     from skinematics.sensors.xsens import XSens
+        # Get data
+        inFile = os.path.join(myPath, "data", "data_xsens.txt")
+        from skinematics.sensors.xsens import XSens
 
-    #     initialPosition = array([0, 0, 0])
-    #     R_initialOrientation = rotmat.R(0, 90)
+        initialPosition = array([0, 0, 0])
+        R_initialOrientation = rotmat.R(0, 90)
 
-    #     sensor = XSens(
-    #         in_file=inFile,
-    #         R_init=R_initialOrientation,
-    #         pos_init=initialPosition,
-    #         q_type="kalman",
-    #     )
-    #     print(sensor.source)
-    #     q = sensor.quat
+        sensor = XSens(
+            in_file=inFile,
+            R_init=R_initialOrientation,
+            pos_init=initialPosition,
+            q_type="kalman",
+        )
+        self.assertEqual(sensor.quat.shape, (len(sensor.acc), 4))
+        self.assertTrue(np.allclose(norm(sensor.quat, axis=1), 1))
 
     def test_madgwick(self):
 
