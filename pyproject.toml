@@ -1,37 +1,34 @@
 [project]
 name = "scikit-kinematics"
-version = "0.12.0"
-description = "Python utilites for movements in 3d space"
-authors = [{ name = "Thomas Haslwanter", email = "thomas.haslwanter@fh-ooe.at" }]
+version = "0.12.1"
+description = "Python utilities for movements in 3d space"
+authors = [{ name = "Thomas Haslwanter", email = "office@thaslwanter.at" }]
 requires-python = ">=3.12"
 readme = "README.md"
 license = "BSD-3-Clause"
 keywords = [
-    "quaterions",
+    "quaternions",
     "rotations",
 ]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Intended Audience :: Developers",
     "Intended Audience :: Science/Research",
     "License :: OSI Approved :: BSD License",
     "Topic :: Scientific/Engineering",
 ]
 dependencies = [
-    "docutils>= 0.3",
     "matplotlib> 3.9.1",
     "numpy>= 1.13.0",
     "pandas>= 1.0",
     "sympy>= 1.0",
     "scipy>= 1.5",
     "deprecated>=1.2.8",
-    "black>=23.12.1",
-    "pandas-stubs~=3.0.3",
     "pygame-ce>=2.5.7",
-    "scipy-stubs~=1.18.0",
-    "pytest>=7.0",
-    "tkinter",
 ]
 
 [project.urls]
@@ -43,6 +40,9 @@ dev = [
     "pytest>=7.0",
     "black>=23.3.0,<24",
     "sphinx>=7.3.7,<8",
+    "docutils>=0.3",
+    "pandas-stubs~=3.0.3",
+    "scipy-stubs~=1.18.0",
 ]
 
 [tool.hatch.build.targets.sdist]
@@ -64,7 +64,7 @@ build-backend = "hatchling.build"
 
 [[tool.uv.index]]
 name = "testpypi"
-url = "https://test.pypi.org/skinematics/"
+url = "https://test.pypi.org/simple/"
 publish-url = "https://test.pypi.org/legacy/"
 explicit = true
 

@@ -1,0 +1,5 @@
+If the build is > 70 MB (problem for test.pypi.org)
+
+  [tool.setuptools.packages.find]
+  exclude = ["tests*", "data*", "docs*"]
+

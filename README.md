@@ -14,15 +14,15 @@ Compatible with Python &gt;= 3.12
 Dependencies
 ------------
 
-numpy, scipy, matplotlib, pandas, sympy, easygui
+numpy, scipy, matplotlib, pandas, sympy
 
 Homepage
 --------
 
 <http://work.thaslwanter.at/skinematics/html/>
 
-Author: Thomas Haslwanter Date: 21-Jul-2026 Ver: 0.12.0 Licence: BSD
-2-Clause License (<http://opensource.org/licenses/BSD-2-Clause>)
+Author: Thomas Haslwanter Date: 08-Oct-2026 Ver: 0.12.1 Licence: BSD
+3-Clause License (<https://opensource.org/licenses/BSD-3-Clause>)
 Copyright (c) 2026, Thomas Haslwanter All rights reserved.
 
 Installation

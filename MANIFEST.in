@@ -1,5 +1,0 @@
-include *.txt
-include Errata.pdf
-recursive-include tests/data *.txt *.csv *.BIN
-recursive-include tests *.py
-recursive-include docs *.*

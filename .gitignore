@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+
+# Build artifacts
+dist/
+build/
+*.egg-info/
+docs/_build/
+
+# IDEs / editors
+.idea/
+*.wpr
+*.wpu
+tags
+
+# Local files not part of the package
+demo_patch.mp4
+images/
+import_data/
+others/
