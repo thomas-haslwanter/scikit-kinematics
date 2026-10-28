@@ -134,7 +134,7 @@ Indices and tables
 
 .. note::
     | *Author:*     Thomas Haslwanter
-    | *Version:*    0.12.1
+    | *Version:*    0.12.2
     | *Date:*       oct-2026
     | *email:*      thomas.haslwanter@fh-ooe.at
     | *Copyright (c):*      2026, Thomas Haslwanter. All rights reserved.
