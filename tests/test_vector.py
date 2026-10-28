@@ -90,8 +90,7 @@ class TestSequenceFunctions(unittest.TestCase):
         P2 = np.array([[1, 0, 0], [4,1,0]])
         P3 = np.array([[1, 1, 0], [9,-1,1]])
         result = vector.GramSchmidt(P1,P2,P3)
-        correct = np.array([[ 1.        ,  0.        ,  0.        ,  0.        ,  1.        ,
-         0.        ,  0.        ,  0.        ,  1.        ],
+        correct = np.array([[ 1.,  0.,  0.,  0.,  1., 0.,  0.,  0.,  1.],
        [ 0.6882472 , -0.22941573, -0.6882472 ,  0.62872867, -0.28470732,
          0.72363112, -0.36196138, -0.93075784, -0.05170877]])
 
@@ -102,9 +101,29 @@ class TestSequenceFunctions(unittest.TestCase):
         P2 = np.array([2, 0, 0])
         P3 = np.array([1, 1, 0])
         result = vector.GramSchmidt(P1,P2,P3)
-        correct = np.array([ 1.        ,  0.        ,  0.        ,  0.        ,  1.        ,
-         0.        ,  0.        ,  0.        ,  1.        ])
+        correct = np.array([ 1.,  0.,  0.,  0.,  1., 0.,  0.,  0.,  1.])
 
+        self.assertTrue(np.all(np.abs(result-correct)<self.delta))
+
+    def test_GramSchmidt_rotmat(self):
+        P1 = np.array([0, 0, 0])
+        P2 = np.array([0.5, 0.5, 0])
+        P3 = np.array([0, 0.7, 0])
+        result = vector.GramSchmidt(P1,P2,P3)
+        sq2h = np.sqrt(2) / 2
+        correct = np.array([sq2h, sq2h, 0, -sq2h, sq2h, 0, 0, 0, 1])
+
+        self.assertTrue(np.all(np.abs(result-correct)<self.delta))
+
+        result = vector.GramSchmidt(P1,P2,P3, rotmat=False)
+        self.assertTrue(np.all(np.abs(result-correct)<self.delta))
+
+        result = vector.GramSchmidt(P1,P2,P3, rotmat=False)
+        correct = np.array([sq2h, sq2h, 0, -sq2h, sq2h, 0, 0, 0, 1])
+        self.assertTrue(np.all(np.abs(result-correct)<self.delta))
+
+        result = vector.GramSchmidt(P1,P2,P3, rotmat=True)
+        correct = np.array([sq2h, -sq2h, 0, sq2h, sq2h, 0, 0, 0, 1])
         self.assertTrue(np.all(np.abs(result-correct)<self.delta))
 
     def test_planeOrientation(self):

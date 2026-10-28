@@ -68,8 +68,9 @@ v0.9.3,  12-Jul-2024 -- Upgraded to scipy>=1.12 (cumtrapz->cumulative_trapezoid,
 v0.10.0, 29-Nov-2024 -- added XIO3, changed all the tests to more modern path-format
 v0.10.1, 03-Dec-2024 -- XIO docu updated
 v0.10.2, 18-Aug-2025 -- 2D rotation matrix added
-v0.10.3, 19-Aug-2025 -- previous built crashed
-v0.10.4, 21-Aug-2025 -- fixed Matplotlib bug in Ver 3.9.0
+v0.10.3, 19-Aug-2025 -- Previous built crashed
+v0.10.4, 21-Aug-2025 -- Fixed Matplotlib bug in Ver 3.9.0
 v0.11.0, 16-Nov-2025 -- Changed project to uv. Fixed mistakes in vector.project/Gram-Schmidt
-v0.12.0, 21-Jul-2026 -- replace pygame with pygame-ce, update to Python 3.14
-v0.12.1, 19-Oct-2026 -- bumped the required package versions
+v0.12.0, 21-Jul-2026 -- Replace pygame with pygame-ce, update to Python 3.14
+v0.12.1, 19-Oct-2026 -- Bumped the required package versions
+v0.12.2, 28-Oct-2026 -- Mistake in GramSchmidt fixed

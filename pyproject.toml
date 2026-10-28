@@ -1,6 +1,6 @@
 [project]
 name = "scikit-kinematics"
-version = "0.12.1"
+version = "0.12.2"
 description = "Python utilites for movements in 3d space"
 authors = [{ name = "Thomas Haslwanter", email = "thomas.haslwanter@fh-ooe.at" }]
 requires-python = ">=3.13"
@@ -40,7 +40,7 @@ Repository = "https://github.com/thomas-haslwanter/scikit-kinematics"
 [dependency-groups]
 dev = [
     "pytest>=8.0,<10.0",
-    "black>=23.3.0,<24",
+    "black>=26.10.1",
     "sphinx>=8.0",
 ]
 

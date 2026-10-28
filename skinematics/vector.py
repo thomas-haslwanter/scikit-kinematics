@@ -277,15 +277,19 @@ def GramSchmidt(p0, p1, p2, rotmat=False):
         coordinates of Point 2
     p2 : array (3,) or (M,3)
         coordinates of Point 3
-    rotmat : if 'True', the output corresponds to a rotation matrix;
+    rotmat : if 'True', the output corresponds to a flattened rotation matrix;
              if 'False' (default), the output corresponds to the inverse of
-             the rotation matrix (i.e. rows = coordinate unit vectors)
+             a flattened rotation matrix (i.e. rows = coordinate unit vectors)
 
     Returns
     -------
     Rmat : array (9,) or (M,9)
         flattened rotation matrix, or its inverse (see option 'rotmat')
 
+    Notes
+    -----
+    * In order to get a matrix, you can use for a single matrix `Rmat.reshape(3,3)`.
+    * `GramSchmidt` is written such that it also works for moving observers.
 
     .. image:: ../docs/Images/GramSchmidt.jpg
         :scale: 25%
@@ -316,17 +320,27 @@ def GramSchmidt(p0, p1, p2, rotmat=False):
     p1 = np.array(p1)
     p2 = np.array(p2)
 
-    v1 = np.atleast_2d(p1 - p0)
-    v2 = np.atleast_2d(p2 - p0)
+    v1 = p1 - p0
+    v2 = p2 - p0
+    # v1 = np.atleast_2d(v1)
+    # v2 = np.atleast_2d(v2)
 
     ex = normalize(v1)
-    ey = normalize(v2 - project_onto_line(v2, ex))
+    ey = normalize(v2 - project_onto_line(v2, ex)).squeeze()
     ez = np.cross(ex, ey)
 
+    # The `squeeze()` ensures that for a single reference frame, a
+    #  vector gets returned that can be turned into a matrix with
+    # `np.reshape`.
+    GS_vector =  np.hstack((ex, ey, ez)).squeeze()
+    index_transposed = np.arange(9).reshape(3, 3, order='F').flatten()
     if rotmat:
-        return np.hstack((ex, ey, ez)).T
+        if len(GS_vector.shape) == 1:
+            return GS_vector[index_transposed]
+        else:
+            return GS_vector[:, index_transposed]
     else:
-        return np.hstack((ex, ey, ez))
+        return GS_vector
 
 
 def plane_orientation(p0, p1, p2):
@@ -569,10 +583,13 @@ def target2orient(target, orient_type="quat"):
 
 
 if __name__ == "__main__":
-    v1 = np.r_[1, 0, 0]
-    v2 = np.r_[1, 1, 0]
-    v3 = np.r_[1, 1, 1]
-    data = np.vstack((v1, v2, v3))
+    zero = np.r_[0, 0, 0]
+    a = np.r_[0.5, 0.5,0 ]
+    b = np.r_[0, 0.5, 0]
 
-    print(project_onto_line(v1, v2))
-    print(project_onto_line(data, v1))
+    vector = GramSchmidt(zero, a, b, rotmat=False)
+    print(vector)
+    print(vector.reshape(3,3))
+    vector = GramSchmidt(zero, a, b, rotmat=True)
+    print(vector)
+    print(vector.reshape(3,3))
