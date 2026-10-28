@@ -26,11 +26,9 @@ dependencies = [
     "sympy>= 1.0",
     "scipy>= 1.5",
     "deprecated>=1.2.8",
-    "black>=23.12.1",
     "pandas-stubs~=3.0.3",
     "pygame-ce>=2.5.7",
     "scipy-stubs~=1.18.0",
-    "pytest>=8.0",
 ]
 
 [project.urls]
